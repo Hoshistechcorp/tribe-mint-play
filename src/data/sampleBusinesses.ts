@@ -1,0 +1,138 @@
+export interface Business {
+  id: string;
+  name: string;
+  type: "restaurant" | "hotel" | "lounge";
+  city: string;
+  image: string;
+  description: string;
+  commission: number;
+  avgEPC: number;
+  conversionRate: number;
+  totalAffiliates: number;
+  tags: string[];
+  rating: number;
+  featured: boolean;
+}
+
+export const sampleBusinesses: Business[] = [
+  {
+    id: "1",
+    name: "The Mint Garden",
+    type: "restaurant",
+    city: "Lagos",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
+    description: "Farm-to-table dining with rooftop vibes",
+    commission: 12,
+    avgEPC: 0.85,
+    conversionRate: 4.2,
+    totalAffiliates: 48,
+    tags: ["vegan", "rooftop", "date-night"],
+    rating: 4.8,
+    featured: true,
+  },
+  {
+    id: "2",
+    name: "Azure Hotel & Spa",
+    type: "hotel",
+    city: "London",
+    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop",
+    description: "Luxury boutique hotel in the heart of Soho",
+    commission: 18,
+    avgEPC: 2.40,
+    conversionRate: 6.1,
+    totalAffiliates: 120,
+    tags: ["luxury", "spa", "central"],
+    rating: 4.9,
+    featured: true,
+  },
+  {
+    id: "3",
+    name: "Neon Lounge",
+    type: "lounge",
+    city: "Lagos",
+    image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=300&fit=crop",
+    description: "Cocktails, DJs, and electric vibes",
+    commission: 8,
+    avgEPC: 0.55,
+    conversionRate: 3.0,
+    totalAffiliates: 32,
+    tags: ["nightlife", "cocktails", "live-music"],
+    rating: 4.5,
+    featured: false,
+  },
+  {
+    id: "4",
+    name: "Bamboo Kitchen",
+    type: "restaurant",
+    city: "Accra",
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop",
+    description: "Pan-African fusion with a modern twist",
+    commission: 10,
+    avgEPC: 0.72,
+    conversionRate: 3.8,
+    totalAffiliates: 65,
+    tags: ["african", "fusion", "family-friendly"],
+    rating: 4.6,
+    featured: true,
+  },
+  {
+    id: "5",
+    name: "Skyline Suites",
+    type: "hotel",
+    city: "Dubai",
+    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300&fit=crop",
+    description: "5-star views from every room",
+    commission: 22,
+    avgEPC: 3.10,
+    conversionRate: 7.5,
+    totalAffiliates: 200,
+    tags: ["luxury", "views", "pool"],
+    rating: 4.9,
+    featured: true,
+  },
+  {
+    id: "6",
+    name: "Velvet Room",
+    type: "lounge",
+    city: "London",
+    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop",
+    description: "Speakeasy vibes with craft cocktails",
+    commission: 9,
+    avgEPC: 0.60,
+    conversionRate: 2.8,
+    totalAffiliates: 28,
+    tags: ["speakeasy", "cocktails", "intimate"],
+    rating: 4.4,
+    featured: false,
+  },
+  {
+    id: "7",
+    name: "Coral Bay Resort",
+    type: "hotel",
+    city: "Zanzibar",
+    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=300&fit=crop",
+    description: "Beachfront paradise with all-inclusive packages",
+    commission: 20,
+    avgEPC: 2.80,
+    conversionRate: 5.9,
+    totalAffiliates: 85,
+    tags: ["beach", "all-inclusive", "romantic"],
+    rating: 4.7,
+    featured: true,
+  },
+  {
+    id: "8",
+    name: "Spice Route",
+    type: "restaurant",
+    city: "Nairobi",
+    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&h=300&fit=crop",
+    description: "Bold flavors from across the continent",
+    commission: 11,
+    avgEPC: 0.90,
+    conversionRate: 4.5,
+    totalAffiliates: 55,
+    tags: ["spicy", "street-food", "casual"],
+    rating: 4.3,
+    featured: false,
+  },
+];
