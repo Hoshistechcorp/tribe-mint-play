@@ -67,6 +67,12 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => navigate("/profile")}
+              className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
+            >
+              Settings ⚙️
+            </button>
+            <button
               onClick={() => navigate("/payouts")}
               className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
             >
