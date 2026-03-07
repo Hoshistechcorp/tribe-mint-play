@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import PageTransition from "@/components/PageTransition";
 import {
   ArrowLeft,
   DollarSign,
@@ -54,7 +55,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition><div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container flex items-center gap-4 h-16">
@@ -65,6 +66,12 @@ const Dashboard = () => {
             <h1 className="font-heading font-bold text-lg">Creator Dashboard</h1>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/profile")}
+              className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
+            >
+              Settings ⚙️
+            </button>
             <button
               onClick={() => navigate("/payouts")}
               className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
@@ -206,7 +213,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 

@@ -5,18 +5,21 @@ import FeaturesSection from "@/components/FeaturesSection";
 import GamificationSection from "@/components/GamificationSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <HeroSection />
-      <HowItWorks />
-      <FeaturesSection />
-      <GamificationSection />
-      <CTASection />
-      <Footer />
-    </div>
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <HeroSection />
+        <HowItWorks />
+        <FeaturesSection />
+        <GamificationSection />
+        <CTASection />
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 

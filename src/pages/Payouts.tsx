@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import PageTransition from "@/components/PageTransition";
 
 const balanceData = {
   available: 845.0,
@@ -67,7 +68,7 @@ const Payouts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition><div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20 pb-12">
         <div className="container">
@@ -252,7 +253,7 @@ const Payouts = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 
