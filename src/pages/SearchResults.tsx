@@ -6,6 +6,7 @@ import { sampleBusinesses, type Business } from "@/data/sampleBusinesses";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
 import Navbar from "@/components/Navbar";
+import PageTransition from "@/components/PageTransition";
 
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
 
@@ -51,7 +52,7 @@ const SearchResults = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition><div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20 pb-12">
         <div className="container">
@@ -222,7 +223,7 @@ const SearchResults = () => {
           )}
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 

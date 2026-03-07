@@ -8,6 +8,7 @@ import { sampleBusinesses } from "@/data/sampleBusinesses";
 import { sampleCampaigns } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
@@ -49,7 +50,7 @@ const BusinessDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition><div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-16">
         {/* Hero image */}
@@ -261,7 +262,7 @@ const BusinessDetail = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 

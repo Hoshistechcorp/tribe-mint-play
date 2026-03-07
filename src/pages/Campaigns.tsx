@@ -6,6 +6,7 @@ import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
 import Navbar from "@/components/Navbar";
+import PageTransition from "@/components/PageTransition";
 
 const tabs = [
   { label: "All", value: "all", icon: Globe, emoji: "🌐" },
@@ -40,7 +41,7 @@ const Campaigns = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition><div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20 pb-12">
         <div className="container">
@@ -177,7 +178,7 @@ const Campaigns = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 };
 
