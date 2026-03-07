@@ -8,6 +8,7 @@ import SearchResults from "./pages/SearchResults";
 import Dashboard from "./pages/Dashboard";
 import Campaigns from "./pages/Campaigns";
 import BusinessDetail from "./pages/BusinessDetail";
+import Payouts from "./pages/Payouts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

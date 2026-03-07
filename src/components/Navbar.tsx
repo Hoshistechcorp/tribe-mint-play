@@ -17,10 +17,10 @@ const Navbar = () => {
         </a>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
-          <a href="#features" className="hover:text-primary transition-colors">Features</a>
-          <a href="#earn" className="hover:text-primary transition-colors">Earn</a>
-          <a href="#leaderboard" className="hover:text-primary transition-colors">Leaderboard</a>
+          <a href="/#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
+          <a href="/#features" className="hover:text-primary transition-colors">Features</a>
+          <button onClick={() => navigate("/campaigns")} className="hover:text-primary transition-colors">Campaigns</button>
+          <button onClick={() => navigate("/dashboard")} className="hover:text-primary transition-colors">Dashboard</button>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -46,10 +46,10 @@ const Navbar = () => {
             className="md:hidden border-t border-border bg-background overflow-hidden"
           >
             <div className="container py-4 flex flex-col gap-4">
-              <a href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</a>
-              <a href="#features" className="text-muted-foreground hover:text-primary transition-colors">Features</a>
-              <a href="#earn" className="text-muted-foreground hover:text-primary transition-colors">Earn</a>
-              <a href="#leaderboard" className="text-muted-foreground hover:text-primary transition-colors">Leaderboard</a>
+              <a href="/#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</a>
+              <a href="/#features" className="text-muted-foreground hover:text-primary transition-colors">Features</a>
+              <button onClick={() => { navigate("/campaigns"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Campaigns</button>
+              <button onClick={() => { navigate("/dashboard"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Dashboard</button>
               <button
                 onClick={() => navigate("/dashboard")}
                 className="px-4 py-2 text-sm font-bold bg-gradient-mint text-primary-foreground rounded-lg w-full"

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe } from "lucide-react";
 import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
+import { toast } from "@/hooks/use-toast";
+import { fireConfetti } from "@/lib/confetti";
 import Navbar from "@/components/Navbar";
 
 const tabs = [
@@ -30,7 +32,11 @@ const Campaigns = () => {
   const handleJoin = (campaign: Campaign) => {
     const code = campaign.businessName.toLowerCase().replace(/\s+/g, "-");
     navigator.clipboard.writeText(`tribemint.link/${code}/${campaign.id}`);
-    alert(`🎉 Joined! Link copied: tribemint.link/${code}/${campaign.id}`);
+    fireConfetti();
+    toast({
+      title: campaign.type === "exclusive" ? "📩 Invite Requested!" : "🎉 Campaign Joined!",
+      description: `Link copied: tribemint.link/${code}/${campaign.id}`,
+    });
   };
 
   return (

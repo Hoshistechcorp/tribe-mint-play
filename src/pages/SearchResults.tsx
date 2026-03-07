@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users } from "lucide-react";
 import { sampleBusinesses, type Business } from "@/data/sampleBusinesses";
+import { toast } from "@/hooks/use-toast";
+import { fireConfetti } from "@/lib/confetti";
 import Navbar from "@/components/Navbar";
 
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
@@ -44,7 +46,8 @@ const SearchResults = () => {
   const handleGenerateLink = (business: Business) => {
     const code = business.name.toLowerCase().replace(/\s+/g, "-");
     navigator.clipboard.writeText(`tribemint.link/${code}`);
-    alert(`🔗 Link copied! tribemint.link/${code}`);
+    fireConfetti();
+    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
   };
 
   return (
