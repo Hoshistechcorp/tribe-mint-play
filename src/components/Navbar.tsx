@@ -21,6 +21,7 @@ const Navbar = () => {
           <a href="/#features" className="hover:text-primary transition-colors">Features</a>
           <button onClick={() => navigate("/campaigns")} className="hover:text-primary transition-colors">Campaigns</button>
           <button onClick={() => navigate("/dashboard")} className="hover:text-primary transition-colors">Dashboard</button>
+          <button onClick={() => navigate("/business-dashboard")} className="hover:text-primary transition-colors">For Business</button>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -50,6 +51,7 @@ const Navbar = () => {
               <a href="/#features" className="text-muted-foreground hover:text-primary transition-colors">Features</a>
               <button onClick={() => { navigate("/campaigns"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Campaigns</button>
               <button onClick={() => { navigate("/dashboard"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Dashboard</button>
+              <button onClick={() => { navigate("/business-dashboard"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">For Business</button>
               <button
                 onClick={() => navigate("/dashboard")}
                 className="px-4 py-2 text-sm font-bold bg-gradient-mint text-primary-foreground rounded-lg w-full"

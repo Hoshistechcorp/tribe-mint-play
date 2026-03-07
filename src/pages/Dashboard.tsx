@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import PageTransition from "@/components/PageTransition";
 import {
   ArrowLeft,
   DollarSign,
