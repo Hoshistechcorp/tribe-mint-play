@@ -8,7 +8,7 @@ const Footer = () => {
               <span className="text-gradient-mint">Tribe</span>Mint 🌿
             </p>
             <p className="text-sm text-muted-foreground">
-              The Gen-Z affiliate platform for hospitality businesses.
+              The fun affiliate platform for hospitality businesses.
             </p>
           </div>
           <div>
