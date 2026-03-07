@@ -149,7 +149,8 @@ const SearchResults = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 }}
                   whileHover={{ y: -4 }}
-                  className="rounded-2xl border border-border bg-gradient-card shadow-card overflow-hidden group"
+                  className="rounded-2xl border border-border bg-gradient-card shadow-card overflow-hidden group cursor-pointer"
+                  onClick={() => navigate(`/business/${biz.id}`)}
                 >
                   <div className="relative h-44 overflow-hidden">
                     <img
@@ -198,7 +199,7 @@ const SearchResults = () => {
                     </div>
 
                     <button
-                      onClick={() => handleGenerateLink(biz)}
+                      onClick={(e) => { e.stopPropagation(); handleGenerateLink(biz); }}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
                     >
                       <Link2 className="w-4 h-4" />
