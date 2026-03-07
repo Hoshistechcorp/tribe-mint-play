@@ -64,12 +64,20 @@ const Dashboard = () => {
           <div className="flex-1">
             <h1 className="font-heading font-bold text-lg">Creator Dashboard</h1>
           </div>
-          <button
-            onClick={() => navigate("/search")}
-            className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
-          >
-            Find Businesses 🔍
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/payouts")}
+              className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
+            >
+              Payouts 💸
+            </button>
+            <button
+              onClick={() => navigate("/search")}
+              className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
+            >
+              Find Businesses 🔍
+            </button>
+          </div>
         </div>
       </div>
 

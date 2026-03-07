@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { sampleBusinesses } from "@/data/sampleBusinesses";
 import { sampleCampaigns } from "@/data/sampleCampaigns";
+import { toast } from "@/hooks/use-toast";
+import { fireConfetti } from "@/lib/confetti";
 import Navbar from "@/components/Navbar";
 
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
@@ -42,7 +44,8 @@ const BusinessDetail = () => {
   const handleGenerateLink = () => {
     const code = business.name.toLowerCase().replace(/\s+/g, "-");
     navigator.clipboard.writeText(`tribemint.link/${code}`);
-    alert(`🔗 Link copied! tribemint.link/${code}`);
+    fireConfetti();
+    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
   };
 
   return (
