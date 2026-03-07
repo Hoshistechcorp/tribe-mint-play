@@ -16,6 +16,7 @@ const CTASection = () => {
     <section className="py-24 bg-background relative overflow-hidden" ref={ref}>
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[150px]" />
+        <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] bg-secondary/8 rounded-full blur-[120px]" />
       </div>
       <div className="container relative z-10">
         <motion.div
@@ -23,21 +24,27 @@ const CTASection = () => {
           className="text-center max-w-2xl mx-auto space-y-6"
         >
           <h2 className="text-3xl sm:text-5xl font-bold font-heading leading-tight">
-            Ready to <span className="text-gradient-mint">Earn</span>? 🌿
+            Ready to <span className="text-gradient-fun">Get Started</span>? 🎉
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Start promoting businesses you love and earn real rewards.
+          <p className="text-lg text-muted-foreground font-heading">
+            Find amazing spots and start earning today!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-8 py-4 font-bold bg-gradient-mint text-primary-foreground rounded-xl shadow-mint text-base hover:opacity-90 transition-opacity"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/search")}
+              className="px-8 py-4 font-bold font-heading bg-gradient-mint text-primary-foreground rounded-2xl shadow-mint text-lg hover:opacity-90 transition-opacity"
             >
-              Start Earning 🚀
-            </button>
-            <button className="px-8 py-4 font-bold bg-gradient-coral text-secondary-foreground rounded-xl shadow-coral text-base hover:opacity-90 transition-opacity">
-              Register Business 🏨
-            </button>
+              Explore Now 🚀
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 font-bold font-heading bg-gradient-coral text-secondary-foreground rounded-2xl shadow-coral text-lg hover:opacity-90 transition-opacity"
+            >
+              List Your Business 🏨
+            </motion.button>
           </div>
         </motion.div>
       </div>

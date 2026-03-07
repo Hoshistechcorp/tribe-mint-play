@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Zap, BarChart3, QrCode, Trophy, Globe, CreditCard } from "lucide-react";
+import { Zap, BarChart3, QrCode, Trophy } from "lucide-react";
 import { useRef } from "react";
 
 const features = [
@@ -7,8 +7,6 @@ const features = [
   { icon: BarChart3, title: "Live Stats", desc: "Real-time click & earning data.", emoji: "📊" },
   { icon: QrCode, title: "QR Codes", desc: "Share in person at events.", emoji: "📲" },
   { icon: Trophy, title: "Gamified", desc: "Badges, leaderboards, prizes.", emoji: "🏆" },
-  { icon: Globe, title: "Global", desc: "Multi-currency payouts worldwide.", emoji: "🌍" },
-  { icon: CreditCard, title: "Fast Pay", desc: "Cash out within 24 hours.", emoji: "💳" },
 ];
 
 const FeaturesSection = () => {
@@ -33,7 +31,7 @@ const FeaturesSection = () => {
           </h2>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f, i) => (
             <motion.div
               key={f.title}

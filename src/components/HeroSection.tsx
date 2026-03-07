@@ -35,103 +35,134 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-hero pt-16">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-secondary/10 rounded-full blur-[100px] animate-pulse-glow" />
-      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-accent/8 rounded-full blur-[100px] animate-pulse-glow" />
+      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-accent/10 rounded-full blur-[100px] animate-pulse-glow" />
 
       <div className="container relative z-10">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] font-heading"
+            className="text-5xl sm:text-6xl lg:text-8xl font-bold leading-[1.1] font-heading"
           >
-            Share. Promote.{" "}
-            <span className="text-gradient-mint">Earn.</span>{" "}
-            <span className="text-gradient-coral">💰</span>
+            <motion.span 
+              className="text-gradient-fun inline-block"
+              animate={{ rotate: [-1, 1, -1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              Discover.
+            </motion.span>{" "}
+            <motion.span 
+              className="text-gradient-coral inline-block"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+            >
+              Share.
+            </motion.span>{" "}
+            <motion.span 
+              className="text-gradient-mint inline-block"
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+            >
+              Earn! 
+            </motion.span>{" "}
+            <motion.span
+              className="inline-block"
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 1, repeat: Infinity, delay: 1 }}
+            >
+              🎉
+            </motion.span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="text-lg text-muted-foreground max-w-md mx-auto"
+            className="text-lg text-muted-foreground max-w-md mx-auto font-medium"
           >
-            Find spots you love. Share your link. Get paid.
+            Find amazing spots. Share your link. Get paid 💰
           </motion.p>
 
           {/* Big Search Bar */}
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
-            className="bg-card/80 backdrop-blur-md border border-border/60 rounded-3xl p-4 sm:p-5 shadow-card max-w-2xl mx-auto"
+            className="bg-card/80 backdrop-blur-md border-2 border-primary/30 rounded-3xl p-5 sm:p-7 shadow-mint max-w-3xl mx-auto"
           >
             {/* Main search row */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  placeholder="Search businesses to promote..."
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-muted border-none text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+                  placeholder="What are you looking for? 🔍"
+                  className="w-full pl-14 pr-5 py-5 rounded-2xl bg-muted border-2 border-transparent text-lg font-bold font-heading text-foreground placeholder:text-muted-foreground placeholder:font-normal focus:outline-none focus:border-primary/50 transition-all"
                 />
               </div>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="City"
-                  className="w-24 sm:w-32 pl-9 pr-3 py-4 rounded-2xl bg-muted border-none text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+                  className="w-28 sm:w-36 pl-10 pr-3 py-5 rounded-2xl bg-muted border-2 border-transparent text-base font-heading text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all"
                 />
               </div>
-              <button
+              <motion.button
                 onClick={handleSearch}
-                className="px-6 py-4 bg-gradient-mint text-primary-foreground rounded-2xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint whitespace-nowrap"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-5 bg-gradient-mint text-primary-foreground rounded-2xl font-bold font-heading text-base hover:opacity-90 transition-opacity shadow-mint whitespace-nowrap"
               >
-                Search 🔍
-              </button>
+                Go! 🚀
+              </motion.button>
             </div>
 
             {/* Category filters */}
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="text-xs text-muted-foreground font-medium mr-1">Type:</span>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="text-xs text-muted-foreground font-bold font-heading mr-1">Type:</span>
               {categories.map((cat) => (
-                <button
+                <motion.button
                   key={cat.label}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setActiveCategory(activeCategory === cat.label ? null : cat.label)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold font-heading transition-all ${
                     activeCategory === cat.label
-                      ? "bg-primary/20 text-primary border border-primary/30 shadow-sm"
-                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
+                      ? "bg-primary/20 text-primary border-2 border-primary/40 shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border-2 border-transparent"
                   }`}
                 >
-                  <span>{cat.emoji}</span>
+                  <span className="text-lg">{cat.emoji}</span>
                   {cat.label}
-                </button>
+                </motion.button>
               ))}
             </div>
 
             {/* Earning metric filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground font-medium mr-1">Sort by:</span>
+              <span className="text-xs text-muted-foreground font-bold font-heading mr-1">Sort:</span>
               {earningFilters.map((f) => (
-                <button
+                <motion.button
                   key={f.value}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setActiveEarning(activeEarning === f.value ? null : f.value)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold font-heading transition-all ${
                     activeEarning === f.value
-                      ? "bg-secondary/20 text-secondary border border-secondary/30 shadow-sm"
-                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
+                      ? "bg-secondary/20 text-secondary border-2 border-secondary/40 shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border-2 border-transparent"
                   }`}
                 >
-                  <f.icon className="w-3.5 h-3.5" />
+                  <f.icon className="w-4 h-4" />
                   {f.label}
-                </button>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -143,15 +174,21 @@ const HeroSection = () => {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/dashboard")}
-              className="px-8 py-3.5 font-bold bg-gradient-mint text-primary-foreground rounded-xl shadow-mint text-base hover:opacity-90 transition-opacity"
+              className="px-8 py-4 font-bold font-heading bg-gradient-mint text-primary-foreground rounded-2xl shadow-mint text-lg hover:opacity-90 transition-opacity"
             >
               Start Earning 🚀
-            </button>
-            <button className="px-8 py-3.5 font-bold border border-border text-foreground rounded-xl hover:bg-muted transition-colors text-base">
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 font-bold font-heading border-2 border-secondary/50 text-secondary rounded-2xl hover:bg-secondary/10 transition-colors text-lg"
+            >
               I'm a Business 🏨
-            </button>
+            </motion.button>
           </motion.div>
         </div>
       </div>
@@ -161,30 +198,30 @@ const HeroSection = () => {
         initial={{ opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1, duration: 0.6 }}
-        className="hidden lg:block absolute top-1/3 right-8 bg-card border border-border rounded-xl px-4 py-2.5 shadow-card"
+        className="hidden lg:block absolute top-1/3 right-8 bg-card border-2 border-secondary/30 rounded-2xl px-5 py-3 shadow-coral"
       >
-        <p className="text-xs text-muted-foreground">Just earned</p>
-        <p className="text-lg font-bold text-primary font-heading">+$12.50 💸</p>
+        <p className="text-xs text-muted-foreground font-heading font-bold">Just earned</p>
+        <p className="text-xl font-bold text-secondary font-heading">+$12.50 💸</p>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1.2, duration: 0.6 }}
-        className="hidden lg:block absolute bottom-1/3 left-8 bg-card border border-border rounded-xl px-4 py-2.5 shadow-card"
+        className="hidden lg:block absolute bottom-1/3 left-8 bg-card border-2 border-accent/30 rounded-2xl px-5 py-3 shadow-fun"
       >
-        <p className="text-xs text-muted-foreground">Badge unlocked</p>
-        <p className="text-sm font-bold font-heading">🏆 City Explorer</p>
+        <p className="text-xs text-muted-foreground font-heading font-bold">Badge unlocked</p>
+        <p className="text-base font-bold font-heading text-accent">🏆 City Explorer</p>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.4, duration: 0.6 }}
-        className="hidden lg:block absolute top-1/2 right-24 bg-card border border-border rounded-xl px-4 py-2.5 shadow-card"
+        className="hidden lg:block absolute top-1/2 right-24 bg-card border-2 border-primary/30 rounded-2xl px-5 py-3 shadow-mint"
       >
-        <p className="text-xs text-muted-foreground">Conversion rate</p>
-        <p className="text-sm font-bold text-secondary font-heading">6.1% 📈</p>
+        <p className="text-xs text-muted-foreground font-heading font-bold">Conversion rate</p>
+        <p className="text-base font-bold text-primary font-heading">6.1% 📈</p>
       </motion.div>
     </section>
   );
