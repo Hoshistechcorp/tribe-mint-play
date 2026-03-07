@@ -1,14 +1,16 @@
+import ibloovLogo from "@/assets/ibloov-logo.jpeg";
+
 const Footer = () => {
   return (
     <footer className="border-t border-border py-12 bg-background">
       <div className="container">
         <div className="grid sm:grid-cols-3 gap-8">
           <div>
-            <p className="font-heading font-bold text-lg mb-2">
-              <span className="text-gradient-mint">Tribe</span>Mint 🌿
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Promote. Earn. Grow.
+            <div className="flex items-center gap-2 mb-2">
+              <img src={ibloovLogo} alt="iBloov" className="h-8 rounded-lg" />
+            </div>
+            <p className="text-sm text-muted-foreground font-heading">
+              Discover. Share. Earn. 🎉
             </p>
           </div>
           <div>
@@ -16,7 +18,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a></li>
               <li><a href="#features" className="hover:text-primary transition-colors">Features</a></li>
-              <li><a href="#earn" className="hover:text-primary transition-colors">Earn</a></li>
             </ul>
           </div>
           <div>
@@ -28,8 +29,8 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-          © 2026 TribeMint. All rights reserved.
+        <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground font-heading">
+          © 2026 iBloov. All rights reserved.
         </div>
       </div>
     </footer>
