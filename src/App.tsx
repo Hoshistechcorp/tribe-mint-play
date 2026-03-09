@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import SearchResults from "./pages/SearchResults";
 import Dashboard from "./pages/Dashboard";
@@ -12,6 +13,7 @@ import BusinessDetail from "./pages/BusinessDetail";
 import Payouts from "./pages/Payouts";
 import BusinessOwnerDashboard from "./pages/BusinessOwnerDashboard";
 import CreatorProfile from "./pages/CreatorProfile";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
