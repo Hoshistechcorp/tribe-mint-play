@@ -9,6 +9,57 @@
     --font-heading: 'Space Grotesk', sans-serif;
     --font-body: 'DM Sans', sans-serif;
 
+    --background: 0 0% 100%;
+    --foreground: 160 10% 10%;
+
+    --card: 0 0% 97%;
+    --card-foreground: 160 10% 10%;
+
+    --popover: 0 0% 97%;
+    --popover-foreground: 160 10% 10%;
+
+    --primary: 162 72% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 16 90% 62%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 160 10% 93%;
+    --muted-foreground: 160 10% 40%;
+
+    --accent: 280 70% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 160 10% 88%;
+    --input: 160 10% 88%;
+    --ring: 162 72% 42%;
+
+    --radius: 0.75rem;
+
+    --gradient-mint: linear-gradient(135deg, hsl(162, 72%, 42%), hsl(180, 60%, 35%));
+    --gradient-coral: linear-gradient(135deg, hsl(16, 90%, 62%), hsl(340, 80%, 55%));
+    --gradient-hero: linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(160, 20%, 96%) 50%, hsl(162, 30%, 94%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 97%), hsl(160, 12%, 95%));
+    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(162, 72%, 42%, 0.06), transparent 40%);
+
+    --shadow-mint: 0 0 40px -10px hsl(162 72% 42% / 0.2);
+    --shadow-coral: 0 0 40px -10px hsl(16 90% 62% / 0.2);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.08);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 160 10% 10%;
+    --sidebar-primary: 162 72% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 10% 93%;
+    --sidebar-accent-foreground: 160 10% 10%;
+    --sidebar-border: 160 10% 88%;
+    --sidebar-ring: 162 72% 42%;
+  }
+
+  .dark {
     --background: 160 10% 4%;
     --foreground: 160 20% 95%;
 
@@ -36,8 +87,6 @@
     --border: 160 10% 16%;
     --input: 160 10% 16%;
     --ring: 162 72% 52%;
-
-    --radius: 0.75rem;
 
     --gradient-mint: linear-gradient(135deg, hsl(162, 72%, 52%), hsl(180, 60%, 40%));
     --gradient-coral: linear-gradient(135deg, hsl(16, 90%, 62%), hsl(340, 80%, 55%));

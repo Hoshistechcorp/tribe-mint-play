@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate("/dashboard")}
             className="px-4 py-2 text-sm font-bold bg-gradient-mint text-primary-foreground rounded-lg shadow-mint hover:opacity-90 transition-opacity"
@@ -52,6 +54,10 @@ const Navbar = () => {
               <button onClick={() => { navigate("/campaigns"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Campaigns</button>
               <button onClick={() => { navigate("/dashboard"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">Dashboard</button>
               <button onClick={() => { navigate("/business-dashboard"); setIsOpen(false); }} className="text-left text-muted-foreground hover:text-primary transition-colors">For Business</button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <span className="text-sm text-muted-foreground">Toggle theme</span>
+              </div>
               <button
                 onClick={() => navigate("/dashboard")}
                 className="px-4 py-2 text-sm font-bold bg-gradient-mint text-primary-foreground rounded-lg w-full"
