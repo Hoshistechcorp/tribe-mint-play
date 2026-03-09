@@ -60,7 +60,7 @@ const Leaderboard = () => {
             </button>
             <div>
               <h1 className="text-2xl font-bold font-heading flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-500" /> Leaderboard
+                <Trophy className="w-6 h-6 text-primary" /> Leaderboard
               </h1>
               <p className="text-sm text-muted-foreground">Top creators ranked by performance</p>
             </div>
