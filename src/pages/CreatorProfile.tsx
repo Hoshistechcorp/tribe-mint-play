@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 
 const CreatorProfile = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<"profile" | "socials" | "payments">("profile");
 
   const [profile, setProfile] = useState({
