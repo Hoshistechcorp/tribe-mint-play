@@ -34,9 +34,9 @@ const formatValue = (key: MetricKey, value: number, weekly: boolean) => {
 };
 
 const getRankIcon = (rank: number) => {
-  if (rank === 1) return <Crown className="w-5 h-5 text-yellow-500" />;
-  if (rank === 2) return <Medal className="w-5 h-5 text-gray-400" />;
-  if (rank === 3) return <Medal className="w-5 h-5 text-amber-600" />;
+  if (rank === 1) return <Crown className="w-5 h-5 text-primary" />;
+  if (rank === 2) return <Medal className="w-5 h-5 text-muted-foreground" />;
+  if (rank === 3) return <Medal className="w-5 h-5 text-secondary" />;
   return <span className="text-sm font-bold text-muted-foreground w-5 text-center">{rank}</span>;
 };
 
