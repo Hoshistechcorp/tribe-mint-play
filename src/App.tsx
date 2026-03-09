@@ -31,6 +31,7 @@ const AnimatedRoutes = () => {
         <Route path="/payouts" element={<Payouts />} />
         <Route path="/business-dashboard" element={<BusinessOwnerDashboard />} />
         <Route path="/profile" element={<CreatorProfile />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
