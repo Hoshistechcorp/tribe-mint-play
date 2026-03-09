@@ -26,6 +26,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate("/dashboard")}
             className="px-4 py-2 text-sm font-bold bg-gradient-mint text-primary-foreground rounded-lg shadow-mint hover:opacity-90 transition-opacity"
