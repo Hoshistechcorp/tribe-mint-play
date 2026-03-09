@@ -14,9 +14,12 @@ import {
   Plus,
   Trash2,
   CheckCircle,
+  Palette,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 
 const CreatorProfile = () => {
   const navigate = useNavigate();
