@@ -149,6 +149,24 @@ const CreatorProfile = () => {
                   <Save className="w-4 h-4" /> Save Changes
                 </button>
               </div>
+
+              {/* Appearance */}
+              <div className="rounded-2xl bg-gradient-card border border-border shadow-card p-6 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Palette className="w-5 h-5 text-primary" />
+                  <h3 className="font-bold font-heading">Appearance</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">Dark Mode</p>
+                    <p className="text-xs text-muted-foreground">Toggle between light and dark themes</p>
+                  </div>
+                  <Switch
+                    checked={theme === "dark"}
+                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
 
