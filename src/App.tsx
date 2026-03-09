@@ -14,6 +14,7 @@ import Payouts from "./pages/Payouts";
 import BusinessOwnerDashboard from "./pages/BusinessOwnerDashboard";
 import CreatorProfile from "./pages/CreatorProfile";
 import Leaderboard from "./pages/Leaderboard";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
