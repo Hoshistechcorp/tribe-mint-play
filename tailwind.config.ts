@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["'Space Grotesk'", "sans-serif"],
+        heading: ["'Syne'", "sans-serif"],
+        display: ["'Instrument Serif'", "serif"],
         body: ["'DM Sans'", "sans-serif"],
       },
       colors: {
@@ -23,6 +24,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        lime: {
+          DEFAULT: "hsl(var(--lime))",
+          foreground: "hsl(var(--lime-foreground))",
+        },
+        military: {
+          DEFAULT: "hsl(var(--military))",
+          dark: "hsl(var(--military-dark))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
