@@ -217,6 +217,13 @@
     @apply inline-block;
     transform: rotate(3deg);
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes marquee {
