@@ -1,51 +1,16 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Search, Link2, DollarSign } from "lucide-react";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 
 const steps = [
-  {
-    icon: Search,
-    emoji: "🔍",
-    title: "Find",
-    description: "Search and filter businesses by earning potential.",
-    color: "primary" as const,
-  },
-  {
-    icon: Link2,
-    emoji: "🔗",
-    title: "Link",
-    description: "Generate your trackable affiliate link instantly.",
-    color: "secondary" as const,
-  },
-  {
-    icon: DollarSign,
-    emoji: "💰",
-    title: "Earn",
-    description: "Share anywhere. Earn per click, sign-up, and sale.",
-    color: "accent" as const,
-  },
+  { num: "01", emoji: "📝", title: "Sign Up Free", desc: "Create your profile in 30 seconds. No fees, no commitments." },
+  { num: "02", emoji: "🔍", title: "Browse Campaigns", desc: "Find restaurants, hotels, and experiences that match your vibe." },
+  { num: "03", emoji: "🔗", title: "Get Your Link", desc: "One unique link, tracked from click to cash. Instant generation." },
+  { num: "04", emoji: "📱", title: "Share Everywhere", desc: "Stories, reels, DMs, tweets — anywhere your audience hangs." },
+  { num: "05", emoji: "💰", title: "Earn & Cash Out", desc: "Commission hits your wallet. Withdraw anytime, 24hr processing." },
 ];
 
-const colorMap = {
-  primary: { bg: "bg-primary/10", text: "text-primary", border: "border-primary/20" },
-  secondary: { bg: "bg-secondary/10", text: "text-secondary", border: "border-secondary/20" },
-  accent: { bg: "bg-accent/10", text: "text-accent", border: "border-accent/20" },
-};
-
 const HowItWorks = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], [60, -60]);
-
   return (
-    <section id="how-it-works" className="py-24 bg-background relative overflow-hidden" ref={ref}>
-      <motion.div
-        style={{ y }}
-        className="absolute inset-0 bg-gradient-hero opacity-50"
-      />
+    <section id="how-it-works" className="py-24 bg-background relative overflow-hidden">
       <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -53,41 +18,46 @@ const HowItWorks = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading">
-            How It <span className="text-gradient-mint">Works</span>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-military/10 border border-military/20 text-xs font-bold uppercase tracking-wider text-foreground mb-4">
+            🌿 How It Works
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading">
+            Five steps to your first{" "}
+            <span className="font-display italic text-lime">bag.</span>
           </h2>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, i) => {
-            const colors = colorMap[step.color];
-            return (
-              <motion.div
-                key={step.title}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2, type: "spring", stiffness: 80 }}
-                whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                className={`relative p-8 rounded-2xl bg-gradient-card border ${colors.border} shadow-card group hover:border-primary/40 transition-colors cursor-default`}
-              >
-                <div className="absolute -top-4 -left-2 text-5xl font-heading font-bold text-muted-foreground/10">
-                  0{i + 1}
-                </div>
-                <div className={`w-14 h-14 rounded-xl ${colors.bg} flex items-center justify-center mb-5`}>
-                  <step.icon className={`w-6 h-6 ${colors.text}`} />
-                </div>
-                <h3 className="text-2xl font-bold font-heading mb-2">
-                  {step.title} {step.emoji}
-                </h3>
-                <p className="text-muted-foreground text-sm">{step.description}</p>
-              </motion.div>
-            );
-          })}
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          {steps.slice(0, 3).map((step, i) => (
+            <StepCard key={step.num} step={step} i={i} />
+          ))}
+        </div>
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {steps.slice(3).map((step, i) => (
+            <StepCard key={step.num} step={step} i={i + 3} />
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
+const StepCard = ({ step, i }: { step: typeof steps[0]; i: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: i * 0.1, type: "spring", stiffness: 80 }}
+    whileHover={{ y: -8, transition: { duration: 0.2 } }}
+    className="relative p-8 rounded-2xl bg-gradient-card border border-border shadow-card group hover:border-lime/40 transition-colors cursor-default overflow-hidden"
+  >
+    <span className="absolute -top-2 -right-2 text-7xl font-heading font-extrabold text-muted-foreground/[0.06] select-none">
+      {step.num}
+    </span>
+    <span className="text-4xl mb-4 block">{step.emoji}</span>
+    <h3 className="text-xl font-extrabold font-heading mb-2">{step.title}</h3>
+    <p className="text-sm text-muted-foreground">{step.desc}</p>
+  </motion.div>
+);
 
 export default HowItWorks;
