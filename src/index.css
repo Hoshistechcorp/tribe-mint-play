@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,106 +6,123 @@
 
 @layer base {
   :root {
-    --font-heading: 'Space Grotesk', sans-serif;
+    --font-heading: 'Syne', sans-serif;
+    --font-display: 'Instrument Serif', serif;
     --font-body: 'DM Sans', sans-serif;
 
-    --background: 0 0% 100%;
-    --foreground: 160 10% 10%;
+    --background: 60 10% 98%;
+    --foreground: 150 10% 10%;
 
-    --card: 0 0% 97%;
-    --card-foreground: 160 10% 10%;
+    --card: 60 8% 95%;
+    --card-foreground: 150 10% 10%;
 
-    --popover: 0 0% 97%;
-    --popover-foreground: 160 10% 10%;
+    --popover: 60 8% 95%;
+    --popover-foreground: 150 10% 10%;
 
-    --primary: 162 72% 42%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 150 30% 22%;
+    --primary-foreground: 68 100% 49%;
 
     --secondary: 16 90% 62%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 160 10% 93%;
-    --muted-foreground: 160 10% 40%;
+    --lime: 68 100% 49%;
+    --lime-foreground: 150 30% 10%;
 
-    --accent: 280 70% 60%;
-    --accent-foreground: 0 0% 100%;
+    --military: 150 30% 22%;
+    --military-dark: 150 30% 12%;
+
+    --muted: 60 8% 90%;
+    --muted-foreground: 150 10% 40%;
+
+    --accent: 68 100% 49%;
+    --accent-foreground: 150 30% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 160 10% 88%;
-    --input: 160 10% 88%;
-    --ring: 162 72% 42%;
+    --border: 150 10% 85%;
+    --input: 150 10% 85%;
+    --ring: 68 100% 49%;
 
     --radius: 0.75rem;
 
-    --gradient-mint: linear-gradient(135deg, hsl(162, 72%, 42%), hsl(180, 60%, 35%));
+    --gradient-mint: linear-gradient(135deg, hsl(150, 30%, 22%), hsl(150, 35%, 28%));
     --gradient-coral: linear-gradient(135deg, hsl(16, 90%, 62%), hsl(340, 80%, 55%));
-    --gradient-hero: linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(160, 20%, 96%) 50%, hsl(162, 30%, 94%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 97%), hsl(160, 12%, 95%));
-    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(162, 72%, 42%, 0.06), transparent 40%);
+    --gradient-lime: linear-gradient(135deg, hsl(68, 100%, 49%), hsl(80, 90%, 45%));
+    --gradient-hero: linear-gradient(160deg, hsl(60, 10%, 98%) 0%, hsl(60, 12%, 95%) 50%, hsl(68, 20%, 92%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(60, 8%, 95%), hsl(60, 10%, 92%));
+    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(68, 100%, 49%, 0.06), transparent 40%);
 
-    --shadow-mint: 0 0 40px -10px hsl(162 72% 42% / 0.2);
+    --shadow-mint: 0 0 40px -10px hsl(150 30% 22% / 0.2);
+    --shadow-lime: 0 0 40px -10px hsl(68 100% 49% / 0.3);
     --shadow-coral: 0 0 40px -10px hsl(16 90% 62% / 0.2);
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.08);
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 160 10% 10%;
-    --sidebar-primary: 162 72% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 10% 93%;
-    --sidebar-accent-foreground: 160 10% 10%;
-    --sidebar-border: 160 10% 88%;
-    --sidebar-ring: 162 72% 42%;
+    --sidebar-foreground: 150 10% 10%;
+    --sidebar-primary: 150 30% 22%;
+    --sidebar-primary-foreground: 68 100% 49%;
+    --sidebar-accent: 60 8% 90%;
+    --sidebar-accent-foreground: 150 10% 10%;
+    --sidebar-border: 150 10% 85%;
+    --sidebar-ring: 68 100% 49%;
   }
 
   .dark {
-    --background: 160 10% 4%;
-    --foreground: 160 20% 95%;
+    --background: 150 20% 4%;
+    --foreground: 60 20% 92%;
 
-    --card: 160 10% 8%;
-    --card-foreground: 160 20% 95%;
+    --card: 150 15% 8%;
+    --card-foreground: 60 20% 92%;
 
-    --popover: 160 10% 8%;
-    --popover-foreground: 160 20% 95%;
+    --popover: 150 15% 8%;
+    --popover-foreground: 60 20% 92%;
 
-    --primary: 162 72% 52%;
-    --primary-foreground: 160 10% 4%;
+    --primary: 150 30% 22%;
+    --primary-foreground: 68 100% 49%;
 
     --secondary: 16 90% 62%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 160 10% 14%;
-    --muted-foreground: 160 10% 55%;
+    --lime: 68 100% 49%;
+    --lime-foreground: 150 30% 10%;
 
-    --accent: 280 70% 60%;
-    --accent-foreground: 0 0% 100%;
+    --military: 150 30% 22%;
+    --military-dark: 150 30% 8%;
+
+    --muted: 150 15% 14%;
+    --muted-foreground: 150 10% 50%;
+
+    --accent: 68 100% 49%;
+    --accent-foreground: 150 30% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 160 10% 16%;
-    --input: 160 10% 16%;
-    --ring: 162 72% 52%;
+    --border: 150 15% 16%;
+    --input: 150 15% 16%;
+    --ring: 68 100% 49%;
 
-    --gradient-mint: linear-gradient(135deg, hsl(162, 72%, 52%), hsl(180, 60%, 40%));
+    --gradient-mint: linear-gradient(135deg, hsl(150, 30%, 28%), hsl(150, 35%, 35%));
     --gradient-coral: linear-gradient(135deg, hsl(16, 90%, 62%), hsl(340, 80%, 55%));
-    --gradient-hero: linear-gradient(160deg, hsl(160, 10%, 4%) 0%, hsl(160, 20%, 8%) 50%, hsl(162, 30%, 10%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(160, 10%, 8%), hsl(160, 12%, 12%));
-    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(162, 72%, 52%, 0.06), transparent 40%);
+    --gradient-lime: linear-gradient(135deg, hsl(68, 100%, 49%), hsl(80, 90%, 45%));
+    --gradient-hero: linear-gradient(160deg, hsl(150, 20%, 4%) 0%, hsl(150, 20%, 7%) 50%, hsl(150, 25%, 10%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(150, 15%, 8%), hsl(150, 15%, 12%));
+    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(68, 100%, 49%, 0.06), transparent 40%);
 
-    --shadow-mint: 0 0 40px -10px hsl(162 72% 52% / 0.3);
+    --shadow-mint: 0 0 40px -10px hsl(150 30% 22% / 0.3);
+    --shadow-lime: 0 0 40px -10px hsl(68 100% 49% / 0.4);
     --shadow-coral: 0 0 40px -10px hsl(16 90% 62% / 0.3);
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
 
-    --sidebar-background: 160 10% 6%;
-    --sidebar-foreground: 160 20% 95%;
-    --sidebar-primary: 162 72% 52%;
-    --sidebar-primary-foreground: 160 10% 4%;
-    --sidebar-accent: 160 10% 14%;
-    --sidebar-accent-foreground: 160 20% 95%;
-    --sidebar-border: 160 10% 16%;
-    --sidebar-ring: 162 72% 52%;
+    --sidebar-background: 150 15% 6%;
+    --sidebar-foreground: 60 20% 92%;
+    --sidebar-primary: 150 30% 28%;
+    --sidebar-primary-foreground: 68 100% 49%;
+    --sidebar-accent: 150 15% 14%;
+    --sidebar-accent-foreground: 60 20% 92%;
+    --sidebar-border: 150 15% 16%;
+    --sidebar-ring: 68 100% 49%;
   }
 }
 
@@ -122,6 +139,9 @@
 }
 
 @layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
   .text-gradient-mint {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-mint);
@@ -130,11 +150,18 @@
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-coral);
   }
+  .text-gradient-lime {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-lime);
+  }
   .bg-gradient-mint {
     background-image: var(--gradient-mint);
   }
   .bg-gradient-coral {
     background-image: var(--gradient-coral);
+  }
+  .bg-gradient-lime {
+    background-image: var(--gradient-lime);
   }
   .bg-gradient-hero {
     background-image: var(--gradient-hero);
@@ -142,8 +169,26 @@
   .bg-gradient-card {
     background-image: var(--gradient-card);
   }
+  .bg-military {
+    background-color: hsl(var(--military));
+  }
+  .bg-military-dark {
+    background-color: hsl(var(--military-dark));
+  }
+  .text-lime {
+    color: hsl(var(--lime));
+  }
+  .bg-lime {
+    background-color: hsl(var(--lime));
+  }
+  .border-lime {
+    border-color: hsl(var(--lime));
+  }
   .shadow-mint {
     box-shadow: var(--shadow-mint);
+  }
+  .shadow-lime {
+    box-shadow: var(--shadow-lime);
   }
   .shadow-coral {
     box-shadow: var(--shadow-coral);
@@ -164,4 +209,21 @@
   .glow-mint:hover::after {
     @apply opacity-40;
   }
+  .sticker {
+    @apply inline-block;
+    transform: rotate(-2deg);
+  }
+  .sticker-alt {
+    @apply inline-block;
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
 }
