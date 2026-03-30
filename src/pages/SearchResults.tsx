@@ -12,6 +12,7 @@ import PageTransition from "@/components/PageTransition";
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
 
 const SearchResults = () => {
+  const { generateLink, affiliateLinks } = useAffiliate();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [query, setQuery] = useState(searchParams.get("q") || "");
