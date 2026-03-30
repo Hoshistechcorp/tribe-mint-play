@@ -35,6 +35,7 @@ const galleryImages = [
 const BusinessDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { generateLink, affiliateLinks } = useAffiliate();
   const business = sampleBusinesses.find((b) => b.id === id);
   const campaigns = sampleCampaigns.filter((c) => c.businessId === id);
 
