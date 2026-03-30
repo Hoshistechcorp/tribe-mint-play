@@ -330,7 +330,7 @@ const BusinessDetail = () => {
                   </div>
 
                   <button onClick={handleGenerateLink} className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint mb-3">
-                    <Link2 className="w-4 h-4" /> Generate Affiliate Link
+                    {hasLink ? <><Check className="w-4 h-4" /> Copy Affiliate Link</> : <><Link2 className="w-4 h-4" /> Generate Affiliate Link</>}
                   </button>
 
                   <button onClick={() => navigate("/campaigns")} className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border text-foreground rounded-xl font-medium text-sm hover:bg-muted transition-colors">

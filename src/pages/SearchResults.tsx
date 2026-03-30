@@ -205,13 +205,19 @@ const SearchResults = () => {
                       </div>
                     </div>
 
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleGenerateLink(biz); }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
-                    >
-                      <Link2 className="w-4 h-4" />
-                      Generate Link
-                    </button>
+                    {(() => {
+                      const hasLink = affiliateLinks.some((l) => l.businessId === biz.id);
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleGenerateLink(biz); }}
+                          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity ${
+                            hasLink ? "bg-muted text-foreground border border-border" : "bg-gradient-mint text-primary-foreground shadow-mint"
+                          }`}
+                        >
+                          {hasLink ? <><Check className="w-4 h-4" /> Copy Link</> : <><Link2 className="w-4 h-4" /> Generate Link</>}
+                        </button>
+                      );
+                    })()}
                   </div>
                 </motion.div>
               );
