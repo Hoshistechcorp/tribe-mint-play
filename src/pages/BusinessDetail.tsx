@@ -65,11 +65,14 @@ const BusinessDetail = () => {
   const displayedReviews = showAllReviews ? filteredReviews : filteredReviews.slice(0, 4);
   const avgRating = (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1);
 
+  const hasLink = affiliateLinks.some((l) => l.businessId === id);
+
   const handleGenerateLink = () => {
-    const code = business.name.toLowerCase().replace(/\s+/g, "-");
-    navigator.clipboard.writeText(`tribemint.link/${code}`);
+    if (!business) return;
+    const link = generateLink(business);
+    navigator.clipboard.writeText(`tribemint.link/${link.code}`);
     fireConfetti();
-    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
+    toast({ title: hasLink ? "📋 Link Copied!" : "🔗 Link Generated!", description: `tribemint.link/${link.code} copied to clipboard` });
   };
 
   return (
