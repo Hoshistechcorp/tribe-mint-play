@@ -47,10 +47,11 @@ const SearchResults = () => {
   }, [query, typeFilter, cityFilter, sortBy]);
 
   const handleGenerateLink = (business: Business) => {
-    const code = business.name.toLowerCase().replace(/\s+/g, "-");
-    navigator.clipboard.writeText(`tribemint.link/${code}`);
+    const link = generateLink(business);
+    navigator.clipboard.writeText(`tribemint.link/${link.code}`);
+    const isNew = !affiliateLinks.some((l) => l.businessId === business.id && l.id !== link.id);
     fireConfetti();
-    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
+    toast({ title: isNew ? "🔗 Link Generated!" : "📋 Link Copied!", description: `tribemint.link/${link.code} copied to clipboard` });
   };
 
   return (
