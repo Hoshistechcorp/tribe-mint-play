@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Star, DollarSign, TrendingUp, BarChart3,
   Users, Link2, Clock, Globe, Heart, Share2, Utensils, Hotel, Wine,
-  Edit3, Save, ThumbsUp, MessageSquare, Filter,
+  Edit3, Save, ThumbsUp, MessageSquare, Filter, Check,
 } from "lucide-react";
 import { sampleBusinesses } from "@/data/sampleBusinesses";
 import { sampleCampaigns } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 
