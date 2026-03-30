@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "@/components/PageTransition";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import {
   ArrowLeft,
   DollarSign,
@@ -11,21 +12,8 @@ import {
   Link2,
   Copy,
   ExternalLink,
+  Check,
 } from "lucide-react";
-
-const stats = [
-  { label: "Total Earned", value: "$1,245.00", icon: DollarSign, color: "text-primary" },
-  { label: "Total Clicks", value: "8,432", icon: MousePointerClick, color: "text-secondary" },
-  { label: "Sign-Ups", value: "312", icon: Users, color: "text-accent" },
-  { label: "Avg EPC", value: "$0.85", icon: TrendingUp, color: "text-primary" },
-];
-
-const links = [
-  { id: "1", name: "The Mint Garden", code: "mint-garden", clicks: 2340, earned: "$420.00", active: true },
-  { id: "2", name: "Azure Hotel & Spa", code: "azure-hotel", clicks: 1890, earned: "$340.20", active: true },
-  { id: "3", name: "Neon Lounge", code: "neon-lounge", clicks: 980, earned: "$78.40", active: true },
-  { id: "4", name: "Bamboo Kitchen", code: "bamboo-kitchen", clicks: 650, earned: "$65.00", active: false },
-];
 
 const badges = [
   { emoji: "💼", name: "City Explorer", desc: "Visit 5 spots", earned: true },
@@ -36,17 +24,24 @@ const badges = [
   { emoji: "🌍", name: "Global Reach", desc: "3 cities", earned: false },
 ];
 
-const earningsHistory = [
-  { date: "Today", amount: "+$12.50", source: "The Mint Garden" },
-  { date: "Today", amount: "+$8.00", source: "Azure Hotel" },
-  { date: "Yesterday", amount: "+$22.30", source: "Neon Lounge" },
-  { date: "Yesterday", amount: "+$5.60", source: "Bamboo Kitchen" },
-  { date: "Mar 4", amount: "+$45.00", source: "Azure Hotel" },
-];
-
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { affiliateLinks, balance, transactions } = useAffiliate();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+
+  const totalClicks = affiliateLinks.reduce((s, l) => s + l.clicks, 0);
+  const totalConversions = affiliateLinks.reduce((s, l) => s + l.conversions, 0);
+  const totalEarned = balance.totalEarned;
+  const avgEPC = totalClicks > 0 ? (totalEarned / totalClicks) : 0;
+
+  const stats = [
+    { label: "Total Earned", value: `$${totalEarned.toFixed(2)}`, icon: DollarSign, color: "text-primary" },
+    { label: "Total Clicks", value: totalClicks.toLocaleString(), icon: MousePointerClick, color: "text-secondary" },
+    { label: "Conversions", value: totalConversions.toLocaleString(), icon: Users, color: "text-accent" },
+    { label: "Avg EPC", value: `$${avgEPC.toFixed(2)}`, icon: TrendingUp, color: "text-primary" },
+  ];
+
+  const recentEarnings = transactions.filter((t) => t.type === "earning").slice(0, 5);
 
   const copyLink = (code: string) => {
     navigator.clipboard.writeText(`tribemint.link/${code}`);
@@ -66,22 +61,13 @@ const Dashboard = () => {
             <h1 className="font-heading font-bold text-lg">Creator Dashboard</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/profile")}
-              className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
-            >
+            <button onClick={() => navigate("/profile")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               Settings ⚙️
             </button>
-            <button
-              onClick={() => navigate("/payouts")}
-              className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors"
-            >
+            <button onClick={() => navigate("/payouts")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               Payouts 💸
             </button>
-            <button
-              onClick={() => navigate("/search")}
-              className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
-            >
+            <button onClick={() => navigate("/search")} className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint">
               Find Businesses 🔍
             </button>
           </div>
@@ -113,55 +99,69 @@ const Dashboard = () => {
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold font-heading">Your Links 🔗</h2>
-              <button
-                onClick={() => navigate("/search")}
-                className="text-sm text-primary font-medium hover:underline"
-              >
+              <button onClick={() => navigate("/search")} className="text-sm text-primary font-medium hover:underline">
                 + New Link
               </button>
             </div>
-            <div className="space-y-3">
-              {links.map((link, i) => (
-                <motion.div
-                  key={link.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Link2 className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm font-heading truncate">{link.name}</p>
-                    <p className="text-xs text-muted-foreground">tribemint.link/{link.code}</p>
-                  </div>
-                  <div className="hidden sm:flex items-center gap-6 text-xs text-muted-foreground">
-                    <div className="text-center">
-                      <p className="font-bold text-foreground text-sm">{link.clicks.toLocaleString()}</p>
-                      <p>clicks</p>
+            {affiliateLinks.length === 0 ? (
+              <div className="p-8 rounded-2xl border border-border bg-gradient-card text-center">
+                <p className="text-4xl mb-3">🔗</p>
+                <p className="text-muted-foreground text-sm mb-4">No affiliate links yet. Find a business and generate your first link!</p>
+                <button onClick={() => navigate("/search")} className="px-6 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm">
+                  Explore Businesses
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {affiliateLinks.map((link, i) => (
+                  <motion.div
+                    key={link.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${link.active ? "bg-primary/10" : "bg-muted"}`}>
+                      <Link2 className={`w-5 h-5 ${link.active ? "text-primary" : "text-muted-foreground"}`} />
                     </div>
-                    <div className="text-center">
-                      <p className="font-bold text-primary text-sm">{link.earned}</p>
-                      <p>earned</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm font-heading truncate">{link.businessName}</p>
+                      <p className="text-xs text-muted-foreground">tribemint.link/{link.code}</p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => copyLink(link.code)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        copiedLink === link.code ? "bg-primary/20 text-primary" : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                      }`}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                    <div className="hidden sm:flex items-center gap-6 text-xs text-muted-foreground">
+                      <div className="text-center">
+                        <p className="font-bold text-foreground text-sm">{link.clicks.toLocaleString()}</p>
+                        <p>clicks</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-foreground text-sm">{link.conversions}</p>
+                        <p>conv.</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-primary text-sm">${link.earned.toFixed(2)}</p>
+                        <p>earned</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => copyLink(link.code)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          copiedLink === link.code ? "bg-primary/20 text-primary" : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                        }`}
+                      >
+                        {copiedLink === link.code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => navigate(`/business/${link.businessId}`)}
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -170,20 +170,24 @@ const Dashboard = () => {
             <div>
               <h2 className="text-lg font-bold font-heading mb-4">Recent Earnings 💸</h2>
               <div className="rounded-2xl border border-border bg-gradient-card shadow-card overflow-hidden">
-                {earningsHistory.map((e, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center justify-between px-4 py-3 ${
-                      i !== earningsHistory.length - 1 ? "border-b border-border" : ""
-                    }`}
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{e.source}</p>
-                      <p className="text-xs text-muted-foreground">{e.date}</p>
+                {recentEarnings.length === 0 ? (
+                  <div className="p-6 text-center text-muted-foreground text-sm">No earnings yet</div>
+                ) : (
+                  recentEarnings.map((e, i) => (
+                    <div
+                      key={e.id}
+                      className={`flex items-center justify-between px-4 py-3 ${
+                        i !== recentEarnings.length - 1 ? "border-b border-border" : ""
+                      }`}
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{e.source}</p>
+                        <p className="text-xs text-muted-foreground">{e.date}</p>
+                      </div>
+                      <span className="text-sm font-bold text-primary">+${e.amount.toFixed(2)}</span>
                     </div>
-                    <span className="text-sm font-bold text-primary">{e.amount}</span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -199,9 +203,7 @@ const Dashboard = () => {
                     transition={{ delay: 0.3 + i * 0.06 }}
                     whileHover={{ scale: 1.1 }}
                     className={`p-3 rounded-xl border text-center cursor-default ${
-                      b.earned
-                        ? "bg-gradient-card border-primary/30"
-                        : "bg-muted/30 border-border opacity-50"
+                      b.earned ? "bg-gradient-card border-primary/30" : "bg-muted/30 border-border opacity-50"
                     }`}
                   >
                     <span className="text-2xl">{b.emoji}</span>

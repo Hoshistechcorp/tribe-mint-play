@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe, Check, Copy } from "lucide-react";
 import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
@@ -23,6 +24,7 @@ const typeBadge: Record<Campaign["type"], { bg: string; text: string; label: str
 
 const Campaigns = () => {
   const navigate = useNavigate();
+  const { joinCampaign, isCampaignJoined } = useAffiliate();
   const [activeTab, setActiveTab] = useState("all");
 
   const filtered = useMemo(() => {
@@ -31,6 +33,14 @@ const Campaigns = () => {
   }, [activeTab]);
 
   const handleJoin = (campaign: Campaign) => {
+    if (isCampaignJoined(campaign.id)) {
+      const code = campaign.businessName.toLowerCase().replace(/\s+/g, "-");
+      navigator.clipboard.writeText(`tribemint.link/${code}/${campaign.id}`);
+      toast({ title: "📋 Link Copied!", description: `Your link for "${campaign.title}" has been copied.` });
+      return;
+    }
+    
+    joinCampaign(campaign);
     const code = campaign.businessName.toLowerCase().replace(/\s+/g, "-");
     navigator.clipboard.writeText(`tribemint.link/${code}/${campaign.id}`);
     fireConfetti();
@@ -47,10 +57,7 @@ const Campaigns = () => {
         <div className="container">
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
-            <button
-              onClick={() => navigate("/")}
-              className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors"
-            >
+            <button onClick={() => navigate("/")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
@@ -88,6 +95,7 @@ const Campaigns = () => {
               const badge = typeBadge[campaign.type];
               const slotsLeft = campaign.slots - campaign.slotsUsed;
               const progress = (campaign.slotsUsed / campaign.slots) * 100;
+              const joined = isCampaignJoined(campaign.id);
 
               return (
                 <motion.div
@@ -100,17 +108,18 @@ const Campaigns = () => {
                 >
                   {/* Image */}
                   <div className="relative h-40 overflow-hidden">
-                    <img
-                      src={campaign.businessImage}
-                      alt={campaign.businessName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <img src={campaign.businessImage} alt={campaign.businessName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold ${badge.bg} ${badge.text}`}>
                       {badge.label}
                     </span>
                     <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-card/80 backdrop-blur-sm text-xs font-bold text-primary">
                       {campaign.commission}%
                     </span>
+                    {joined && (
+                      <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-primary/90 text-primary-foreground text-[10px] font-bold flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Joined
+                      </span>
+                    )}
                   </div>
 
                   <div className="p-5 space-y-3">
@@ -123,7 +132,6 @@ const Campaigns = () => {
 
                     <p className="text-xs text-muted-foreground leading-relaxed">{campaign.description}</p>
 
-                    {/* Bonus reward */}
                     {campaign.bonusReward && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/10 border border-secondary/20">
                         <Gift className="w-3.5 h-3.5 text-secondary" />
@@ -131,15 +139,10 @@ const Campaigns = () => {
                       </div>
                     )}
 
-                    {/* Slots progress */}
                     <div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" /> {slotsLeft} spots left
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {campaign.deadline}
-                        </span>
+                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {slotsLeft} spots left</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {campaign.deadline}</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <motion.div
@@ -151,7 +154,6 @@ const Campaigns = () => {
                       </div>
                     </div>
 
-                    {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
                       {campaign.tags.map((tag) => (
                         <span key={tag} className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-medium text-muted-foreground">
@@ -163,13 +165,18 @@ const Campaigns = () => {
                     <button
                       onClick={() => handleJoin(campaign)}
                       className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity ${
-                        campaign.type === "exclusive"
-                          ? "bg-gradient-coral text-secondary-foreground shadow-coral"
-                          : "bg-gradient-mint text-primary-foreground shadow-mint"
+                        joined
+                          ? "bg-muted text-foreground border border-border"
+                          : campaign.type === "exclusive"
+                            ? "bg-gradient-coral text-secondary-foreground shadow-coral"
+                            : "bg-gradient-mint text-primary-foreground shadow-mint"
                       }`}
                     >
-                      <Link2 className="w-4 h-4" />
-                      {campaign.type === "exclusive" ? "Request Invite" : "Join & Get Link"}
+                      {joined ? (
+                        <><Copy className="w-4 h-4" /> Copy Link</>
+                      ) : (
+                        <><Link2 className="w-4 h-4" /> {campaign.type === "exclusive" ? "Request Invite" : "Join & Get Link"}</>
+                      )}
                     </button>
                   </div>
                 </motion.div>

@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Star, DollarSign, TrendingUp, BarChart3,
   Users, Link2, Clock, Globe, Heart, Share2, Utensils, Hotel, Wine,
-  Edit3, Save, ThumbsUp, MessageSquare, Filter,
+  Edit3, Save, ThumbsUp, MessageSquare, Filter, Check,
 } from "lucide-react";
 import { sampleBusinesses } from "@/data/sampleBusinesses";
 import { sampleCampaigns } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 
@@ -34,6 +35,7 @@ const galleryImages = [
 const BusinessDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { generateLink, affiliateLinks } = useAffiliate();
   const business = sampleBusinesses.find((b) => b.id === id);
   const campaigns = sampleCampaigns.filter((c) => c.businessId === id);
 
@@ -63,11 +65,14 @@ const BusinessDetail = () => {
   const displayedReviews = showAllReviews ? filteredReviews : filteredReviews.slice(0, 4);
   const avgRating = (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1);
 
+  const hasLink = affiliateLinks.some((l) => l.businessId === id);
+
   const handleGenerateLink = () => {
-    const code = business.name.toLowerCase().replace(/\s+/g, "-");
-    navigator.clipboard.writeText(`tribemint.link/${code}`);
+    if (!business) return;
+    const link = generateLink(business);
+    navigator.clipboard.writeText(`tribemint.link/${link.code}`);
     fireConfetti();
-    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
+    toast({ title: hasLink ? "📋 Link Copied!" : "🔗 Link Generated!", description: `tribemint.link/${link.code} copied to clipboard` });
   };
 
   return (
@@ -325,7 +330,7 @@ const BusinessDetail = () => {
                   </div>
 
                   <button onClick={handleGenerateLink} className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint mb-3">
-                    <Link2 className="w-4 h-4" /> Generate Affiliate Link
+                    {hasLink ? <><Check className="w-4 h-4" /> Copy Affiliate Link</> : <><Link2 className="w-4 h-4" /> Generate Affiliate Link</>}
                   </button>
 
                   <button onClick={() => navigate("/campaigns")} className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border text-foreground rounded-xl font-medium text-sm hover:bg-muted transition-colors">

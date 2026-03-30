@@ -1,16 +1,18 @@
 import { useState, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users } from "lucide-react";
+import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users, Check } from "lucide-react";
 import { sampleBusinesses, type Business } from "@/data/sampleBusinesses";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
 const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
 
 const SearchResults = () => {
+  const { generateLink, affiliateLinks } = useAffiliate();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [query, setQuery] = useState(searchParams.get("q") || "");
@@ -45,10 +47,11 @@ const SearchResults = () => {
   }, [query, typeFilter, cityFilter, sortBy]);
 
   const handleGenerateLink = (business: Business) => {
-    const code = business.name.toLowerCase().replace(/\s+/g, "-");
-    navigator.clipboard.writeText(`tribemint.link/${code}`);
+    const link = generateLink(business);
+    navigator.clipboard.writeText(`tribemint.link/${link.code}`);
+    const isNew = !affiliateLinks.some((l) => l.businessId === business.id && l.id !== link.id);
     fireConfetti();
-    toast({ title: "🔗 Link Generated!", description: `tribemint.link/${code} copied to clipboard` });
+    toast({ title: isNew ? "🔗 Link Generated!" : "📋 Link Copied!", description: `tribemint.link/${link.code} copied to clipboard` });
   };
 
   return (
@@ -202,13 +205,19 @@ const SearchResults = () => {
                       </div>
                     </div>
 
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleGenerateLink(biz); }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint"
-                    >
-                      <Link2 className="w-4 h-4" />
-                      Generate Link
-                    </button>
+                    {(() => {
+                      const hasLink = affiliateLinks.some((l) => l.businessId === biz.id);
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleGenerateLink(biz); }}
+                          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity ${
+                            hasLink ? "bg-muted text-foreground border border-border" : "bg-gradient-mint text-primary-foreground shadow-mint"
+                          }`}
+                        >
+                          {hasLink ? <><Check className="w-4 h-4" /> Copy Link</> : <><Link2 className="w-4 h-4" /> Generate Link</>}
+                        </button>
+                      );
+                    })()}
                   </div>
                 </motion.div>
               );
