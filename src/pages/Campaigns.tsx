@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe, Check } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe, Check, Copy } from "lucide-react";
 import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
