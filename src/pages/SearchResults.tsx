@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users } from "lucide-react";
+import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users, Check } from "lucide-react";
 import { sampleBusinesses, type Business } from "@/data/sampleBusinesses";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
