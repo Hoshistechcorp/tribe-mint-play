@@ -285,20 +285,20 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-complete pending withdrawals after 10s
+  // Simulate referral earnings trickling in
   useEffect(() => {
     const interval = setInterval(() => {
       setState((prev) => {
-        const hasPending = prev.transactions.some((t) => t.type === "withdrawal" && t.status === "pending");
-        if (!hasPending) return prev;
-        return {
-          ...prev,
-          transactions: prev.transactions.map((t) =>
-            t.type === "withdrawal" && t.status === "pending" ? { ...t, status: "completed" as const } : t
-          ),
-        };
+        if (prev.referrals.length === 0) return prev;
+        const idx = Math.floor(Math.random() * prev.referrals.length);
+        const target = prev.referrals[idx];
+        if (!target || target.status === "pending") return prev;
+        const bump = +(Math.random() * 2.5 + 0.5).toFixed(2);
+        const updated = [...prev.referrals];
+        updated[idx] = { ...target, earned: +(target.earned + bump).toFixed(2) };
+        return { ...prev, referrals: updated };
       });
-    }, 10000);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
