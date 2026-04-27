@@ -25,7 +25,7 @@ import CampaignAnalytics from "@/components/CampaignAnalytics";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { affiliateLinks, balance, transactions, badges, creatorProfile } = useAffiliate();
+  const { affiliateLinks, balance, transactions, badges, creatorProfile, getDiscountForBusiness } = useAffiliate();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [qrLink, setQrLink] = useState<{ url: string; label: string } | null>(null);
   const [editLink, setEditLink] = useState<{ id: string; code: string } | null>(null);
@@ -137,7 +137,26 @@ const Dashboard = () => {
                       <Link2 className={`w-5 h-5 ${link.active ? "text-primary" : "text-muted-foreground"}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm font-heading truncate">{link.businessName}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-bold text-sm font-heading truncate">{link.businessName}</p>
+                        {(() => {
+                          const offer = getDiscountForBusiness(link.businessId);
+                          if (!offer) return null;
+                          if (offer.paused) {
+                            return <span className="text-[9px] px-1.5 py-0.5 rounded bg-destructive/15 text-destructive font-bold">PAUSED</span>;
+                          }
+                          return (
+                            <>
+                              {offer.discountPercent > 0 && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/15 text-accent font-bold">{offer.discountPercent}% OFF</span>
+                              )}
+                              {offer.cpcRate > 0 && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-bold">${offer.cpcRate.toFixed(2)}/click</span>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
                       <p className="text-xs text-muted-foreground">tribemint.link/{link.code}</p>
                     </div>
                     <div className="hidden sm:flex items-center gap-6 text-xs text-muted-foreground">
