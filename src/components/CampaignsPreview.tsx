@@ -70,8 +70,8 @@ const CampaignsPreview = () => {
           })}
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {/* Mobile: horizontal scroll. Tablet+: grid */}
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-hide pb-2">
           {filtered.map((campaign, i) => {
             const badge = typeBadge[campaign.type];
             const slotsLeft = campaign.slots - campaign.slotsUsed;
@@ -86,7 +86,7 @@ const CampaignsPreview = () => {
                 transition={{ delay: i * 0.05 }}
                 whileHover={{ y: -3 }}
                 onClick={() => navigate("/campaigns")}
-                className="text-left rounded-2xl border border-border bg-card shadow-card overflow-hidden group"
+                className="text-left rounded-2xl border border-border bg-card shadow-card overflow-hidden group flex-shrink-0 w-[78vw] max-w-[280px] sm:w-auto sm:max-w-none snap-start"
               >
                 <div className="relative h-32 sm:h-36 overflow-hidden">
                   <img
