@@ -21,6 +21,9 @@ export interface Transaction {
   source: string;
   date: string;
   status: "completed" | "pending" | "failed";
+  campaignId?: string;
+  methodId?: string;
+  estimatedArrival?: string;
 }
 
 export interface PaymentMethod {
@@ -75,6 +78,14 @@ export interface ActivityEvent {
   date: string;
 }
 
+export interface Referral {
+  id: string;
+  name: string;
+  joinedAt: string;
+  status: "pending" | "joined" | "active";
+  earned: number;
+}
+
 interface Balance {
   available: number;
   pending: number;
@@ -116,6 +127,15 @@ interface AffiliateContextType {
   addPaymentMethod: (name: string, type: PaymentMethod["type"]) => void;
   removePaymentMethod: (id: string) => void;
   setDefaultPaymentMethod: (id: string) => void;
+
+  // New
+  updateLinkCode: (linkId: string, newCode: string) => boolean;
+  confirmWithdrawal: (txId: string) => void;
+  cancelWithdrawal: (txId: string) => void;
+  referralCode: string;
+  referrals: Referral[];
+  referralEarnings: number;
+  simulateReferralSignup: () => void;
 }
 
 const AffiliateContext = createContext<AffiliateContextType | null>(null);
@@ -194,6 +214,8 @@ interface PersistedState {
   bizCampaigns: BizCampaign[];
   customCampaigns: Campaign[];
   activity: ActivityEvent[];
+  referralCode: string;
+  referrals: Referral[];
 }
 
 const defaultState: PersistedState = {
@@ -209,6 +231,12 @@ const defaultState: PersistedState = {
   activity: [
     { id: "a1", emoji: "💰", text: "Earned $12.50 from The Mint Garden", date: "2m ago" },
     { id: "a2", emoji: "🔗", text: "New click on Azure Hotel link", date: "5m ago" },
+  ],
+  referralCode: "alex-tribe",
+  referrals: [
+    { id: "r1", name: "Maya Chen", joinedAt: "Mar 12, 2026", status: "active", earned: 24.5 },
+    { id: "r2", name: "Tomi Bello", joinedAt: "Mar 18, 2026", status: "joined", earned: 8.0 },
+    { id: "r3", name: "Sara Lin", joinedAt: "Mar 22, 2026", status: "pending", earned: 0 },
   ],
 };
 
@@ -324,6 +352,8 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
       transactions: [{
         id: `t${Date.now()}`, type: "withdrawal", amount: -amount,
         source: method?.name || "Bank Transfer", date: "Just now", status: "pending",
+        methodId,
+        estimatedArrival: "Within 24 hours",
       }, ...prev.transactions],
       balance: {
         ...prev.balance,
@@ -333,6 +363,71 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     }));
     return true;
   }, [state.balance.available, state.paymentMethods]);
+
+  const confirmWithdrawal = useCallback((txId: string) => {
+    setState((prev) => ({
+      ...prev,
+      transactions: prev.transactions.map((t) =>
+        t.id === txId && t.type === "withdrawal" ? { ...t, status: "completed" as const, date: "Just now" } : t
+      ),
+      activity: [
+        { id: `a${Date.now()}`, emoji: "✅", text: `Withdrawal confirmed`, date: "just now" },
+        ...prev.activity,
+      ].slice(0, 20),
+    }));
+  }, []);
+
+  const cancelWithdrawal = useCallback((txId: string) => {
+    setState((prev) => {
+      const tx = prev.transactions.find((t) => t.id === txId);
+      if (!tx || tx.status !== "pending") return prev;
+      const refund = Math.abs(tx.amount);
+      return {
+        ...prev,
+        transactions: prev.transactions.map((t) =>
+          t.id === txId ? { ...t, status: "failed" as const } : t
+        ),
+        balance: {
+          ...prev.balance,
+          available: +(prev.balance.available + refund).toFixed(2),
+          totalWithdrawn: +(prev.balance.totalWithdrawn - refund).toFixed(2),
+        },
+      };
+    });
+  }, []);
+
+  const updateLinkCode = useCallback((linkId: string, newCode: string): boolean => {
+    const clean = newCode.toLowerCase().trim().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    if (!clean || clean.length < 3) return false;
+    let success = true;
+    setState((prev) => {
+      if (prev.affiliateLinks.some((l) => l.id !== linkId && l.code === clean)) {
+        success = false;
+        return prev;
+      }
+      return {
+        ...prev,
+        affiliateLinks: prev.affiliateLinks.map((l) => (l.id === linkId ? { ...l, code: clean } : l)),
+      };
+    });
+    return success;
+  }, []);
+
+  const simulateReferralSignup = useCallback(() => {
+    const names = ["Jordan Pierce", "Aisha Khan", "Diego Marin", "Lola Okafor", "Ravi Patel", "Mia Hart"];
+    const name = names[Math.floor(Math.random() * names.length)];
+    setState((prev) => ({
+      ...prev,
+      referrals: [
+        { id: `r${Date.now()}`, name, joinedAt: "Just now", status: "pending", earned: 0 },
+        ...prev.referrals,
+      ],
+      activity: [
+        { id: `a${Date.now()}`, emoji: "🤝", text: `${name} signed up via your referral`, date: "just now" },
+        ...prev.activity,
+      ].slice(0, 20),
+    }));
+  }, []);
 
   const addPaymentMethod = useCallback((name: string, type: PaymentMethod["type"]) => {
     setState((prev) => ({
@@ -422,6 +517,11 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     [state.customCampaigns]
   );
 
+  const referralEarnings = useMemo(
+    () => state.referrals.reduce((s, r) => s + r.earned, 0),
+    [state.referrals]
+  );
+
   return (
     <AffiliateContext.Provider
       value={{
@@ -448,6 +548,13 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         addPaymentMethod,
         removePaymentMethod,
         setDefaultPaymentMethod,
+        updateLinkCode,
+        confirmWithdrawal,
+        cancelWithdrawal,
+        referralCode: state.referralCode,
+        referrals: state.referrals,
+        referralEarnings,
+        simulateReferralSignup,
       }}
     >
       {children}
