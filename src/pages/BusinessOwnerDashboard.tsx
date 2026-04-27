@@ -436,6 +436,32 @@ const BusinessOwnerDashboard = () => {
                       className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                   </div>
                 </div>
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Offer & Payouts</p>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs text-muted-foreground">Audience discount</label>
+                      <span className="text-xs font-bold text-primary">{editingCampaign.discountPercent}% OFF</span>
+                    </div>
+                    <input type="range" min={0} max={50} value={editingCampaign.discountPercent}
+                      onChange={(e) => setEditingCampaign({ ...editingCampaign, discountPercent: Number(e.target.value) })}
+                      className="w-full accent-primary" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground">CPC ($)</label>
+                      <input type="number" step="0.01" value={editingCampaign.cpcRate}
+                        onChange={(e) => setEditingCampaign({ ...editingCampaign, cpcRate: Number(e.target.value) })}
+                        className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Discount budget</label>
+                      <input type="number" value={editingCampaign.discountBudget}
+                        onChange={(e) => setEditingCampaign({ ...editingCampaign, discountBudget: Number(e.target.value) })}
+                        className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm" />
+                    </div>
+                  </div>
+                </div>
                 <button onClick={handleSaveEdit}
                   className="w-full px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm flex items-center justify-center gap-2">
                   <Save className="w-4 h-4" /> Save Changes
