@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Clock, CheckCircle2, XCircle, ArrowUpFromLine, Wallet,
-  Building2, CreditCard, Eye, X, Calendar, Hash, Loader2,
+  Building2, CreditCard, Eye, X, Calendar, Hash, Loader2, Download,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate, type Transaction } from "@/contexts/AffiliateContext";
@@ -49,6 +49,39 @@ const Withdrawals = () => {
 
   const getMethod = (id?: string) => paymentMethods.find((m) => m.id === id);
 
+  const handleExportCSV = () => {
+    if (withdrawals.length === 0) {
+      toast({ title: "Nothing to export", description: "You have no withdrawals yet." });
+      return;
+    }
+    const escape = (v: string | number) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const headers = ["Reference", "Amount (USD)", "Destination", "Method Type", "Status", "Date", "ETA"];
+    const rows = withdrawals.map((tx) => [
+      tx.id,
+      Math.abs(tx.amount).toFixed(2),
+      tx.source,
+      getMethod(tx.methodId)?.type || "—",
+      tx.status,
+      tx.date,
+      tx.estimatedArrival || "Within 24 hours",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `tribemint-withdrawals-${ts}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({ title: "📥 CSV downloaded", description: `${withdrawals.length} withdrawal${withdrawals.length === 1 ? "" : "s"} exported.` });
+  };
+
   return (
     <PageTransition><div className="min-h-screen bg-background">
       <Navbar />
@@ -63,6 +96,11 @@ const Withdrawals = () => {
               <h1 className="text-2xl font-bold font-heading">Withdrawals 🏦</h1>
               <p className="text-sm text-muted-foreground">Review pending payouts and confirm completion</p>
             </div>
+            <button onClick={handleExportCSV}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-mint text-primary-foreground text-xs sm:text-sm font-bold hover:opacity-90 transition-opacity shadow-mint">
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
           </div>
 
           {/* Summary cards */}
