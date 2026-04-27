@@ -122,7 +122,7 @@ interface AffiliateContextType {
   // Campaigns (creator side reads merged list)
   allCampaigns: Campaign[];
   bizCampaigns: BizCampaign[];
-  addBizCampaign: (c: BizCampaign & { description?: string; type?: string }) => void;
+  addBizCampaign: (c: Partial<BizCampaign> & { id: string; title: string; commission: number; description?: string; type?: string }) => void;
   updateBizCampaign: (id: string, patch: Partial<BizCampaign>) => void;
   deleteBizCampaign: (id: string) => void;
   topUpCampaignBudget: (id: string, kind: "discount" | "click", amount: number) => void;
@@ -574,8 +574,30 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, businessProfile: { ...prev.businessProfile, ...p } }));
   }, []);
 
-  const addBizCampaign = useCallback((c: BizCampaign & { description?: string; type?: string }) => {
+  const addBizCampaign = useCallback((c: Partial<BizCampaign> & { id: string; title: string; commission: number; description?: string; type?: string }) => {
     setState((prev) => {
+      const fullCampaign: BizCampaign = {
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        status: c.status ?? "active",
+        affiliates: c.affiliates ?? 0,
+        clicks: c.clicks ?? 0,
+        conversions: c.conversions ?? 0,
+        revenue: c.revenue ?? 0,
+        commission: c.commission,
+        budget: c.budget,
+        type: c.type,
+        startDate: c.startDate,
+        endDate: c.endDate,
+        discountPercent: c.discountPercent ?? 10,
+        discountBudget: c.discountBudget ?? 500,
+        discountSpent: 0,
+        cpcRate: c.cpcRate ?? 0.05,
+        clickBudget: c.clickBudget ?? 100,
+        clickSpent: 0,
+        payoutsPaused: false,
+      };
       // Also create a creator-facing Campaign
       const creatorCampaign: Campaign = {
         id: c.id,
@@ -594,7 +616,7 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
       };
       return {
         ...prev,
-        bizCampaigns: [c, ...prev.bizCampaigns],
+        bizCampaigns: [fullCampaign, ...prev.bizCampaigns],
         customCampaigns: [creatorCampaign, ...prev.customCampaigns],
       };
     });
