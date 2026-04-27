@@ -414,6 +414,12 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     return success;
   }, []);
 
+  const isCodeAvailable = useCallback((code: string, excludeLinkId?: string): boolean => {
+    const clean = code.toLowerCase().trim();
+    if (!clean) return false;
+    return !state.affiliateLinks.some((l) => l.id !== excludeLinkId && l.code === clean);
+  }, [state.affiliateLinks]);
+
   const simulateReferralSignup = useCallback(() => {
     const names = ["Jordan Pierce", "Aisha Khan", "Diego Marin", "Lola Okafor", "Ravi Patel", "Mia Hart"];
     const name = names[Math.floor(Math.random() * names.length)];
@@ -550,6 +556,7 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         removePaymentMethod,
         setDefaultPaymentMethod,
         updateLinkCode,
+        isCodeAvailable,
         confirmWithdrawal,
         cancelWithdrawal,
         referralCode: state.referralCode,
