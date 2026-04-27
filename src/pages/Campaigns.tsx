@@ -24,7 +24,7 @@ const typeBadge: Record<Campaign["type"], { bg: string; text: string; label: str
 
 const Campaigns = () => {
   const navigate = useNavigate();
-  const { joinCampaign, isCampaignJoined, allCampaigns } = useAffiliate();
+  const { joinCampaign, isCampaignJoined, allCampaigns, getDiscountForBusiness } = useAffiliate();
   const [activeTab, setActiveTab] = useState("all");
 
   const filtered = useMemo(() => {
@@ -115,6 +115,17 @@ const Campaigns = () => {
                     <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-card/80 backdrop-blur-sm text-xs font-bold text-primary">
                       {campaign.commission}%
                     </span>
+                    {(() => {
+                      const offer = getDiscountForBusiness(campaign.businessId);
+                      if (!offer || offer.discountPercent === 0) return null;
+                      return (
+                        <span className={`absolute bottom-3 right-3 px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-md ${
+                          offer.paused ? "bg-destructive text-destructive-foreground" : "bg-accent text-accent-foreground"
+                        }`}>
+                          {offer.paused ? "OFFER PAUSED" : `${offer.discountPercent}% OFF for your audience`}
+                        </span>
+                      );
+                    })()}
                     {joined && (
                       <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-primary/90 text-primary-foreground text-[10px] font-bold flex items-center gap-1">
                         <Check className="w-3 h-3" /> Joined
