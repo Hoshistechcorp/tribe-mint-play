@@ -130,6 +130,7 @@ interface AffiliateContextType {
 
   // New
   updateLinkCode: (linkId: string, newCode: string) => boolean;
+  isCodeAvailable: (code: string, excludeLinkId?: string) => boolean;
   confirmWithdrawal: (txId: string) => void;
   cancelWithdrawal: (txId: string) => void;
   referralCode: string;
