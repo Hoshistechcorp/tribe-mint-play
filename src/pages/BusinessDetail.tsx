@@ -35,11 +35,12 @@ const galleryImages = [
 const BusinessDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { generateLink, affiliateLinks } = useAffiliate();
+  const { generateLink, affiliateLinks, joinCampaign, isCampaignJoined, allCampaigns } = useAffiliate();
   const business = sampleBusinesses.find((b) => b.id === id);
-  const campaigns = sampleCampaigns.filter((c) => c.businessId === id);
+  const campaigns = allCampaigns.filter((c) => c.businessId === id);
 
-  const [isOwner] = useState(false); // Mock: toggle to test edit mode
+  // The "demo business" is id "1" — owner mode enabled there
+  const isOwner = id === "1";
   const [isEditing, setIsEditing] = useState(false);
   const [liked, setLiked] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<"all" | "5" | "4" | "3">("all");
@@ -214,8 +215,21 @@ const BusinessDetail = () => {
                               <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {c.slots - c.slotsUsed} spots</span>
                             </div>
                           </div>
-                          <button onClick={() => navigate("/campaigns")} className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-xs hover:opacity-90 transition-opacity whitespace-nowrap">
-                            Join
+                          <button
+                            onClick={() => {
+                              if (isCampaignJoined(c.id)) {
+                                toast({ title: "Already joined ✓", description: "Check your dashboard." });
+                                return;
+                              }
+                              joinCampaign(c);
+                              fireConfetti();
+                              toast({ title: "🎉 Joined!", description: `You're now promoting "${c.title}"` });
+                            }}
+                            className={`px-4 py-2 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity whitespace-nowrap ${
+                              isCampaignJoined(c.id) ? "bg-muted text-foreground border border-border" : "bg-gradient-mint text-primary-foreground"
+                            }`}
+                          >
+                            {isCampaignJoined(c.id) ? "Joined ✓" : "Join"}
                           </button>
                         </div>
                       ))}
