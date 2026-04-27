@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { type Business } from "@/data/sampleBusinesses";
-import { type Campaign } from "@/data/sampleCampaigns";
+import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
 
 export interface AffiliateLink {
   id: string;
@@ -30,6 +30,51 @@ export interface PaymentMethod {
   isDefault: boolean;
 }
 
+export interface CreatorProfile {
+  displayName: string;
+  username: string;
+  bio: string;
+  email: string;
+  city: string;
+  avatar: string;
+  niche: string[];
+  socials: { instagram: string; twitter: string; website: string };
+}
+
+export interface BusinessProfile {
+  name: string;
+  category: string;
+  city: string;
+  description: string;
+  website: string;
+  commissionRate: number;
+  logo: string;
+  rating: number;
+}
+
+export interface BizCampaign {
+  id: string;
+  title: string;
+  description?: string;
+  status: "active" | "ended" | "paused";
+  affiliates: number;
+  clicks: number;
+  conversions: number;
+  revenue: number;
+  commission: number;
+  budget?: string;
+  type?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface ActivityEvent {
+  id: string;
+  emoji: string;
+  text: string;
+  date: string;
+}
+
 interface Balance {
   available: number;
   pending: number;
@@ -38,20 +83,66 @@ interface Balance {
 }
 
 interface AffiliateContextType {
+  // Core
   affiliateLinks: AffiliateLink[];
   joinedCampaigns: string[];
   balance: Balance;
   transactions: Transaction[];
   paymentMethods: PaymentMethod[];
+
+  // Profiles
+  creatorProfile: CreatorProfile;
+  businessProfile: BusinessProfile;
+  setCreatorProfile: (p: Partial<CreatorProfile>) => void;
+  setBusinessProfile: (p: Partial<BusinessProfile>) => void;
+
+  // Campaigns (creator side reads merged list)
+  allCampaigns: Campaign[];
+  bizCampaigns: BizCampaign[];
+  addBizCampaign: (c: BizCampaign & { description?: string; type?: string }) => void;
+  updateBizCampaign: (id: string, patch: Partial<BizCampaign>) => void;
+  deleteBizCampaign: (id: string) => void;
+
+  // Activity (creator)
+  activity: ActivityEvent[];
+
+  // Earned badges (derived)
+  badges: { emoji: string; name: string; desc: string; earned: boolean }[];
+
   generateLink: (business: Business) => AffiliateLink;
   joinCampaign: (campaign: Campaign) => void;
   isCampaignJoined: (campaignId: string) => boolean;
   requestWithdrawal: (amount: number, methodId: string) => boolean;
   addPaymentMethod: (name: string, type: PaymentMethod["type"]) => void;
+  removePaymentMethod: (id: string) => void;
   setDefaultPaymentMethod: (id: string) => void;
 }
 
 const AffiliateContext = createContext<AffiliateContextType | null>(null);
+
+const STORAGE_KEY = "tribemint_state_v2";
+
+const defaultCreator: CreatorProfile = {
+  displayName: "Alex Thompson",
+  username: "alexcreates",
+  bio: "Digital creator & lifestyle curator. Sharing the best experiences across Lagos, London & Dubai. 🌍✨",
+  email: "alex@tribemint.com",
+  city: "Lagos",
+  avatar: "🧑‍💻",
+  niche: ["Food & Dining", "Travel"],
+  socials: { instagram: "@alexcreates", twitter: "@alexcreates", website: "alexcreates.com" },
+};
+
+const defaultBusiness: BusinessProfile = {
+  name: "The Mint Garden",
+  category: "Restaurant & Bar",
+  city: "Lagos",
+  description: "Premium dining experience in the heart of Lagos. Farm-to-table cuisine with craft cocktails.",
+  website: "themintgarden.com",
+  commissionRate: 15,
+  logo: "🌿",
+  rating: 4.8,
+};
 
 const initialLinks: AffiliateLink[] = [
   { id: "l1", businessId: "1", businessName: "The Mint Garden", code: "the-mint-garden", clicks: 2340, conversions: 28, earned: 420.0, active: true, createdAt: "Feb 15, 2026" },
@@ -67,10 +158,6 @@ const initialTransactions: Transaction[] = [
   { id: "t4", type: "earning", amount: 22.3, source: "Neon Lounge", date: "Yesterday", status: "completed" },
   { id: "t5", type: "earning", amount: 45.0, source: "Azure Hotel & Spa", date: "Mar 5", status: "completed" },
   { id: "t6", type: "withdrawal", amount: -500.0, source: "Paystack", date: "Mar 3", status: "completed" },
-  { id: "t7", type: "earning", amount: 5.6, source: "Bamboo Kitchen", date: "Mar 3", status: "pending" },
-  { id: "t8", type: "earning", amount: 18.0, source: "Skyline Suites", date: "Mar 2", status: "completed" },
-  { id: "t9", type: "withdrawal", amount: -100.0, source: "Bank Transfer", date: "Mar 1", status: "failed" },
-  { id: "t10", type: "earning", amount: 33.0, source: "Coral Bay Resort", date: "Feb 28", status: "completed" },
 ];
 
 const initialPaymentMethods: PaymentMethod[] = [
@@ -79,133 +166,287 @@ const initialPaymentMethods: PaymentMethod[] = [
   { id: "pm3", name: "Flex-it", type: "flexit", isDefault: false },
 ];
 
-export function AffiliateProvider({ children }: { children: ReactNode }) {
-  const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>(initialLinks);
-  const [joinedCampaigns, setJoinedCampaigns] = useState<string[]>([]);
-  const [balance, setBalance] = useState<Balance>({
-    available: 845.0,
-    pending: 312.5,
-    totalEarned: 4250.0,
-    totalWithdrawn: 3092.5,
-  });
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods);
+const initialBizCampaigns: BizCampaign[] = [
+  { id: "1", title: "Weekend Brunch Push 🥂", description: "Promote our weekend brunch menu.", status: "active", affiliates: 23, clicks: 4500, conversions: 120, revenue: 3600, commission: 15 },
+  { id: "2", title: "Date Night Special 🌙", description: "Romantic dinner package.", status: "active", affiliates: 18, clicks: 2800, conversions: 85, revenue: 2550, commission: 12 },
+  { id: "3", title: "Holiday Menu Launch 🎄", description: "Limited holiday menu.", status: "ended", affiliates: 31, clicks: 6200, conversions: 210, revenue: 6300, commission: 18 },
+];
 
-  // Simulate live click tracking - random increments every few seconds
+function loadState<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return { ...fallback, ...JSON.parse(raw) } as T;
+  } catch {
+    return fallback;
+  }
+}
+
+interface PersistedState {
+  affiliateLinks: AffiliateLink[];
+  joinedCampaigns: string[];
+  balance: Balance;
+  transactions: Transaction[];
+  paymentMethods: PaymentMethod[];
+  creatorProfile: CreatorProfile;
+  businessProfile: BusinessProfile;
+  bizCampaigns: BizCampaign[];
+  customCampaigns: Campaign[];
+  activity: ActivityEvent[];
+}
+
+const defaultState: PersistedState = {
+  affiliateLinks: initialLinks,
+  joinedCampaigns: [],
+  balance: { available: 845.0, pending: 312.5, totalEarned: 4250.0, totalWithdrawn: 3092.5 },
+  transactions: initialTransactions,
+  paymentMethods: initialPaymentMethods,
+  creatorProfile: defaultCreator,
+  businessProfile: defaultBusiness,
+  bizCampaigns: initialBizCampaigns,
+  customCampaigns: [],
+  activity: [
+    { id: "a1", emoji: "💰", text: "Earned $12.50 from The Mint Garden", date: "2m ago" },
+    { id: "a2", emoji: "🔗", text: "New click on Azure Hotel link", date: "5m ago" },
+  ],
+};
+
+export function AffiliateProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<PersistedState>(() => loadState(STORAGE_KEY, defaultState));
+
+  // Persist
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  }, [state]);
+
+  // Simulate live click tracking + business revenue mirroring
   useEffect(() => {
     const interval = setInterval(() => {
-      setAffiliateLinks((prev) =>
-        prev.map((link) => {
+      setState((prev) => {
+        let activityToAdd: ActivityEvent[] = [];
+        const updatedLinks = prev.affiliateLinks.map((link) => {
           if (!link.active) return link;
           const clickBump = Math.random() > 0.5 ? Math.floor(Math.random() * 5) : 0;
           const convBump = clickBump > 2 && Math.random() > 0.7 ? 1 : 0;
-          const earnBump = convBump * (Math.random() * 3 + 0.5);
+          const earnBump = +(convBump * (Math.random() * 3 + 0.5)).toFixed(2);
           if (clickBump === 0) return link;
+
+          // Mirror to business revenue if it's the current business
+          if (earnBump > 0 && link.businessId === "1") {
+            activityToAdd.push({
+              id: `a${Date.now()}-${Math.random()}`,
+              emoji: "💰",
+              text: `Earned $${earnBump.toFixed(2)} from ${link.businessName}`,
+              date: "just now",
+            });
+          }
           return {
             ...link,
             clicks: link.clicks + clickBump,
             conversions: link.conversions + convBump,
             earned: +(link.earned + earnBump).toFixed(2),
           };
-        })
-      );
+        });
+
+        const newActivity = [...activityToAdd, ...prev.activity].slice(0, 20);
+
+        return { ...prev, affiliateLinks: updatedLinks, activity: newActivity };
+      });
     }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  const generateLink = useCallback((business: Business): AffiliateLink => {
-    const existing = affiliateLinks.find((l) => l.businessId === business.id);
-    if (existing) return existing;
+  // Auto-complete pending withdrawals after 10s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setState((prev) => {
+        const hasPending = prev.transactions.some((t) => t.type === "withdrawal" && t.status === "pending");
+        if (!hasPending) return prev;
+        return {
+          ...prev,
+          transactions: prev.transactions.map((t) =>
+            t.type === "withdrawal" && t.status === "pending" ? { ...t, status: "completed" as const } : t
+          ),
+        };
+      });
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
+  const generateLink = useCallback((business: Business): AffiliateLink => {
+    const existing = state.affiliateLinks.find((l) => l.businessId === business.id);
+    if (existing) return existing;
     const newLink: AffiliateLink = {
       id: `l${Date.now()}`,
       businessId: business.id,
       businessName: business.name,
       code: business.name.toLowerCase().replace(/\s+/g, "-"),
-      clicks: 0,
-      conversions: 0,
-      earned: 0,
-      active: true,
-      createdAt: "Today",
+      clicks: 0, conversions: 0, earned: 0, active: true, createdAt: "Today",
     };
-    setAffiliateLinks((prev) => [newLink, ...prev]);
+    setState((prev) => ({
+      ...prev,
+      affiliateLinks: [newLink, ...prev.affiliateLinks],
+      activity: [{ id: `a${Date.now()}`, emoji: "🔗", text: `Generated link for ${business.name}`, date: "just now" }, ...prev.activity].slice(0, 20),
+    }));
     return newLink;
-  }, [affiliateLinks]);
+  }, [state.affiliateLinks]);
 
   const joinCampaign = useCallback((campaign: Campaign) => {
-    if (joinedCampaigns.includes(campaign.id)) return;
-    setJoinedCampaigns((prev) => [...prev, campaign.id]);
-    // Also generate a link for this business if not already
-    const existing = affiliateLinks.find((l) => l.businessId === campaign.businessId);
-    if (!existing) {
-      const newLink: AffiliateLink = {
-        id: `l${Date.now()}`,
-        businessId: campaign.businessId,
-        businessName: campaign.businessName,
-        code: campaign.businessName.toLowerCase().replace(/\s+/g, "-"),
-        clicks: 0,
-        conversions: 0,
-        earned: 0,
-        active: true,
-        createdAt: "Today",
+    setState((prev) => {
+      if (prev.joinedCampaigns.includes(campaign.id)) return prev;
+      const existing = prev.affiliateLinks.find((l) => l.businessId === campaign.businessId);
+      const links = existing
+        ? prev.affiliateLinks
+        : [{
+            id: `l${Date.now()}`,
+            businessId: campaign.businessId,
+            businessName: campaign.businessName,
+            code: campaign.businessName.toLowerCase().replace(/\s+/g, "-"),
+            clicks: 0, conversions: 0, earned: 0, active: true, createdAt: "Today",
+          }, ...prev.affiliateLinks];
+      return {
+        ...prev,
+        joinedCampaigns: [...prev.joinedCampaigns, campaign.id],
+        affiliateLinks: links,
+        activity: [{ id: `a${Date.now()}`, emoji: "🎯", text: `Joined "${campaign.title}"`, date: "just now" }, ...prev.activity].slice(0, 20),
       };
-      setAffiliateLinks((prev) => [newLink, ...prev]);
-    }
-  }, [joinedCampaigns, affiliateLinks]);
+    });
+  }, []);
 
-  const isCampaignJoined = useCallback((campaignId: string) => {
-    return joinedCampaigns.includes(campaignId);
-  }, [joinedCampaigns]);
+  const isCampaignJoined = useCallback((id: string) => state.joinedCampaigns.includes(id), [state.joinedCampaigns]);
 
   const requestWithdrawal = useCallback((amount: number, methodId: string): boolean => {
-    if (amount < 5 || amount > balance.available) return false;
-    const method = paymentMethods.find((m) => m.id === methodId);
-    const newTx: Transaction = {
-      id: `t${Date.now()}`,
-      type: "withdrawal",
-      amount: -amount,
-      source: method?.name || "Bank Transfer",
-      date: "Just now",
-      status: "pending",
-    };
-    setTransactions((prev) => [newTx, ...prev]);
-    setBalance((prev) => ({
+    if (amount < 5 || amount > state.balance.available) return false;
+    const method = state.paymentMethods.find((m) => m.id === methodId);
+    setState((prev) => ({
       ...prev,
-      available: +(prev.available - amount).toFixed(2),
-      totalWithdrawn: +(prev.totalWithdrawn + amount).toFixed(2),
+      transactions: [{
+        id: `t${Date.now()}`, type: "withdrawal", amount: -amount,
+        source: method?.name || "Bank Transfer", date: "Just now", status: "pending",
+      }, ...prev.transactions],
+      balance: {
+        ...prev.balance,
+        available: +(prev.balance.available - amount).toFixed(2),
+        totalWithdrawn: +(prev.balance.totalWithdrawn + amount).toFixed(2),
+      },
     }));
     return true;
-  }, [balance.available, paymentMethods]);
+  }, [state.balance.available, state.paymentMethods]);
 
   const addPaymentMethod = useCallback((name: string, type: PaymentMethod["type"]) => {
-    const newMethod: PaymentMethod = {
-      id: `pm${Date.now()}`,
-      name,
-      type,
-      isDefault: false,
-    };
-    setPaymentMethods((prev) => [...prev, newMethod]);
+    setState((prev) => ({
+      ...prev,
+      paymentMethods: [...prev.paymentMethods, { id: `pm${Date.now()}`, name, type, isDefault: false }],
+    }));
+  }, []);
+
+  const removePaymentMethod = useCallback((id: string) => {
+    setState((prev) => ({ ...prev, paymentMethods: prev.paymentMethods.filter((m) => m.id !== id) }));
   }, []);
 
   const setDefaultPaymentMethod = useCallback((id: string) => {
-    setPaymentMethods((prev) =>
-      prev.map((m) => ({ ...m, isDefault: m.id === id }))
-    );
+    setState((prev) => ({
+      ...prev,
+      paymentMethods: prev.paymentMethods.map((m) => ({ ...m, isDefault: m.id === id })),
+    }));
   }, []);
+
+  const setCreatorProfile = useCallback((p: Partial<CreatorProfile>) => {
+    setState((prev) => ({ ...prev, creatorProfile: { ...prev.creatorProfile, ...p } }));
+  }, []);
+
+  const setBusinessProfile = useCallback((p: Partial<BusinessProfile>) => {
+    setState((prev) => ({ ...prev, businessProfile: { ...prev.businessProfile, ...p } }));
+  }, []);
+
+  const addBizCampaign = useCallback((c: BizCampaign & { description?: string; type?: string }) => {
+    setState((prev) => {
+      // Also create a creator-facing Campaign
+      const creatorCampaign: Campaign = {
+        id: c.id,
+        businessId: "1",
+        businessName: prev.businessProfile.name,
+        businessImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
+        title: c.title,
+        description: c.description || "Newly launched campaign.",
+        type: (c.type as Campaign["type"]) || "open",
+        commission: c.commission,
+        deadline: c.endDate || "Ongoing",
+        slots: 50,
+        slotsUsed: 0,
+        tags: ["new"],
+        city: prev.businessProfile.city,
+      };
+      return {
+        ...prev,
+        bizCampaigns: [c, ...prev.bizCampaigns],
+        customCampaigns: [creatorCampaign, ...prev.customCampaigns],
+      };
+    });
+  }, []);
+
+  const updateBizCampaign = useCallback((id: string, patch: Partial<BizCampaign>) => {
+    setState((prev) => ({
+      ...prev,
+      bizCampaigns: prev.bizCampaigns.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    }));
+  }, []);
+
+  const deleteBizCampaign = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      bizCampaigns: prev.bizCampaigns.filter((c) => c.id !== id),
+      customCampaigns: prev.customCampaigns.filter((c) => c.id !== id),
+    }));
+  }, []);
+
+  // Derived: badges based on real milestones
+  const badges = useMemo(() => {
+    const totalLinks = state.affiliateLinks.length;
+    const totalEarned = state.affiliateLinks.reduce((s, l) => s + l.earned, 0) + state.balance.totalEarned;
+    const totalConvs = state.affiliateLinks.reduce((s, l) => s + l.conversions, 0);
+    const cities = new Set<string>();
+    return [
+      { emoji: "🔗", name: "First Link", desc: "Generate 1 link", earned: totalLinks >= 1 },
+      { emoji: "⭐", name: "Top Promoter", desc: "10+ links", earned: totalLinks >= 10 },
+      { emoji: "🎯", name: "Closer", desc: "10 conversions", earned: totalConvs >= 10 },
+      { emoji: "💎", name: "Diamond Earner", desc: "$1K earned", earned: totalEarned >= 1000 },
+      { emoji: "🏆", name: "5K Club", desc: "$5K earned", earned: totalEarned >= 5000 },
+      { emoji: "🌍", name: "Global Reach", desc: "3 cities", earned: cities.size >= 3 },
+    ];
+  }, [state.affiliateLinks, state.balance.totalEarned]);
+
+  const allCampaigns = useMemo(
+    () => [...state.customCampaigns, ...sampleCampaigns],
+    [state.customCampaigns]
+  );
 
   return (
     <AffiliateContext.Provider
       value={{
-        affiliateLinks,
-        joinedCampaigns,
-        balance,
-        transactions,
-        paymentMethods,
+        affiliateLinks: state.affiliateLinks,
+        joinedCampaigns: state.joinedCampaigns,
+        balance: state.balance,
+        transactions: state.transactions,
+        paymentMethods: state.paymentMethods,
+        creatorProfile: state.creatorProfile,
+        businessProfile: state.businessProfile,
+        bizCampaigns: state.bizCampaigns,
+        allCampaigns,
+        activity: state.activity,
+        badges,
+        setCreatorProfile,
+        setBusinessProfile,
+        addBizCampaign,
+        updateBizCampaign,
+        deleteBizCampaign,
         generateLink,
         joinCampaign,
         isCampaignJoined,
         requestWithdrawal,
         addPaymentMethod,
+        removePaymentMethod,
         setDefaultPaymentMethod,
       }}
     >
