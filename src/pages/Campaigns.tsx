@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe, Check, Copy } from "lucide-react";
-import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
+import { type Campaign } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
 import { useAffiliate } from "@/contexts/AffiliateContext";
@@ -24,13 +24,13 @@ const typeBadge: Record<Campaign["type"], { bg: string; text: string; label: str
 
 const Campaigns = () => {
   const navigate = useNavigate();
-  const { joinCampaign, isCampaignJoined } = useAffiliate();
+  const { joinCampaign, isCampaignJoined, allCampaigns } = useAffiliate();
   const [activeTab, setActiveTab] = useState("all");
 
   const filtered = useMemo(() => {
-    if (activeTab === "all") return sampleCampaigns;
-    return sampleCampaigns.filter((c) => c.type === activeTab);
-  }, [activeTab]);
+    if (activeTab === "all") return allCampaigns;
+    return allCampaigns.filter((c) => c.type === activeTab);
+  }, [activeTab, allCampaigns]);
 
   const handleJoin = (campaign: Campaign) => {
     if (isCampaignJoined(campaign.id)) {
@@ -82,7 +82,7 @@ const Campaigns = () => {
                 {tab.label}
                 {tab.value !== "all" && (
                   <span className="text-xs opacity-60">
-                    ({sampleCampaigns.filter((c) => c.type === tab.value).length})
+                    ({allCampaigns.filter((c) => c.type === tab.value).length})
                   </span>
                 )}
               </button>
