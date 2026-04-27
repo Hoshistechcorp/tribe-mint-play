@@ -84,10 +84,14 @@ const Payouts = () => {
             <button onClick={() => navigate("/dashboard")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold font-heading">Payouts 💸</h1>
               <p className="text-sm text-muted-foreground">Track earnings & withdraw funds</p>
             </div>
+            <button onClick={() => navigate("/withdrawals")}
+              className="px-4 py-2 border border-border rounded-lg font-medium text-sm hover:bg-muted transition-colors">
+              Withdrawals 🏦
+            </button>
           </div>
 
           {/* Balance cards */}
