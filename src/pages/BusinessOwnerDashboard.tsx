@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Plus, Users, DollarSign, BarChart3, Edit3, Trash2, Eye,
-  TrendingUp, Star, X, Save,
+  TrendingUp, Star, X, Save, Pause, Play, Tags, MousePointerClick, AlertTriangle,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
@@ -26,6 +26,7 @@ const BusinessOwnerDashboard = () => {
   const {
     businessProfile, setBusinessProfile,
     bizCampaigns, addBizCampaign, updateBizCampaign, deleteBizCampaign,
+    topUpCampaignBudget, toggleCampaignPause,
     affiliateLinks,
   } = useAffiliate();
 
@@ -37,9 +38,10 @@ const BusinessOwnerDashboard = () => {
   const [editingCampaign, setEditingCampaign] = useState<BizCampaign | null>(null);
 
   // Compute live stats from real data
-  const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0)
-    + affiliateLinks.filter(l => l.businessId === "1").reduce((s, l) => s + l.earned * 5, 0); // creator earned ≈ 20% commission
+  const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0);
   const activeAffiliates = bizCampaigns.reduce((s, c) => s + c.affiliates, 0);
+  const totalDiscountSpent = bizCampaigns.reduce((s, c) => s + c.discountSpent, 0);
+  const totalClickSpent = bizCampaigns.reduce((s, c) => s + c.clickSpent, 0);
 
   const tabs = [
     { key: "overview", label: "Overview 📊", icon: BarChart3 },
@@ -90,8 +92,8 @@ const BusinessOwnerDashboard = () => {
             {[
               { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "text-primary" },
               { label: "Active Affiliates", value: activeAffiliates, icon: Users, color: "text-secondary" },
-              { label: "Avg Rating", value: businessProfile.rating, icon: Star, color: "text-accent" },
-              { label: "Campaigns", value: bizCampaigns.length, icon: BarChart3, color: "text-primary" },
+              { label: "Discount Spend", value: `$${totalDiscountSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: Tags, color: "text-accent" },
+              { label: "Click Payout", value: `$${totalClickSpent.toFixed(2)}`, icon: MousePointerClick, color: "text-primary" },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                 className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
