@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal } from "lucide-react";
+import ibloovLogo from "@/assets/ibloov-logo.jpeg";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -27,10 +28,11 @@ const HeroSection = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-background text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground"
             >
               <span className="w-2 h-2 rounded-full bg-lime animate-pulse" />
-              Powered by AuraLink
+              <span>TribeMint by</span>
+              <img src={ibloovLogo} alt="iBloov" className="h-4 sm:h-5 w-auto object-contain" />
             </motion.div>
 
             <motion.h1
@@ -39,13 +41,13 @@ const HeroSection = () => {
               transition={{ duration: 0.7 }}
               className="text-3xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.08] font-heading text-foreground"
             >
-              Share a link.
+              Share. Promote.
               <br />
-              Earn{" "}
               <span className="relative inline-block">
-                <span className="font-display italic text-foreground">real money.</span>
+                <span className="font-display italic text-foreground">Earn.</span>
                 <span className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 bg-lime/30 rounded-full -z-10" />
-              </span>
+              </span>{" "}
+              <span className="inline-block">💰</span>
             </motion.h1>
 
             <motion.p
@@ -54,7 +56,7 @@ const HeroSection = () => {
               transition={{ delay: 0.15 }}
               className="text-sm sm:text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed"
             >
-              Promote restaurants, hotels, events, and gift cards to your audience. Earn commissions on every booking, every sale, every click.{" "}
+              Find spots you love. Share your link. Get paid.{" "}
               <span className="font-semibold text-foreground">
                 500 followers or 500K — your earnings are based on impact, not reach.
               </span>
