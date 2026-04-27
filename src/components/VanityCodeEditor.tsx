@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Loader2, Wand2 } from "lucide-react";
+import { X, Check, Loader2, Wand2, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 
@@ -12,17 +12,40 @@ interface Props {
 }
 
 const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
-  const { updateLinkCode } = useAffiliate();
+  const { updateLinkCode, isCodeAvailable } = useAffiliate();
   const [value, setValue] = useState(currentCode);
   const [saving, setSaving] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [available, setAvailable] = useState<boolean | null>(null);
 
   const cleaned = value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
   const valid = cleaned.length >= 3 && cleaned.length <= 30;
   const previewUrl = `tribemint.link/${cleaned || "..."}`;
+  const isSameAsCurrent = cleaned === currentCode;
+
+  // Debounced live availability check
+  useEffect(() => {
+    if (!valid || isSameAsCurrent) {
+      setAvailable(null);
+      setChecking(false);
+      return;
+    }
+    setChecking(true);
+    setAvailable(null);
+    const t = setTimeout(() => {
+      setAvailable(isCodeAvailable(cleaned, linkId));
+      setChecking(false);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [cleaned, valid, isSameAsCurrent, isCodeAvailable, linkId]);
 
   const handleSave = () => {
     if (!valid) {
       toast({ title: "❌ Invalid code", description: "Use 3–30 letters, numbers or dashes." });
+      return;
+    }
+    if (available === false) {
+      toast({ title: "❌ Code already taken", description: "Try a different one." });
       return;
     }
     setSaving(true);
@@ -34,6 +57,7 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
         onClose();
       } else {
         toast({ title: "❌ Code already taken", description: "Try a different one." });
+        setAvailable(false);
       }
     }, 600);
   };
@@ -65,6 +89,32 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
                 />
               </div>
               <p className="text-[11px] text-muted-foreground mt-1.5">3–30 chars · letters, numbers, dashes</p>
+              {/* Live availability status */}
+              <div className="mt-2 min-h-[20px] text-xs flex items-center gap-1.5">
+                {!valid && cleaned.length > 0 && (
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" /> Too short
+                  </span>
+                )}
+                {valid && isSameAsCurrent && (
+                  <span className="text-muted-foreground">This is your current code</span>
+                )}
+                {valid && !isSameAsCurrent && checking && (
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Checking availability...
+                  </span>
+                )}
+                {valid && !isSameAsCurrent && !checking && available === true && (
+                  <span className="text-primary font-semibold flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5" /> Available ✨
+                  </span>
+                )}
+                {valid && !isSameAsCurrent && !checking && available === false && (
+                  <span className="text-destructive font-semibold flex items-center gap-1.5">
+                    <X className="w-3.5 h-3.5" /> Already taken
+                  </span>
+                )}
+              </div>
             </div>
 
             <motion.div key={cleaned} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
@@ -78,7 +128,7 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
                 className="flex-1 px-4 py-3 border border-border text-foreground rounded-xl font-medium text-sm hover:bg-muted transition-colors">
                 Cancel
               </button>
-              <button onClick={handleSave} disabled={saving || !valid || cleaned === currentCode}
+              <button onClick={handleSave} disabled={saving || !valid || isSameAsCurrent || checking || available === false}
                 className="flex-1 px-4 py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center justify-center gap-2 disabled:opacity-50">
                 {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
               </button>
