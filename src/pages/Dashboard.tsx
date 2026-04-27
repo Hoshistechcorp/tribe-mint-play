@@ -13,25 +13,19 @@ import {
   Copy,
   ExternalLink,
   Check,
+  Trophy,
+  Target,
 } from "lucide-react";
-
-const badges = [
-  { emoji: "💼", name: "City Explorer", desc: "Visit 5 spots", earned: true },
-  { emoji: "🎉", name: "Event Pro", desc: "3 events shared", earned: true },
-  { emoji: "⭐", name: "Top Promoter", desc: "10 links", earned: true },
-  { emoji: "🔥", name: "Streak Master", desc: "7-day streak", earned: false },
-  { emoji: "💎", name: "Diamond Earner", desc: "$1K earned", earned: true },
-  { emoji: "🌍", name: "Global Reach", desc: "3 cities", earned: false },
-];
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { affiliateLinks, balance, transactions } = useAffiliate();
+  const { affiliateLinks, balance, transactions, badges, creatorProfile } = useAffiliate();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   const totalClicks = affiliateLinks.reduce((s, l) => s + l.clicks, 0);
   const totalConversions = affiliateLinks.reduce((s, l) => s + l.conversions, 0);
-  const totalEarned = balance.totalEarned;
+  const liveEarned = affiliateLinks.reduce((s, l) => s + l.earned, 0);
+  const totalEarned = balance.totalEarned + liveEarned;
   const avgEPC = totalClicks > 0 ? (totalEarned / totalClicks) : 0;
 
   const stats = [
@@ -58,11 +52,18 @@ const Dashboard = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
-            <h1 className="font-heading font-bold text-lg">Creator Dashboard</h1>
+            <h1 className="font-heading font-bold text-lg">Welcome, {creatorProfile.displayName.split(" ")[0]} 👋</h1>
+            <p className="text-xs text-muted-foreground">@{creatorProfile.username}</p>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => navigate("/campaigns")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
+              <Target className="w-4 h-4" /> Campaigns
+            </button>
+            <button onClick={() => navigate("/leaderboard")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
+              <Trophy className="w-4 h-4" /> Leaderboard
+            </button>
             <button onClick={() => navigate("/profile")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
-              Settings ⚙️
+              ⚙️
             </button>
             <button onClick={() => navigate("/payouts")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               Payouts 💸

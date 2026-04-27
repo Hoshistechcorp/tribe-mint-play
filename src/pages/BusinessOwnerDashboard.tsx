@@ -1,16 +1,9 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  Plus,
-  Users,
-  DollarSign,
-  BarChart3,
-  Edit3,
-  Trash2,
-  Eye,
-  TrendingUp,
-  Star,
+  Plus, Users, DollarSign, BarChart3, Edit3, Trash2, Eye,
+  TrendingUp, Star, X, Save,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
@@ -18,23 +11,7 @@ import CreateCampaignModal from "@/components/business/CreateCampaignModal";
 import AnalyticsCharts from "@/components/business/AnalyticsCharts";
 import ActivityFeed from "@/components/business/ActivityFeed";
 import { toast } from "@/hooks/use-toast";
-
-const businessProfile = {
-  name: "The Mint Garden",
-  category: "Restaurant & Bar",
-  city: "Lagos",
-  image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-  bio: "Premium dining experience in the heart of Lagos. Farm-to-table cuisine with craft cocktails.",
-  rating: 4.8,
-  totalAffiliates: 45,
-  totalRevenue: "$12,450",
-};
-
-const initialCampaigns = [
-  { id: "1", title: "Weekend Brunch Push 🥂", status: "active", affiliates: 23, clicks: 4500, conversions: 120, revenue: "$3,600", commission: 15 },
-  { id: "2", title: "Date Night Special 🌙", status: "active", affiliates: 18, clicks: 2800, conversions: 85, revenue: "$2,550", commission: 12 },
-  { id: "3", title: "Holiday Menu Launch 🎄", status: "ended", affiliates: 31, clicks: 6200, conversions: 210, revenue: "$6,300", commission: 18 },
-];
+import { useAffiliate, type BizCampaign } from "@/contexts/AffiliateContext";
 
 const topAffiliates = [
   { name: "Sarah M.", clicks: 1200, conversions: 45, earned: "$675", avatar: "🧑‍💻" },
@@ -46,11 +23,23 @@ const topAffiliates = [
 
 const BusinessOwnerDashboard = () => {
   const navigate = useNavigate();
+  const {
+    businessProfile, setBusinessProfile,
+    bizCampaigns, addBizCampaign, updateBizCampaign, deleteBizCampaign,
+    affiliateLinks,
+  } = useAffiliate();
+
   const [activeTab, setActiveTab] = useState<"overview" | "campaigns" | "affiliates" | "profile">("overview");
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(businessProfile);
-  const [campaigns, setCampaigns] = useState(initialCampaigns);
+  const [profileDraft, setProfileDraft] = useState(businessProfile);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [viewingCampaign, setViewingCampaign] = useState<BizCampaign | null>(null);
+  const [editingCampaign, setEditingCampaign] = useState<BizCampaign | null>(null);
+
+  // Compute live stats from real data
+  const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0)
+    + affiliateLinks.filter(l => l.businessId === "1").reduce((s, l) => s + l.earned * 5, 0); // creator earned ≈ 20% commission
+  const activeAffiliates = bizCampaigns.reduce((s, c) => s + c.affiliates, 0);
 
   const tabs = [
     { key: "overview", label: "Overview 📊", icon: BarChart3 },
@@ -59,21 +48,33 @@ const BusinessOwnerDashboard = () => {
     { key: "profile", label: "Profile ✏️", icon: Edit3 },
   ] as const;
 
-  const deleteCampaign = (id: string) => {
-    setCampaigns(campaigns.filter((c) => c.id !== id));
+  const handleDelete = (id: string) => {
+    deleteBizCampaign(id);
     toast({ title: "Campaign deleted", variant: "destructive" });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingCampaign) return;
+    updateBizCampaign(editingCampaign.id, editingCampaign);
+    toast({ title: "Campaign updated! ✅" });
+    setEditingCampaign(null);
+  };
+
+  const handleSaveProfile = () => {
+    setBusinessProfile(profileDraft);
+    setIsEditing(false);
+    toast({ title: "Profile updated! ✅" });
   };
 
   return (
     <PageTransition>
       <Navbar />
       <div className="min-h-screen bg-background pt-16">
-        {/* Header */}
         <div className="border-b border-border bg-card/50 backdrop-blur-xl">
           <div className="container flex items-center gap-4 h-16">
             <div className="flex-1">
               <h1 className="font-heading font-bold text-lg">Business Dashboard</h1>
-              <p className="text-xs text-muted-foreground">{profile.name} · {profile.city}</p>
+              <p className="text-xs text-muted-foreground">{businessProfile.name} · {businessProfile.city}</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -85,21 +86,15 @@ const BusinessOwnerDashboard = () => {
         </div>
 
         <div className="container py-8 space-y-8">
-          {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Total Revenue", value: profile.totalRevenue, icon: DollarSign, color: "text-primary" },
-              { label: "Active Affiliates", value: profile.totalAffiliates, icon: Users, color: "text-secondary" },
-              { label: "Avg Rating", value: profile.rating, icon: Star, color: "text-accent" },
-              { label: "Campaigns", value: campaigns.length, icon: BarChart3, color: "text-primary" },
+              { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "text-primary" },
+              { label: "Active Affiliates", value: activeAffiliates, icon: Users, color: "text-secondary" },
+              { label: "Avg Rating", value: businessProfile.rating, icon: Star, color: "text-accent" },
+              { label: "Campaigns", value: bizCampaigns.length, icon: BarChart3, color: "text-primary" },
             ].map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card"
-              >
+              <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
                 <div className="flex items-center gap-2 mb-2">
                   <s.icon className={`w-4 h-4 ${s.color}`} />
                   <span className="text-xs text-muted-foreground font-medium">{s.label}</span>
@@ -109,48 +104,31 @@ const BusinessOwnerDashboard = () => {
             ))}
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-2 border-b border-border pb-0 overflow-x-auto">
             {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
+                  activeTab === tab.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}>
                 {tab.label}
               </button>
             ))}
           </div>
 
-          {/* Overview Tab */}
           {activeTab === "overview" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <AnalyticsCharts />
-                </div>
-                <div>
-                  <ActivityFeed />
-                </div>
+                <div className="lg:col-span-2"><AnalyticsCharts /></div>
+                <div><ActivityFeed /></div>
               </div>
             </motion.div>
           )}
 
-          {/* Campaigns Tab */}
           {activeTab === "campaigns" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {campaigns.map((c, i) => (
-                <motion.div
-                  key={c.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card"
-                >
+              {bizCampaigns.map((c, i) => (
+                <motion.div key={c.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
+                  className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -162,16 +140,13 @@ const BusinessOwnerDashboard = () => {
                       <p className="text-xs text-muted-foreground mt-1">{c.commission}% commission · {c.affiliates} affiliates</p>
                     </div>
                     <div className="flex gap-2">
-                      <button className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
+                      <button onClick={() => setViewingCampaign(c)} className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
+                      <button onClick={() => setEditingCampaign({ ...c })} className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
                         <Edit3 className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => deleteCampaign(c.id)}
-                        className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
-                      >
+                      <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -186,14 +161,14 @@ const BusinessOwnerDashboard = () => {
                       <p className="text-[10px] text-muted-foreground">Conversions</p>
                     </div>
                     <div className="text-center p-3 rounded-xl bg-background/50">
-                      <p className="text-lg font-bold font-heading text-secondary">{c.revenue}</p>
+                      <p className="text-lg font-bold font-heading text-secondary">${c.revenue.toLocaleString()}</p>
                       <p className="text-[10px] text-muted-foreground">Revenue</p>
                     </div>
                   </div>
                 </motion.div>
               ))}
 
-              {campaigns.length === 0 && (
+              {bizCampaigns.length === 0 && (
                 <div className="text-center py-16 text-muted-foreground">
                   <p className="text-lg mb-2">No campaigns yet</p>
                   <button onClick={() => setShowCreateModal(true)} className="text-primary font-bold hover:underline">
@@ -204,21 +179,13 @@ const BusinessOwnerDashboard = () => {
             </motion.div>
           )}
 
-          {/* Affiliates Tab */}
           {activeTab === "affiliates" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
               <h3 className="font-heading font-bold text-lg">Top Performing Affiliates 🏆</h3>
               {topAffiliates.map((a, i) => (
-                <motion.div
-                  key={a.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
-                >
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">
-                    {a.avatar}
-                  </div>
+                <motion.div key={a.name} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
+                  className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">{a.avatar}</div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm font-heading">{a.name}</p>
                     <p className="text-xs text-muted-foreground">{a.clicks.toLocaleString()} clicks · {a.conversions} conversions</p>
@@ -233,11 +200,10 @@ const BusinessOwnerDashboard = () => {
             </motion.div>
           )}
 
-          {/* Profile Tab */}
           {activeTab === "profile" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl space-y-6">
               <div className="rounded-2xl bg-gradient-card border border-border shadow-card overflow-hidden">
-                <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${profile.image})` }} />
+                <div className="h-32 bg-cover bg-center bg-muted flex items-center justify-center text-6xl">{businessProfile.logo}</div>
                 <div className="p-6 space-y-4">
                   {isEditing ? (
                     <>
@@ -245,34 +211,29 @@ const BusinessOwnerDashboard = () => {
                         {[
                           { label: "Business Name", key: "name" as const },
                           { label: "Category", key: "category" as const },
+                          { label: "City", key: "city" as const },
+                          { label: "Website", key: "website" as const },
                         ].map((field) => (
                           <div key={field.key}>
                             <label className="text-xs text-muted-foreground font-medium">{field.label}</label>
-                            <input
-                              value={profile[field.key]}
-                              onChange={(e) => setProfile({ ...profile, [field.key]: e.target.value })}
-                              className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            />
+                            <input value={profileDraft[field.key] as string}
+                              onChange={(e) => setProfileDraft({ ...profileDraft, [field.key]: e.target.value })}
+                              className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                           </div>
                         ))}
                         <div>
-                          <label className="text-xs text-muted-foreground font-medium">Bio</label>
-                          <textarea
-                            value={profile.bio}
-                            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                          <label className="text-xs text-muted-foreground font-medium">Description</label>
+                          <textarea value={profileDraft.description}
+                            onChange={(e) => setProfileDraft({ ...profileDraft, description: e.target.value })}
                             rows={3}
-                            className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                          />
+                            className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
                         </div>
                       </div>
                       <div className="flex gap-3">
-                        <button
-                          onClick={() => { setIsEditing(false); toast({ title: "Profile Updated! ✅" }); }}
-                          className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm"
-                        >
+                        <button onClick={handleSaveProfile} className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm">
                           Save Changes
                         </button>
-                        <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-muted text-foreground rounded-lg text-sm">
+                        <button onClick={() => { setIsEditing(false); setProfileDraft(businessProfile); }} className="px-4 py-2 bg-muted text-foreground rounded-lg text-sm">
                           Cancel
                         </button>
                       </div>
@@ -281,20 +242,18 @@ const BusinessOwnerDashboard = () => {
                     <>
                       <div className="flex items-start justify-between">
                         <div>
-                          <h2 className="text-xl font-bold font-heading">{profile.name}</h2>
-                          <p className="text-sm text-muted-foreground">{profile.category} · {profile.city}</p>
+                          <h2 className="text-xl font-bold font-heading">{businessProfile.name}</h2>
+                          <p className="text-sm text-muted-foreground">{businessProfile.category} · {businessProfile.city}</p>
                         </div>
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                        >
+                        <button onClick={() => { setProfileDraft(businessProfile); setIsEditing(true); }}
+                          className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
                           <Edit3 className="w-3 h-3" /> Edit
                         </button>
                       </div>
-                      <p className="text-sm text-muted-foreground">{profile.bio}</p>
-                      <div className="flex gap-2">
-                        <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">⭐ {profile.rating} Rating</span>
-                        <span className="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">👥 {profile.totalAffiliates} Affiliates</span>
+                      <p className="text-sm text-muted-foreground">{businessProfile.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">⭐ {businessProfile.rating} Rating</span>
+                        <span className="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">💰 {businessProfile.commissionRate}% Commission</span>
                       </div>
                     </>
                   )}
@@ -308,9 +267,101 @@ const BusinessOwnerDashboard = () => {
           open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onCreated={(campaign) => {
-            setCampaigns([campaign, ...campaigns]);
+            addBizCampaign({
+              id: campaign.id,
+              title: campaign.title,
+              description: (campaign as any).description,
+              status: "active",
+              affiliates: campaign.affiliates,
+              clicks: campaign.clicks,
+              conversions: campaign.conversions,
+              revenue: 0,
+              commission: campaign.commission,
+              budget: campaign.budget,
+              type: campaign.type,
+              startDate: campaign.startDate,
+              endDate: campaign.endDate,
+            });
           }}
         />
+
+        {/* View Modal */}
+        <AnimatePresence>
+          {viewingCampaign && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setViewingCampaign(null)}>
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold font-heading">{viewingCampaign.title}</h3>
+                  <button onClick={() => setViewingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                </div>
+                {viewingCampaign.description && <p className="text-sm text-muted-foreground">{viewingCampaign.description}</p>}
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Status</p><p className="font-bold capitalize">{viewingCampaign.status}</p></div>
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Commission</p><p className="font-bold">{viewingCampaign.commission}%</p></div>
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Clicks</p><p className="font-bold">{viewingCampaign.clicks.toLocaleString()}</p></div>
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Conversions</p><p className="font-bold text-primary">{viewingCampaign.conversions}</p></div>
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Affiliates</p><p className="font-bold">{viewingCampaign.affiliates}</p></div>
+                  <div className="p-3 rounded-xl bg-muted/50"><p className="text-muted-foreground">Revenue</p><p className="font-bold text-secondary">${viewingCampaign.revenue.toLocaleString()}</p></div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Edit Modal */}
+        <AnimatePresence>
+          {editingCampaign && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setEditingCampaign(null)}>
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold font-heading">Edit Campaign</h3>
+                  <button onClick={() => setEditingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-medium">Title</label>
+                  <input value={editingCampaign.title} onChange={(e) => setEditingCampaign({ ...editingCampaign, title: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-medium">Description</label>
+                  <textarea value={editingCampaign.description || ""} onChange={(e) => setEditingCampaign({ ...editingCampaign, description: e.target.value })}
+                    rows={3}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium">Status</label>
+                    <select value={editingCampaign.status}
+                      onChange={(e) => setEditingCampaign({ ...editingCampaign, status: e.target.value as BizCampaign["status"] })}
+                      className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                      <option value="active">Active</option>
+                      <option value="paused">Paused</option>
+                      <option value="ended">Ended</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium">Commission %</label>
+                    <input type="number" value={editingCampaign.commission}
+                      onChange={(e) => setEditingCampaign({ ...editingCampaign, commission: Number(e.target.value) })}
+                      className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                </div>
+                <button onClick={handleSaveEdit}
+                  className="w-full px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm flex items-center justify-center gap-2">
+                  <Save className="w-4 h-4" /> Save Changes
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PageTransition>
   );

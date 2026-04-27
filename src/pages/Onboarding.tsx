@@ -18,11 +18,13 @@ import {
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 
 type Role = "creator" | "business" | null;
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { setCreatorProfile, setBusinessProfile } = useAffiliate();
   const [role, setRole] = useState<Role>(null);
   const [step, setStep] = useState(0); // 0 = role select, 1-3 = role-specific steps
 
@@ -63,6 +65,30 @@ const Onboarding = () => {
 
   const handleFinish = () => {
     fireConfetti();
+    if (role === "creator") {
+      setCreatorProfile({
+        displayName: creatorData.displayName || "New Creator",
+        username: creatorData.username || "newcreator",
+        city: creatorData.city,
+        bio: creatorData.bio,
+        niche: creatorData.niche,
+        socials: {
+          instagram: creatorData.instagram,
+          twitter: creatorData.twitter,
+          website: creatorData.website,
+        },
+      });
+    } else if (role === "business") {
+      setBusinessProfile({
+        name: businessData.name,
+        category: businessData.category,
+        city: businessData.city,
+        description: businessData.description,
+        website: businessData.website,
+        commissionRate: Number(businessData.commissionRate) || 15,
+        logo: businessData.logo,
+      });
+    }
     toast({
       title: role === "creator" ? "Welcome to TribeMint! 🎉" : "Business registered! 🚀",
       description: role === "creator" ? "Start exploring campaigns and earning." : "Your business is ready for affiliates.",
