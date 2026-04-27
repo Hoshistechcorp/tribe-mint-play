@@ -166,16 +166,16 @@ const HeroSection = () => {
               className="flex flex-wrap items-start justify-center lg:justify-start gap-6 sm:gap-10 pt-2 sm:pt-4"
             >
               <div className="text-center lg:text-left">
-                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground">10-15%</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Commission per sale</p>
+                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground">​</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">​</p>
               </div>
               <div className="text-center lg:text-left">
-                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground font-display italic">24hr</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Payouts via Flex-it</p>
+                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground font-display italic">​</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">​</p>
               </div>
               <div className="text-center lg:text-left">
-                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground">50K+</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Creator target by 2028</p>
+                <p className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground">​</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">​</p>
               </div>
             </motion.div>
           </div>
