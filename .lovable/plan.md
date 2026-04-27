@@ -1,101 +1,115 @@
-# End-to-End Flow Audit — What's Missing
+# Business-Controlled Discounts & Click Earnings — End-to-End
 
-I traced both the **Creator** and **Business** journeys through every page and the simulated `AffiliateContext`. Here's a frank gap analysis grouped by funnel, plus what's worth fixing.
+Give business managers a real lever: they choose a **discount %** the creator can offer (e.g. 10% off a $50 gift card → buyer sees $45), set a **per-click payout (CPC)** for creators, and cap their exposure with a **discount budget**. Every creator-side surface reflects the discounted price + CPC, and every click/conversion debits the manager's budgets in real time.
 
 ---
 
-## 🟢 Creator Funnel (works end-to-end)
+## 1. The data model (manager's control panel)
+
+Extend `BizCampaign` with the manager's three levers + live spend:
 
 ```text
-Landing → Onboarding (role: Creator) → Dashboard
-   ↓                ↓                        ↓
-Search ───→ BusinessDetail ─→ Generate Link → Dashboard updates live
-   ↓                                         ↓
-Campaigns → Join → Link auto-created → Dashboard → Payouts → Withdraw → Tx history
+BizCampaign {
+  ...existing,
+  discountPercent: number,       // 0–50, what the buyer sees off
+  discountBudget: number,        // max $ the business will subsidize (discounts)
+  discountSpent: number,         // live-tracked
+  cpcRate: number,               // $ paid to creator per click (e.g. $0.05)
+  clickBudget: number,           // max $ for click payouts
+  clickSpent: number,            // live-tracked
+  payoutsPaused: boolean,        // auto-flip when a budget hits 0
+}
 ```
 
-This loop is solid — context state, simulated click ticking, confetti, toasts, withdrawal modal all wired up.
+Same fields on the creator-facing `Campaign` (read-only mirror) so creators see the offer.
 
-## 🟠 Business Funnel (mostly works, some dead ends)
+---
+
+## 2. Manager UX — Business Dashboard
+
+**Create / Edit Campaign modal** gets a new "Offer & Payouts" section:
+
+- Discount % slider (0–50%) with live preview: "Original $50 → Buyer pays **$45**"
+- Discount budget input ($) with helper: "Covers ~111 redemptions at this rate"
+- CPC rate input ($/click), default $0.05
+- Click budget input ($) with helper: "Covers ~2,000 clicks"
+- Toggle: Pause payouts manually
+
+**Campaigns tab card** gains a "Manager Controls" strip:
+- Discount badge (e.g. "10% OFF")
+- Two budget bars: Discount spent / budget · Clicks spent / budget
+- Quick actions: Pause, Top-up budget (+$100 / +$500 / custom), Edit discount
+- Status pill auto-updates to "PAUSED — budget exhausted" when either budget hits 0
+
+**Overview stats** add two tiles: "Discount Spend" and "Click Spend" (live).
+
+---
+
+## 3. Creator-side reflection
+
+Wherever a campaign/business is shown to creators, surface the offer:
+
+- **Campaigns list & BusinessDetail**: discount ribbon "10% OFF for your audience" + crossed-out original price next to discounted price (especially the Gift Card spotlight: $50 → ~~$50~~ **$45**).
+- **Generated link / QR**: includes the discount code visually ("Your audience saves 10% with `alex-tribe`").
+- **Dashboard link card**: shows the active CPC rate ("$0.05/click") and a small badge if payouts are paused so creators aren't surprised.
+
+---
+
+## 4. Click-based earnings (the new earning model)
+
+Today the simulated tick only credits creators on conversions. Add CPC:
+
+- On every simulated click bump for a link, look up the campaign's `cpcRate` and credit `clickBump * cpcRate` to the creator's `earned` + `balance.available`, **and** debit the campaign's `clickSpent`.
+- On every conversion, in addition to commission, debit `discountSpent += originalPrice * discountPercent` (mirrors the subsidy the business is paying the buyer).
+- When `clickSpent >= clickBudget` → stop crediting clicks (link still tracks impressions, no $).
+- When `discountSpent >= discountBudget` → flip `payoutsPaused = true`, conversions stop, creator card shows "Offer paused".
+- Activity feed gets new event types: `💸 +$0.05 click payout from {biz}`, `⚠️ Discount budget exhausted on {campaign}`.
+
+---
+
+## 5. End-to-end loop after this change
 
 ```text
-Landing → Onboarding (role: Business) → Business Dashboard
-                                              ↓
-                                  Create Campaign → list updates
-                                  Edit/View Campaign → ❌ no-op
-                                  Affiliates tab → ❌ static, no detail view
-                                  Profile edit → ✅ works
+Manager sets: 10% off, $500 discount budget, $0.05 CPC, $100 click budget
+   ↓
+Campaign appears to creators with "10% OFF · $0.05/click" badges
+   ↓
+Creator generates link / QR — buyer-facing price is auto-discounted
+   ↓
+Simulated clicks roll in:
+   • Creator earned += clicks × $0.05   (until click budget hits $100)
+   • Manager clickSpent ticks up live on dashboard
+   ↓
+Simulated conversions:
+   • Creator earned += sale × commission%
+   • Manager discountSpent += sale × 10%   (until $500 cap)
+   ↓
+When either budget exhausts → campaign auto-pauses, both sides notified
+   ↓
+Manager can top-up budget or change discount → ripples instantly to creators
 ```
 
 ---
 
-## ❌ Gaps Found (ranked by impact)
+## Technical notes
 
-### 1. Critical — broken / dead UI controls
-| Where | What's broken |
-|---|---|
-| `BusinessOwnerDashboard` campaigns tab | 👁 View and ✏️ Edit buttons do nothing |
-| `BusinessOwnerDashboard` stats | "Total Revenue / Affiliates / Rating" are hardcoded strings, don't reflect created campaigns |
-| `BusinessDetail` | `isOwner` is hardcoded `false` — edit mode is unreachable |
-| `CreatorProfile` "Add Payment Method" | Adds a placeholder row "New Method / Configure details…" — no input form (the proper form exists only in Payouts) |
-| Two separate payment-method stores | `CreatorProfile` has its own list, `Payouts`/`AffiliateContext` has another — they never sync |
-
-### 2. High — disconnected state across pages
-| Where | What's missing |
-|---|---|
-| Creator profile data | Onboarding collects displayName, niche, socials → **discarded**. `CreatorProfile` shows hardcoded "Alex Thompson" |
-| Business profile data | Onboarding collects business name/category/commission → **discarded**. `BusinessOwnerDashboard` shows hardcoded "The Mint Garden" |
-| Business → Creator link | A business owner creates a campaign → it doesn't appear in the Creator's `/campaigns` list (separate `sampleCampaigns` array) |
-| Creator earnings → Business revenue | Creator generates clicks/conversions on a link → business dashboard revenue numbers stay static |
-| Leaderboard | 100% hardcoded — current user never appears, can't see own rank |
-| Dashboard badges | Hardcoded `earned: true/false` — never react to actual milestones (clicks, earnings, links count) |
-
-### 3. Medium — navigation gaps
-| Missing entry point | Impact |
-|---|---|
-| No nav link to `/leaderboard` from Creator Dashboard or Navbar | Page is orphaned |
-| No nav link to `/campaigns` from Creator Dashboard | Creators have to go back to landing |
-| No login/sign-in concept | Onboarding goes straight to dashboard; no way to "switch role" or revisit onboarding |
-| `BusinessDetail` "Join" button on a campaign | Routes to `/campaigns` page instead of joining inline |
-
-### 4. Low — polish
-- All data resets on page refresh (no `localStorage` persistence) — context starts fresh every session
-- "Total Earned" on Dashboard uses `balance.totalEarned` (static $4,250) instead of summing live link earnings
-- Withdrawal pending status never auto-flips to "completed"
-- No empty state for businesses with zero campaigns in BusinessDetail
-- Notifications / activity feed for creators (only businesses have one)
+- All logic stays in `AffiliateContext.tsx` (no backend). Add helpers: `topUpCampaignBudget(id, kind, amount)`, `setCampaignDiscount(id, pct)`, `setCampaignCPC(id, rate)`, `pauseCampaign(id)`.
+- The existing `setInterval` tick is the single place that mutates clicks/earnings — extend it to also handle CPC credit + budget debits + auto-pause.
+- New helper `getDiscountedPrice(original, campaign)` used by Gift Card spotlight, Campaigns cards, BusinessDetail, and link share dialogs.
+- Persisted via existing `STORAGE_KEY` so manager budgets survive refresh.
+- Defaults for existing seeded campaigns: 10% discount, $500 discount budget, $0.05 CPC, $100 click budget — so the demo is alive immediately.
 
 ---
 
-## 🛠 Recommended Fix Priority
+## Files touched
 
-**Phase 1 — Wire the existing flows** (highest ROI, low effort)
-1. Persist `AffiliateContext` to `localStorage` so demo state survives refresh
-2. Save Onboarding output into context → use it in `CreatorProfile` & `BusinessOwnerDashboard`
-3. Unify payment methods (delete duplicate state in `CreatorProfile`, read from context)
-4. Add Leaderboard + Campaigns links to Creator Dashboard header
+- `src/contexts/AffiliateContext.tsx` — new fields, helpers, tick logic
+- `src/components/business/CreateCampaignModal.tsx` — Offer & Payouts section
+- `src/pages/BusinessOwnerDashboard.tsx` — manager controls strip + new stat tiles + edit modal fields
+- `src/data/sampleCampaigns.ts` — add discount/CPC defaults
+- `src/components/GiftCardSpotlight.tsx` — show discounted price
+- `src/pages/Campaigns.tsx` + `src/pages/BusinessDetail.tsx` — discount ribbon, CPC badge, paused state
+- `src/pages/Dashboard.tsx` + `src/components/CampaignAnalytics.tsx` — show CPC earnings split + paused indicator
+- `src/components/LinkQRDialog.tsx` — "your audience saves X%" line
 
-**Phase 2 — Make the Business side reactive** (medium effort)
-5. Move campaigns list into context so business-created campaigns appear in `/campaigns`
-6. Compute Business Dashboard stats from real campaign + link data
-7. Make View / Edit buttons in business campaigns tab open a modal
-
-**Phase 3 — Connect the two sides** (the big one)
-8. When a creator's link "earns," increment the matching business's revenue
-9. Inject current creator into Leaderboard with live rank
-10. Auto-award badges when thresholds hit (first link, $100 earned, 10 links, etc.)
-
-**Phase 4 — Polish**
-11. Auto-complete pending withdrawals after ~10s (simulated)
-12. Add a creator activity feed mirroring the business one
-13. Add a "Switch to business view" toggle in Navbar for the demo
-
----
-
-## How would you like to proceed?
-
-Pick what to tackle and I'll build it:
-- **A — Just Phase 1** (quick wins: persistence + onboarding data + nav links + unified payments)
-- **B — Phases 1 + 2** (fix everything on each side, but keep them independent)
-- **C — Full end-to-end (Phases 1–3)** (the real demo: business actions ripple to creator side and vice versa)
-- **D — Custom** — tell me which specific gaps to fix
+Approve to build, or tell me what to trim/change.
