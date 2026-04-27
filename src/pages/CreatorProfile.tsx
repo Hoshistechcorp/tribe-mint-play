@@ -15,37 +15,66 @@ import {
   Trash2,
   CheckCircle,
   Palette,
+  Building2,
+  Wallet,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 
 const CreatorProfile = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const {
+    creatorProfile,
+    setCreatorProfile,
+    paymentMethods,
+    addPaymentMethod,
+    removePaymentMethod,
+    setDefaultPaymentMethod,
+  } = useAffiliate();
   const [activeTab, setActiveTab] = useState<"profile" | "socials" | "payments">("profile");
 
   const [profile, setProfile] = useState({
-    displayName: "Alex Thompson",
-    username: "alexcreates",
-    bio: "Digital creator & lifestyle curator. Sharing the best experiences across Lagos, London & Dubai. 🌍✨",
-    email: "alex@tribemint.com",
-    city: "Lagos",
-    avatar: "🧑‍💻",
+    displayName: creatorProfile.displayName,
+    username: creatorProfile.username,
+    bio: creatorProfile.bio,
+    email: creatorProfile.email,
+    city: creatorProfile.city,
+    avatar: creatorProfile.avatar,
   });
 
   const [socials, setSocials] = useState([
-    { platform: "Instagram", handle: "@alexcreates", connected: true, icon: Instagram, followers: "12.4K" },
-    { platform: "Twitter / X", handle: "@alexcreates", connected: true, icon: Twitter, followers: "8.2K" },
-    { platform: "YouTube", handle: "AlexCreates", connected: false, icon: Youtube, followers: "—" },
-    { platform: "Website", handle: "alexcreates.com", connected: true, icon: Globe, followers: "—" },
+    { platform: "Instagram", handle: creatorProfile.socials.instagram || "—", connected: !!creatorProfile.socials.instagram, icon: Instagram, followers: "12.4K" },
+    { platform: "Twitter / X", handle: creatorProfile.socials.twitter || "—", connected: !!creatorProfile.socials.twitter, icon: Twitter, followers: "8.2K" },
+    { platform: "YouTube", handle: "—", connected: false, icon: Youtube, followers: "—" },
+    { platform: "Website", handle: creatorProfile.socials.website || "—", connected: !!creatorProfile.socials.website, icon: Globe, followers: "—" },
   ]);
 
-  const [paymentMethods, setPaymentMethods] = useState([
-    { id: "1", type: "Bank Transfer", details: "GTBank ****4521", isDefault: true },
-    { id: "2", type: "Paystack", details: "alex@tribemint.com", isDefault: false },
-  ]);
+  const [showAddMethod, setShowAddMethod] = useState(false);
+  const [newMethodName, setNewMethodName] = useState("");
+  const [newMethodType, setNewMethodType] = useState<"bank" | "paystack" | "flexit">("bank");
+
+  const methodIcon = (type: string) =>
+    type === "bank" ? Building2 : type === "paystack" ? Wallet : CreditCard;
+
+  const handleSaveProfile = () => {
+    setCreatorProfile(profile);
+    toast({ title: "Profile saved! ✅" });
+  };
+
+  const handleAddMethod = () => {
+    if (!newMethodName.trim()) {
+      toast({ title: "❌ Enter a name", description: "Account name required." });
+      return;
+    }
+    addPaymentMethod(newMethodName.trim(), newMethodType);
+    toast({ title: "✅ Payment method added!" });
+    setNewMethodName("");
+    setShowAddMethod(false);
+  };
 
   const tabs = [
     { key: "profile", label: "Profile 👤", icon: User },
@@ -63,12 +92,12 @@ const CreatorProfile = () => {
   };
 
   const setDefaultPayment = (id: string) => {
-    setPaymentMethods(paymentMethods.map(p => ({ ...p, isDefault: p.id === id })));
+    setDefaultPaymentMethod(id);
     toast({ title: "Default payment updated! 💳" });
   };
 
   const removePayment = (id: string) => {
-    setPaymentMethods(paymentMethods.filter(p => p.id !== id));
+    removePaymentMethod(id);
     toast({ title: "Payment method removed", variant: "destructive" });
   };
 
@@ -143,7 +172,7 @@ const CreatorProfile = () => {
                   />
                 </div>
                 <button
-                  onClick={() => toast({ title: "Profile saved! ✅" })}
+                  onClick={handleSaveProfile}
                   className="px-5 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" /> Save Changes
@@ -203,24 +232,26 @@ const CreatorProfile = () => {
           {/* Payments Tab */}
           {activeTab === "payments" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {paymentMethods.map((p) => (
+              {paymentMethods.map((p) => {
+                const Icon = methodIcon(p.type);
+                return (
                 <div
                   key={p.id}
                   className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
                 >
                   <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-foreground" />
+                    <Icon className="w-5 h-5 text-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-sm font-heading">{p.type}</p>
+                      <p className="font-bold text-sm font-heading">{p.name}</p>
                       {p.isDefault && (
                         <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold flex items-center gap-1">
                           <CheckCircle className="w-3 h-3" /> Default
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{p.details}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{p.type}</p>
                   </div>
                   <div className="flex gap-2">
                     {!p.isDefault && (
@@ -239,17 +270,47 @@ const CreatorProfile = () => {
                     </button>
                   </div>
                 </div>
-              ))}
-              <button
-                onClick={() => {
-                  const newId = String(Date.now());
-                  setPaymentMethods([...paymentMethods, { id: newId, type: "New Method", details: "Configure details...", isDefault: false }]);
-                  toast({ title: "Payment method added! 💳" });
-                }}
-                className="w-full p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="w-4 h-4" /> Add Payment Method
-              </button>
+                );
+              })}
+
+              {showAddMethod ? (
+                <div className="p-4 rounded-xl bg-gradient-card border border-border shadow-card space-y-3">
+                  <div className="flex gap-2">
+                    {(["bank", "paystack", "flexit"] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setNewMethodType(t)}
+                        className={`flex-1 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
+                          newMethodType === t ? "bg-primary/20 text-primary border border-primary/30" : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {t === "bank" ? "🏦 Bank" : t === "paystack" ? "💳 Paystack" : "⚡ Flex-it"}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    value={newMethodName}
+                    onChange={(e) => setNewMethodName(e.target.value)}
+                    placeholder="Account name (e.g. GTBank ****1234)"
+                    className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleAddMethod} className="flex-1 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg text-xs font-bold">
+                      Add Method
+                    </button>
+                    <button onClick={() => { setShowAddMethod(false); setNewMethodName(""); }} className="px-4 py-2.5 bg-muted text-muted-foreground rounded-lg text-xs">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAddMethod(true)}
+                  className="w-full p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="w-4 h-4" /> Add Payment Method
+                </button>
+              )}
             </motion.div>
           )}
         </div>
