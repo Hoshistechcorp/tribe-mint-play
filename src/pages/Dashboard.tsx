@@ -15,12 +15,20 @@ import {
   Check,
   Trophy,
   Target,
+  QrCode,
+  Wand2,
+  UserPlus,
 } from "lucide-react";
+import LinkQRDialog from "@/components/LinkQRDialog";
+import VanityCodeEditor from "@/components/VanityCodeEditor";
+import CampaignAnalytics from "@/components/CampaignAnalytics";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { affiliateLinks, balance, transactions, badges, creatorProfile } = useAffiliate();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [qrLink, setQrLink] = useState<{ url: string; label: string } | null>(null);
+  const [editLink, setEditLink] = useState<{ id: string; code: string } | null>(null);
 
   const totalClicks = affiliateLinks.reduce((s, l) => s + l.clicks, 0);
   const totalConversions = affiliateLinks.reduce((s, l) => s + l.conversions, 0);
@@ -61,6 +69,9 @@ const Dashboard = () => {
             </button>
             <button onClick={() => navigate("/leaderboard")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               <Trophy className="w-4 h-4" /> Leaderboard
+            </button>
+            <button onClick={() => navigate("/referrals")} className="hidden md:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
+              <UserPlus className="w-4 h-4" /> Refer
             </button>
             <button onClick={() => navigate("/profile")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               ⚙️
@@ -149,12 +160,28 @@ const Dashboard = () => {
                         className={`p-2 rounded-lg transition-colors ${
                           copiedLink === link.code ? "bg-primary/20 text-primary" : "bg-muted hover:bg-muted/80 text-muted-foreground"
                         }`}
+                        title="Copy link"
                       >
                         {copiedLink === link.code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       </button>
                       <button
+                        onClick={() => setEditLink({ id: link.id, code: link.code })}
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                        title="Edit vanity code"
+                      >
+                        <Wand2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setQrLink({ url: `https://tribemint.link/${link.code}`, label: link.businessName })}
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                        title="QR code"
+                      >
+                        <QrCode className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => navigate(`/business/${link.businessId}`)}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                        title="Open business"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </button>
@@ -163,6 +190,9 @@ const Dashboard = () => {
                 ))}
               </div>
             )}
+
+            {/* Campaign Analytics */}
+            <CampaignAnalytics />
           </div>
 
           {/* Sidebar */}
@@ -216,6 +246,20 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <LinkQRDialog
+        open={!!qrLink}
+        onClose={() => setQrLink(null)}
+        url={qrLink?.url || ""}
+        label={qrLink?.label || ""}
+      />
+      <VanityCodeEditor
+        open={!!editLink}
+        onClose={() => setEditLink(null)}
+        linkId={editLink?.id || ""}
+        currentCode={editLink?.code || ""}
+      />
     </div></PageTransition>
   );
 };

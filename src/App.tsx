@@ -16,6 +16,8 @@ import BusinessOwnerDashboard from "./pages/BusinessOwnerDashboard";
 import CreatorProfile from "./pages/CreatorProfile";
 import Leaderboard from "./pages/Leaderboard";
 import Onboarding from "./pages/Onboarding";
+import Withdrawals from "./pages/Withdrawals";
+import Referrals from "./pages/Referrals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const AnimatedRoutes = () => {
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/business/:id" element={<BusinessDetail />} />
         <Route path="/payouts" element={<Payouts />} />
+        <Route path="/withdrawals" element={<Withdrawals />} />
+        <Route path="/referrals" element={<Referrals />} />
         <Route path="/business-dashboard" element={<BusinessOwnerDashboard />} />
         <Route path="/profile" element={<CreatorProfile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
