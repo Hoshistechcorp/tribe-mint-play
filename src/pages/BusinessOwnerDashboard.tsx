@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Plus, Users, DollarSign, BarChart3, Edit3, Trash2, Eye,
-  TrendingUp, Star, X, Save,
+  TrendingUp, Star, X, Save, Pause, Play, Tags, MousePointerClick, AlertTriangle,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
@@ -26,6 +26,7 @@ const BusinessOwnerDashboard = () => {
   const {
     businessProfile, setBusinessProfile,
     bizCampaigns, addBizCampaign, updateBizCampaign, deleteBizCampaign,
+    topUpCampaignBudget, toggleCampaignPause,
     affiliateLinks,
   } = useAffiliate();
 
@@ -37,9 +38,10 @@ const BusinessOwnerDashboard = () => {
   const [editingCampaign, setEditingCampaign] = useState<BizCampaign | null>(null);
 
   // Compute live stats from real data
-  const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0)
-    + affiliateLinks.filter(l => l.businessId === "1").reduce((s, l) => s + l.earned * 5, 0); // creator earned ≈ 20% commission
+  const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0);
   const activeAffiliates = bizCampaigns.reduce((s, c) => s + c.affiliates, 0);
+  const totalDiscountSpent = bizCampaigns.reduce((s, c) => s + c.discountSpent, 0);
+  const totalClickSpent = bizCampaigns.reduce((s, c) => s + c.clickSpent, 0);
 
   const tabs = [
     { key: "overview", label: "Overview 📊", icon: BarChart3 },
@@ -90,8 +92,8 @@ const BusinessOwnerDashboard = () => {
             {[
               { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "text-primary" },
               { label: "Active Affiliates", value: activeAffiliates, icon: Users, color: "text-secondary" },
-              { label: "Avg Rating", value: businessProfile.rating, icon: Star, color: "text-accent" },
-              { label: "Campaigns", value: bizCampaigns.length, icon: BarChart3, color: "text-primary" },
+              { label: "Discount Spend", value: `$${totalDiscountSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: Tags, color: "text-accent" },
+              { label: "Click Payout", value: `$${totalClickSpent.toFixed(2)}`, icon: MousePointerClick, color: "text-primary" },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                 className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
@@ -134,12 +136,27 @@ const BusinessOwnerDashboard = () => {
                       <div className="flex items-center gap-2">
                         <h3 className="font-heading font-bold">{c.title}</h3>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          c.payoutsPaused ? "bg-destructive/15 text-destructive" :
                           c.status === "active" ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                        }`}>{c.status}</span>
+                        }`}>{c.payoutsPaused ? "Paused — budget out" : c.status}</span>
+                        {c.discountPercent > 0 && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent/15 text-accent">
+                            {c.discountPercent}% OFF
+                          </span>
+                        )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{c.commission}% commission · {c.affiliates} affiliates</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {c.commission}% commission · ${c.cpcRate.toFixed(2)}/click · {c.affiliates} affiliates
+                      </p>
                     </div>
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => { toggleCampaignPause(c.id); toast({ title: c.payoutsPaused ? "Campaign resumed ▶️" : "Campaign paused ⏸️" }); }}
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+                        title={c.payoutsPaused ? "Resume" : "Pause"}
+                      >
+                        {c.payoutsPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+                      </button>
                       <button onClick={() => setViewingCampaign(c)} className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
                         <Eye className="w-4 h-4" />
                       </button>
@@ -163,6 +180,71 @@ const BusinessOwnerDashboard = () => {
                     <div className="text-center p-3 rounded-xl bg-background/50">
                       <p className="text-lg font-bold font-heading text-secondary">${c.revenue.toLocaleString()}</p>
                       <p className="text-[10px] text-muted-foreground">Revenue</p>
+                    </div>
+                  </div>
+
+                  {/* Manager budget controls */}
+                  <div className="mt-4 p-4 rounded-xl bg-background/40 border border-border space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Tags className="w-3.5 h-3.5 text-accent" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Manager controls</span>
+                      {c.payoutsPaused && (
+                        <span className="ml-auto flex items-center gap-1 text-[10px] text-destructive font-bold">
+                          <AlertTriangle className="w-3 h-3" /> Top-up to resume
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Discount budget bar */}
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="text-muted-foreground">Discount spend</span>
+                        <span className="font-bold text-foreground">${c.discountSpent.toFixed(2)} / ${c.discountBudget.toFixed(0)}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${c.discountSpent >= c.discountBudget ? "bg-destructive" : "bg-accent"}`}
+                          style={{ width: `${Math.min(100, (c.discountSpent / Math.max(1, c.discountBudget)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Click budget bar */}
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="text-muted-foreground">Click payout</span>
+                        <span className="font-bold text-foreground">${c.clickSpent.toFixed(2)} / ${c.clickBudget.toFixed(0)}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${c.clickSpent >= c.clickBudget ? "bg-destructive" : "bg-primary"}`}
+                          style={{ width: `${Math.min(100, (c.clickSpent / Math.max(1, c.clickBudget)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick top-ups */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-muted-foreground">Discount:</span>
+                        {[100, 500].map((amt) => (
+                          <button key={amt}
+                            onClick={() => { topUpCampaignBudget(c.id, "discount", amt); toast({ title: `+$${amt} discount budget` }); }}
+                            className="px-2 py-1 text-[10px] font-bold rounded-md bg-accent/10 text-accent hover:bg-accent/20 transition-colors">
+                            +${amt}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-muted-foreground">Clicks:</span>
+                        {[50, 200].map((amt) => (
+                          <button key={amt}
+                            onClick={() => { topUpCampaignBudget(c.id, "click", amt); toast({ title: `+$${amt} click budget` }); }}
+                            className="px-2 py-1 text-[10px] font-bold rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                            +${amt}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -352,6 +434,32 @@ const BusinessOwnerDashboard = () => {
                     <input type="number" value={editingCampaign.commission}
                       onChange={(e) => setEditingCampaign({ ...editingCampaign, commission: Number(e.target.value) })}
                       className="w-full mt-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                </div>
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Offer & Payouts</p>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs text-muted-foreground">Audience discount</label>
+                      <span className="text-xs font-bold text-primary">{editingCampaign.discountPercent}% OFF</span>
+                    </div>
+                    <input type="range" min={0} max={50} value={editingCampaign.discountPercent}
+                      onChange={(e) => setEditingCampaign({ ...editingCampaign, discountPercent: Number(e.target.value) })}
+                      className="w-full accent-primary" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground">CPC ($)</label>
+                      <input type="number" step="0.01" value={editingCampaign.cpcRate}
+                        onChange={(e) => setEditingCampaign({ ...editingCampaign, cpcRate: Number(e.target.value) })}
+                        className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Discount budget</label>
+                      <input type="number" value={editingCampaign.discountBudget}
+                        onChange={(e) => setEditingCampaign({ ...editingCampaign, discountBudget: Number(e.target.value) })}
+                        className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm" />
+                    </div>
                   </div>
                 </div>
                 <button onClick={handleSaveEdit}

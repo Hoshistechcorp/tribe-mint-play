@@ -35,9 +35,10 @@ const galleryImages = [
 const BusinessDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { generateLink, affiliateLinks, joinCampaign, isCampaignJoined, allCampaigns } = useAffiliate();
+  const { generateLink, affiliateLinks, joinCampaign, isCampaignJoined, allCampaigns, getDiscountForBusiness } = useAffiliate();
   const business = sampleBusinesses.find((b) => b.id === id);
   const campaigns = allCampaigns.filter((c) => c.businessId === id);
+  const offer = id ? getDiscountForBusiness(id) : null;
 
   // The "demo business" is id "1" — owner mode enabled there
   const isOwner = id === "1";
@@ -192,9 +193,17 @@ const BusinessDetail = () => {
                   <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/15">
                     <h3 className="text-sm font-bold font-heading mb-2">How you earn</h3>
                     <div className="space-y-2 text-xs text-muted-foreground">
-                      <div className="flex justify-between"><span>Per Click (CPC)</span><span className="text-foreground font-medium">$0.05</span></div>
+                      <div className="flex justify-between"><span>Per Click (CPC)</span><span className="text-foreground font-medium">${(offer?.cpcRate ?? 0.05).toFixed(2)}</span></div>
                       <div className="flex justify-between"><span>Per Sign-up (CPA)</span><span className="text-foreground font-medium">$2.00</span></div>
                       <div className="flex justify-between"><span>Revenue Share</span><span className="text-primary font-bold">{business.commission}%</span></div>
+                      {offer && offer.discountPercent > 0 && (
+                        <div className="flex justify-between pt-2 mt-2 border-t border-border/50">
+                          <span>Audience Discount</span>
+                          <span className={`font-bold ${offer.paused ? "text-destructive" : "text-accent"}`}>
+                            {offer.paused ? "Paused" : `${offer.discountPercent}% OFF`}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>

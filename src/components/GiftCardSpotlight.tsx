@@ -1,15 +1,20 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 
 const cards = [
-  { name: "Classic Dinner", value: "$50", earn: "$7.50", color: "from-emerald-600 to-emerald-800" },
-  { name: "Fine Dining", value: "$100", earn: "$15.00", color: "from-amber-600 to-amber-800" },
-  { name: "Chef's Table", value: "$200", earn: "$30.00", color: "from-purple-600 to-purple-800" },
-  { name: "Celebration", value: "$500", earn: "$75.00", color: "from-rose-600 to-rose-800" },
+  { name: "Classic Dinner", value: 50, color: "from-emerald-600 to-emerald-800" },
+  { name: "Fine Dining", value: 100, color: "from-amber-600 to-amber-800" },
+  { name: "Chef's Table", value: 200, color: "from-purple-600 to-purple-800" },
+  { name: "Celebration", value: 500, color: "from-rose-600 to-rose-800" },
 ];
 
 const GiftCardSpotlight = () => {
   const navigate = useNavigate();
+  const { getDiscountForBusiness } = useAffiliate();
+  const offer = getDiscountForBusiness("1");
+  const discountPct = offer?.discountPercent ?? 0;
+  const commissionPct = 15; // demo standard
 
   return (
     <section className="py-16 sm:py-24 bg-military-dark relative overflow-hidden">
@@ -29,7 +34,9 @@ const GiftCardSpotlight = () => {
               <span className="font-display italic text-lime">Keep your cut.</span>
             </h2>
             <p className="text-white/60 max-w-md mx-auto lg:mx-0 text-sm sm:text-base">
-              Every gift card sold through your link earns you 10-15% commission. The math is simple — share more, earn more.
+              {discountPct > 0
+                ? `Your audience saves ${discountPct}% on every gift card — and you still earn ${commissionPct}% commission on the full value. Set by the business, controlled by them.`
+                : "Every gift card sold through your link earns you 10-15% commission. The math is simple — share more, earn more."}
             </p>
             <button
               onClick={() => navigate("/campaigns")}
@@ -40,7 +47,10 @@ const GiftCardSpotlight = () => {
           </motion.div>
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
-            {cards.map((card, i) => (
+            {cards.map((card, i) => {
+              const buyerPrice = +(card.value * (1 - discountPct / 100)).toFixed(2);
+              const earn = +(card.value * (commissionPct / 100)).toFixed(2);
+              return (
               <motion.div
                 key={card.name}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -51,12 +61,21 @@ const GiftCardSpotlight = () => {
               >
                 <div className="absolute top-0 right-0 w-16 sm:w-20 h-16 sm:h-20 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <p className="text-white/60 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">{card.name}</p>
-                <p className="text-white text-2xl sm:text-3xl font-extrabold font-heading mb-3 sm:mb-4">{card.value}</p>
+                {discountPct > 0 ? (
+                  <div className="mb-3 sm:mb-4">
+                    <p className="text-white/40 text-xs sm:text-sm line-through">${card.value}</p>
+                    <p className="text-white text-2xl sm:text-3xl font-extrabold font-heading">${buyerPrice}</p>
+                    <p className="text-lime/80 text-[10px] sm:text-xs font-bold mt-0.5">{discountPct}% OFF</p>
+                  </div>
+                ) : (
+                  <p className="text-white text-2xl sm:text-3xl font-extrabold font-heading mb-3 sm:mb-4">${card.value}</p>
+                )}
                 <span className="inline-block px-2.5 sm:px-3 py-1 rounded-full bg-lime text-military text-[10px] sm:text-xs font-extrabold">
-                  You earn {card.earn}
+                  You earn ${earn.toFixed(2)}
                 </span>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
