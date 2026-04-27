@@ -12,6 +12,10 @@ export interface AffiliateLink {
   earned: number;
   active: boolean;
   createdAt: string;
+  /** clicks-derived earnings (subset of `earned`) — for split display */
+  clickEarned?: number;
+  /** conversion-derived earnings (subset of `earned`) — for split display */
+  conversionEarned?: number;
 }
 
 export interface Transaction {
@@ -69,6 +73,14 @@ export interface BizCampaign {
   type?: string;
   startDate?: string;
   endDate?: string;
+  /** Manager-controlled offer & payout levers */
+  discountPercent: number;
+  discountBudget: number;
+  discountSpent: number;
+  cpcRate: number;
+  clickBudget: number;
+  clickSpent: number;
+  payoutsPaused: boolean;
 }
 
 export interface ActivityEvent {
@@ -113,6 +125,10 @@ interface AffiliateContextType {
   addBizCampaign: (c: BizCampaign & { description?: string; type?: string }) => void;
   updateBizCampaign: (id: string, patch: Partial<BizCampaign>) => void;
   deleteBizCampaign: (id: string) => void;
+  topUpCampaignBudget: (id: string, kind: "discount" | "click", amount: number) => void;
+  toggleCampaignPause: (id: string) => void;
+  /** Compute discounted price for a buyer based on the campaign attached to a business */
+  getDiscountForBusiness: (businessId: string) => { discountPercent: number; cpcRate: number; paused: boolean } | null;
 
   // Activity (creator)
   activity: ActivityEvent[];
@@ -188,9 +204,9 @@ const initialPaymentMethods: PaymentMethod[] = [
 ];
 
 const initialBizCampaigns: BizCampaign[] = [
-  { id: "1", title: "Weekend Brunch Push 🥂", description: "Promote our weekend brunch menu.", status: "active", affiliates: 23, clicks: 4500, conversions: 120, revenue: 3600, commission: 15 },
-  { id: "2", title: "Date Night Special 🌙", description: "Romantic dinner package.", status: "active", affiliates: 18, clicks: 2800, conversions: 85, revenue: 2550, commission: 12 },
-  { id: "3", title: "Holiday Menu Launch 🎄", description: "Limited holiday menu.", status: "ended", affiliates: 31, clicks: 6200, conversions: 210, revenue: 6300, commission: 18 },
+  { id: "1", title: "Weekend Brunch Push 🥂", description: "Promote our weekend brunch menu.", status: "active", affiliates: 23, clicks: 4500, conversions: 120, revenue: 3600, commission: 15, discountPercent: 10, discountBudget: 500, discountSpent: 120, cpcRate: 0.05, clickBudget: 200, clickSpent: 45, payoutsPaused: false },
+  { id: "2", title: "Date Night Special 🌙", description: "Romantic dinner package.", status: "active", affiliates: 18, clicks: 2800, conversions: 85, revenue: 2550, commission: 12, discountPercent: 15, discountBudget: 750, discountSpent: 380, cpcRate: 0.04, clickBudget: 150, clickSpent: 60, payoutsPaused: false },
+  { id: "3", title: "Holiday Menu Launch 🎄", description: "Limited holiday menu.", status: "ended", affiliates: 31, clicks: 6200, conversions: 210, revenue: 6300, commission: 18, discountPercent: 20, discountBudget: 1000, discountSpent: 1000, cpcRate: 0.06, clickBudget: 300, clickSpent: 300, payoutsPaused: true },
 ];
 
 function loadState<T>(key: string, fallback: T): T {
@@ -254,33 +270,129 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     const interval = setInterval(() => {
       setState((prev) => {
         let activityToAdd: ActivityEvent[] = [];
+        // Build a map: businessId -> first matching active campaign (for CPC/discount lookup)
+        const campaignByBusiness = new Map<string, BizCampaign>();
+        prev.bizCampaigns.forEach((c) => {
+          // For demo, all biz campaigns belong to current businessProfile (id "1").
+          // Use the campaign id as a simple match against affiliate links via businessId === "1".
+          if (!campaignByBusiness.has("1") && c.status === "active" && !c.payoutsPaused) {
+            campaignByBusiness.set("1", c);
+          }
+        });
+
+        const campaignDeltas = new Map<string, { clickSpent: number; discountSpent: number; clicks: number; conversions: number; revenue: number; pauseFlag: boolean }>();
+
         const updatedLinks = prev.affiliateLinks.map((link) => {
           if (!link.active) return link;
           const clickBump = Math.random() > 0.5 ? Math.floor(Math.random() * 5) : 0;
           const convBump = clickBump > 2 && Math.random() > 0.7 ? 1 : 0;
-          const earnBump = +(convBump * (Math.random() * 3 + 0.5)).toFixed(2);
           if (clickBump === 0) return link;
+
+          const camp = campaignByBusiness.get(link.businessId);
+          const cpcRate = camp?.cpcRate ?? 0;
+          const discountPct = camp?.discountPercent ?? 0;
+          const paused = camp?.payoutsPaused ?? false;
+
+          // Track existing campaign spend so we don't exceed budget
+          const existing = camp ? (campaignDeltas.get(camp.id) ?? { clickSpent: 0, discountSpent: 0, clicks: 0, conversions: 0, revenue: 0, pauseFlag: false }) : null;
+          const remainingClickBudget = camp ? Math.max(0, camp.clickBudget - camp.clickSpent - (existing?.clickSpent ?? 0)) : 0;
+          const wantClickPayout = +(clickBump * cpcRate).toFixed(4);
+          const clickPayout = paused ? 0 : Math.min(wantClickPayout, remainingClickBudget);
+
+          // Conversion earn (commission * a fake sale value $5–$20)
+          const saleValue = convBump > 0 ? +(Math.random() * 15 + 5).toFixed(2) : 0;
+          const conversionEarn = paused ? 0 : +(saleValue * ((camp?.commission ?? 15) / 100)).toFixed(2);
+          const subsidy = +(saleValue * (discountPct / 100)).toFixed(2);
+
+          // Cap discount subsidy by remaining discount budget
+          const remainingDiscountBudget = camp ? Math.max(0, camp.discountBudget - camp.discountSpent - (existing?.discountSpent ?? 0)) : 0;
+          const cappedSubsidy = Math.min(subsidy, remainingDiscountBudget);
+          const conversionAllowed = !paused && (subsidy === 0 || cappedSubsidy >= subsidy * 0.5);
+          const finalConvBump = conversionAllowed ? convBump : 0;
+          const finalConversionEarn = conversionAllowed ? conversionEarn : 0;
+          const finalSubsidy = conversionAllowed ? cappedSubsidy : 0;
+          const finalRevenue = conversionAllowed ? saleValue : 0;
+
+          const earnBump = +(clickPayout + finalConversionEarn).toFixed(2);
+
+          if (camp) {
+            const newDelta = {
+              clickSpent: (existing?.clickSpent ?? 0) + clickPayout,
+              discountSpent: (existing?.discountSpent ?? 0) + finalSubsidy,
+              clicks: (existing?.clicks ?? 0) + clickBump,
+              conversions: (existing?.conversions ?? 0) + finalConvBump,
+              revenue: (existing?.revenue ?? 0) + finalRevenue,
+              pauseFlag: existing?.pauseFlag ?? false,
+            };
+            // If either budget is now exhausted, flag pause
+            if (newDelta.clickSpent + camp.clickSpent >= camp.clickBudget ||
+                newDelta.discountSpent + camp.discountSpent >= camp.discountBudget) {
+              newDelta.pauseFlag = true;
+            }
+            campaignDeltas.set(camp.id, newDelta);
+          }
 
           // Mirror to business revenue if it's the current business
           if (earnBump > 0 && link.businessId === "1") {
             activityToAdd.push({
               id: `a${Date.now()}-${Math.random()}`,
-              emoji: "💰",
-              text: `Earned $${earnBump.toFixed(2)} from ${link.businessName}`,
+              emoji: clickPayout > 0 && finalConversionEarn === 0 ? "💸" : "💰",
+              text: clickPayout > 0 && finalConversionEarn === 0
+                ? `+$${clickPayout.toFixed(2)} click payout from ${link.businessName}`
+                : `Earned $${earnBump.toFixed(2)} from ${link.businessName}`,
               date: "just now",
             });
           }
           return {
             ...link,
             clicks: link.clicks + clickBump,
-            conversions: link.conversions + convBump,
+            conversions: link.conversions + finalConvBump,
             earned: +(link.earned + earnBump).toFixed(2),
+            clickEarned: +((link.clickEarned ?? 0) + clickPayout).toFixed(2),
+            conversionEarned: +((link.conversionEarned ?? 0) + finalConversionEarn).toFixed(2),
           };
         });
 
+        // Apply deltas to bizCampaigns
+        let updatedCampaigns = prev.bizCampaigns;
+        if (campaignDeltas.size > 0) {
+          updatedCampaigns = prev.bizCampaigns.map((c) => {
+            const d = campaignDeltas.get(c.id);
+            if (!d) return c;
+            const justPaused = !c.payoutsPaused && d.pauseFlag;
+            if (justPaused) {
+              activityToAdd.push({
+                id: `a${Date.now()}-pause-${c.id}`,
+                emoji: "⚠️",
+                text: `Discount/click budget exhausted on "${c.title}" — payouts paused`,
+                date: "just now",
+              });
+            }
+            return {
+              ...c,
+              clicks: c.clicks + d.clicks,
+              conversions: c.conversions + d.conversions,
+              revenue: +(c.revenue + d.revenue).toFixed(2),
+              clickSpent: +(c.clickSpent + d.clickSpent).toFixed(2),
+              discountSpent: +(c.discountSpent + d.discountSpent).toFixed(2),
+              payoutsPaused: c.payoutsPaused || d.pauseFlag,
+            };
+          });
+        }
+
+        // Mirror earnings into available balance
+        const totalEarnedBump = Array.from(campaignDeltas.values()).reduce((s, d) => s + d.clickSpent, 0)
+          + updatedLinks.reduce((s, l, idx) => s + (l.earned - prev.affiliateLinks[idx].earned), 0)
+          - Array.from(campaignDeltas.values()).reduce((s, d) => s + d.clickSpent, 0);
+        // Simpler: sum the per-link earned bump
+        const earnBumpSum = updatedLinks.reduce((s, l, idx) => s + (l.earned - prev.affiliateLinks[idx].earned), 0);
+        const newBalance = earnBumpSum > 0
+          ? { ...prev.balance, available: +(prev.balance.available + earnBumpSum).toFixed(2), totalEarned: +(prev.balance.totalEarned + earnBumpSum).toFixed(2) }
+          : prev.balance;
+
         const newActivity = [...activityToAdd, ...prev.activity].slice(0, 20);
 
-        return { ...prev, affiliateLinks: updatedLinks, activity: newActivity };
+        return { ...prev, affiliateLinks: updatedLinks, bizCampaigns: updatedCampaigns, activity: newActivity, balance: newBalance };
       });
     }, 4000);
     return () => clearInterval(interval);
@@ -503,6 +615,42 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const topUpCampaignBudget = useCallback((id: string, kind: "discount" | "click", amount: number) => {
+    setState((prev) => ({
+      ...prev,
+      bizCampaigns: prev.bizCampaigns.map((c) => {
+        if (c.id !== id) return c;
+        const patch = kind === "discount"
+          ? { discountBudget: c.discountBudget + amount }
+          : { clickBudget: c.clickBudget + amount };
+        // If we're topping up and were paused due to budget, un-pause
+        const stillExhausted =
+          (kind === "discount" ? (c.discountBudget + amount) : c.discountBudget) <= c.discountSpent ||
+          (kind === "click" ? (c.clickBudget + amount) : c.clickBudget) <= c.clickSpent;
+        return { ...c, ...patch, payoutsPaused: stillExhausted ? c.payoutsPaused : false };
+      }),
+      activity: [
+        { id: `a${Date.now()}`, emoji: "💵", text: `Topped up ${kind} budget by $${amount}`, date: "just now" },
+        ...prev.activity,
+      ].slice(0, 20),
+    }));
+  }, []);
+
+  const toggleCampaignPause = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      bizCampaigns: prev.bizCampaigns.map((c) => (c.id === id ? { ...c, payoutsPaused: !c.payoutsPaused } : c)),
+    }));
+  }, []);
+
+  const getDiscountForBusiness = useCallback((businessId: string) => {
+    // For demo, all biz campaigns belong to "1". Return the first active one.
+    if (businessId !== "1") return null;
+    const c = state.bizCampaigns.find((x) => x.status === "active");
+    if (!c) return null;
+    return { discountPercent: c.discountPercent, cpcRate: c.cpcRate, paused: c.payoutsPaused };
+  }, [state.bizCampaigns]);
+
   // Derived: badges based on real milestones
   const badges = useMemo(() => {
     const totalLinks = state.affiliateLinks.length;
@@ -548,6 +696,9 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         addBizCampaign,
         updateBizCampaign,
         deleteBizCampaign,
+        topUpCampaignBudget,
+        toggleCampaignPause,
+        getDiscountForBusiness,
         generateLink,
         joinCampaign,
         isCampaignJoined,
