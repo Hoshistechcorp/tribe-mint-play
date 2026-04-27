@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CalendarIcon, DollarSign, Percent, Tag, FileText } from "lucide-react";
+import { X, CalendarIcon, DollarSign, Percent, Tag, FileText, Tags, MousePointerClick } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,20 +11,7 @@ import { fireConfetti } from "@/lib/confetti";
 interface CreateCampaignModalProps {
   open: boolean;
   onClose: () => void;
-  onCreated: (campaign: {
-    id: string;
-    title: string;
-    status: string;
-    affiliates: number;
-    clicks: number;
-    conversions: number;
-    revenue: string;
-    commission: number;
-    budget: string;
-    type: string;
-    startDate: string;
-    endDate: string;
-  }) => void;
+  onCreated: (campaign: any) => void;
 }
 
 const campaignTypes = [
@@ -41,6 +28,11 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
   const [type, setType] = useState("open");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  // Manager offer & payout levers
+  const [discountPercent, setDiscountPercent] = useState(10);
+  const [discountBudget, setDiscountBudget] = useState("500");
+  const [cpcRate, setCpcRate] = useState("0.05");
+  const [clickBudget, setClickBudget] = useState("100");
 
   const handleSubmit = () => {
     if (!title.trim()) {
@@ -55,16 +47,21 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
     const newCampaign = {
       id: String(Date.now()),
       title,
+      description,
       status: "active",
       affiliates: 0,
       clicks: 0,
       conversions: 0,
-      revenue: "$0",
+      revenue: 0,
       commission: Number(commission),
       budget: `$${Number(budget).toLocaleString()}`,
       type,
       startDate: startDate ? format(startDate, "MMM d, yyyy") : "Today",
       endDate: endDate ? format(endDate, "MMM d, yyyy") : "Ongoing",
+      discountPercent,
+      discountBudget: Number(discountBudget) || 0,
+      cpcRate: Number(cpcRate) || 0,
+      clickBudget: Number(clickBudget) || 0,
     };
 
     onCreated(newCampaign);
@@ -79,6 +76,10 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
     setType("open");
     setStartDate(undefined);
     setEndDate(undefined);
+    setDiscountPercent(10);
+    setDiscountBudget("500");
+    setCpcRate("0.05");
+    setClickBudget("100");
     onClose();
   };
 
@@ -224,6 +225,88 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                       <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="p-3 pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
+                </div>
+              </div>
+
+              {/* Offer & Payouts */}
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Tags className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-bold font-heading">Offer & Payouts</h3>
+                </div>
+
+                {/* Discount slider */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs text-muted-foreground font-medium">Audience discount</label>
+                    <span className="text-xs font-bold text-primary">{discountPercent}% OFF</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={discountPercent}
+                    onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                    className="w-full accent-primary"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Buyer sees: <span className="line-through">$50</span>{" "}
+                    <span className="font-bold text-foreground">${(50 * (1 - discountPercent / 100)).toFixed(2)}</span>
+                  </p>
+                </div>
+
+                {/* Discount budget */}
+                <div>
+                  <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+                    <DollarSign className="w-3 h-3" /> Discount budget cap
+                  </label>
+                  <input
+                    type="number"
+                    value={discountBudget}
+                    onChange={(e) => setDiscountBudget(e.target.value)}
+                    min={0}
+                    className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  {discountPercent > 0 && Number(discountBudget) > 0 && (
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Covers ~{Math.floor(Number(discountBudget) / (50 * discountPercent / 100))} redemptions of a $50 ticket
+                    </p>
+                  )}
+                </div>
+
+                {/* CPC + click budget */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+                      <MousePointerClick className="w-3 h-3" /> Pay per click
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={cpcRate}
+                      onChange={(e) => setCpcRate(e.target.value)}
+                      min={0}
+                      className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+                      <DollarSign className="w-3 h-3" /> Click budget cap
+                    </label>
+                    <input
+                      type="number"
+                      value={clickBudget}
+                      onChange={(e) => setClickBudget(e.target.value)}
+                      min={0}
+                      className="w-full mt-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                    {Number(cpcRate) > 0 && Number(clickBudget) > 0 && (
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        ~{Math.floor(Number(clickBudget) / Number(cpcRate)).toLocaleString()} clicks
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
