@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ibloovLogo from "@/assets/ibloov-logo.jpeg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,10 +17,16 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
       <div className="container flex items-center justify-between h-14 sm:h-16">
-        <a href="/" className="flex items-center gap-1.5 font-heading text-lg sm:text-xl font-extrabold tracking-tight">
-          <span className="text-foreground">Tribe</span>
-          <span className="text-lime">Mint</span>
-          <span className="text-base sm:text-lg">🌿</span>
+        <a href="/" className="flex items-center gap-2 font-heading text-lg sm:text-xl font-extrabold tracking-tight">
+          <span className="flex items-baseline gap-1">
+            <span className="text-foreground">Tribe</span>
+            <span className="text-lime">Mint</span>
+            <span className="text-base sm:text-lg">🌿</span>
+          </span>
+          <span className="hidden sm:flex items-center gap-1.5 pl-2 ml-1 border-l border-border">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">by</span>
+            <img src={ibloovLogo} alt="iBloov" className="h-4 w-auto object-contain" />
+          </span>
         </a>
 
         <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-muted-foreground">
