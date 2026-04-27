@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Trophy, TrendingUp, MousePointerClick, ShoppingCart, Crown, Medal } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
+import { useAffiliate } from "@/contexts/AffiliateContext";
 
 type MetricKey = "earnings" | "clicks" | "conversions";
 type TimeFilter = "weekly" | "monthly";
@@ -42,11 +43,26 @@ const getRankIcon = (rank: number) => {
 
 const Leaderboard = () => {
   const navigate = useNavigate();
+  const { affiliateLinks, balance, creatorProfile } = useAffiliate();
   const [metric, setMetric] = useState<MetricKey>("earnings");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("monthly");
 
-  const sorted = [...creators].sort((a, b) => b[metric] - a[metric]);
+  const myEarnings = Math.round((balance.totalEarned + affiliateLinks.reduce((s, l) => s + l.earned, 0)) * 1000);
+  const myClicks = affiliateLinks.reduce((s, l) => s + l.clicks, 0);
+  const myConversions = affiliateLinks.reduce((s, l) => s + l.conversions, 0);
+  const me = {
+    name: creatorProfile.displayName,
+    handle: `@${creatorProfile.username}`,
+    avatar: creatorProfile.avatar,
+    earnings: myEarnings,
+    clicks: myClicks,
+    conversions: myConversions,
+    streak: 5,
+    isMe: true,
+  };
+  const sorted = [...creators, me].sort((a, b) => b[metric] - a[metric]);
   const topValue = sorted[0]?.[metric] || 1;
+  const myRank = sorted.findIndex((c) => (c as any).isMe) + 1;
 
   return (
     <PageTransition>
@@ -62,7 +78,7 @@ const Leaderboard = () => {
               <h1 className="text-2xl font-bold font-heading flex items-center gap-2">
                 <Trophy className="w-6 h-6 text-primary" /> Leaderboard
               </h1>
-              <p className="text-sm text-muted-foreground">Top creators ranked by performance</p>
+              <p className="text-sm text-muted-foreground">You're rank #{myRank} this {timeFilter === "weekly" ? "week" : "month"} 🔥</p>
             </div>
           </div>
 
@@ -131,13 +147,16 @@ const Leaderboard = () => {
             {sorted.map((creator, i) => {
               const rank = i + 1;
               const barWidth = (creator[metric] / topValue) * 100;
+              const isMe = (creator as any).isMe;
               return (
                 <motion.div
                   key={creator.handle}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
+                  className={`p-4 rounded-xl bg-gradient-card border shadow-card flex items-center gap-4 ${
+                    isMe ? "border-primary/60 ring-2 ring-primary/30" : "border-border"
+                  }`}
                 >
                   <div className="w-8 flex justify-center">{getRankIcon(rank)}</div>
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-xl">
@@ -145,7 +164,10 @@ const Leaderboard = () => {
                   </div>
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center justify-between">
-                      <p className="font-bold text-sm font-heading truncate">{creator.name}</p>
+                      <p className="font-bold text-sm font-heading truncate flex items-center gap-2">
+                        {creator.name}
+                        {isMe && <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-bold">YOU</span>}
+                      </p>
                       <p className="font-bold text-sm text-gradient-mint">{formatValue(metric, creator[metric], timeFilter === "weekly")}</p>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
