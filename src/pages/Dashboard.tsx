@@ -27,7 +27,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { affiliateLinks, balance, transactions, badges, creatorProfile, getDiscountForBusiness } = useAffiliate();
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
-  const [qrLink, setQrLink] = useState<{ url: string; label: string } | null>(null);
+  const [qrLink, setQrLink] = useState<{ url: string; label: string; businessId: string; code: string } | null>(null);
   const [editLink, setEditLink] = useState<{ id: string; code: string } | null>(null);
 
   const totalClicks = affiliateLinks.reduce((s, l) => s + l.clicks, 0);
@@ -191,7 +191,7 @@ const Dashboard = () => {
                         <Wand2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => setQrLink({ url: `https://tribemint.link/${link.code}`, label: link.businessName })}
+                        onClick={() => setQrLink({ url: `https://tribemint.link/${link.code}`, label: link.businessName, businessId: link.businessId, code: link.code })}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title="QR code"
                       >
@@ -272,6 +272,8 @@ const Dashboard = () => {
         onClose={() => setQrLink(null)}
         url={qrLink?.url || ""}
         label={qrLink?.label || ""}
+        businessId={qrLink?.businessId}
+        code={qrLink?.code}
       />
       <VanityCodeEditor
         open={!!editLink}
