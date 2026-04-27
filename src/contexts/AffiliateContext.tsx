@@ -157,7 +157,7 @@ interface AffiliateContextType {
 
 const AffiliateContext = createContext<AffiliateContextType | null>(null);
 
-const STORAGE_KEY = "tribemint_state_v2";
+const STORAGE_KEY = "tribemint_state_v3";
 
 const defaultCreator: CreatorProfile = {
   displayName: "Alex Thompson",
