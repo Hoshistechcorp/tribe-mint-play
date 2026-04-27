@@ -1,84 +1,101 @@
+# End-to-End Flow Audit — What's Missing
 
+I traced both the **Creator** and **Business** journeys through every page and the simulated `AffiliateContext`. Here's a frank gap analysis grouped by funnel, plus what's worth fixing.
 
-# End-to-End Frontend Feature Review & Enhancement Plan
+---
 
-## Current State Summary
+## 🟢 Creator Funnel (works end-to-end)
 
-The project has **11 pages** — all using hardcoded mock data with no backend. Here's what exists and what's missing:
+```text
+Landing → Onboarding (role: Creator) → Dashboard
+   ↓                ↓                        ↓
+Search ───→ BusinessDetail ─→ Generate Link → Dashboard updates live
+   ↓                                         ↓
+Campaigns → Join → Link auto-created → Dashboard → Payouts → Withdraw → Tx history
+```
 
-| Page | Status | Gaps |
-|------|--------|------|
-| Landing (Index) | Complete | None |
-| Search Results | Complete | No link generation after finding a business |
-| Business Detail | Complete | Reviews are static, no "promote this" flow |
-| Campaigns | Complete | Join action just copies text, no state change |
-| Dashboard (Creator) | Complete | No real link generation/tracking simulation |
-| Payouts | Complete | Withdrawal has no confirmation or history update |
-| Leaderboard | Complete | Static data, no tie to creator actions |
-| Creator Profile | Complete | Save does nothing persistent |
-| Business Dashboard | Complete | Campaign creation modal doesn't add to list |
-| Onboarding | Complete | Doesn't persist role or redirect properly |
+This loop is solid — context state, simulated click ticking, confetti, toasts, withdrawal modal all wired up.
 
-## Plan: Polish Affiliate Link Tracking & Payouts (Mock/Demo)
+## 🟠 Business Funnel (mostly works, some dead ends)
 
-Since we're keeping it demo, the goal is to make the **end-to-end user journey feel real** with local state management, simulated tracking, and working UI flows.
+```text
+Landing → Onboarding (role: Business) → Business Dashboard
+                                              ↓
+                                  Create Campaign → list updates
+                                  Edit/View Campaign → ❌ no-op
+                                  Affiliates tab → ❌ static, no detail view
+                                  Profile edit → ✅ works
+```
 
-### 1. Affiliate Link Tracking Simulation
+---
 
-**Files: `src/pages/Dashboard.tsx`, `src/pages/BusinessDetail.tsx`, `src/pages/Campaigns.tsx`**
+## ❌ Gaps Found (ranked by impact)
 
-- Add a shared local state context (`src/contexts/AffiliateContext.tsx`) that stores:
-  - Generated affiliate links (business ID, unique code, click count, conversions, earnings)
-  - Active campaign joins
-- On Business Detail page: add a "Promote This" button that generates a trackable link and saves it to context
-- On Campaigns page: "Join Campaign" actually adds campaign to context and shows it in Dashboard
-- On Dashboard: links and earnings pull from context instead of hardcoded arrays
-- Add a simulated "click counter" that increments randomly over time (setInterval) to show live tracking
-- Add a "Copy Link" action with toast confirmation and clipboard write
+### 1. Critical — broken / dead UI controls
+| Where | What's broken |
+|---|---|
+| `BusinessOwnerDashboard` campaigns tab | 👁 View and ✏️ Edit buttons do nothing |
+| `BusinessOwnerDashboard` stats | "Total Revenue / Affiliates / Rating" are hardcoded strings, don't reflect created campaigns |
+| `BusinessDetail` | `isOwner` is hardcoded `false` — edit mode is unreachable |
+| `CreatorProfile` "Add Payment Method" | Adds a placeholder row "New Method / Configure details…" — no input form (the proper form exists only in Payouts) |
+| Two separate payment-method stores | `CreatorProfile` has its own list, `Payouts`/`AffiliateContext` has another — they never sync |
 
-### 2. Payouts & Withdrawals Enhancement
+### 2. High — disconnected state across pages
+| Where | What's missing |
+|---|---|
+| Creator profile data | Onboarding collects displayName, niche, socials → **discarded**. `CreatorProfile` shows hardcoded "Alex Thompson" |
+| Business profile data | Onboarding collects business name/category/commission → **discarded**. `BusinessOwnerDashboard` shows hardcoded "The Mint Garden" |
+| Business → Creator link | A business owner creates a campaign → it doesn't appear in the Creator's `/campaigns` list (separate `sampleCampaigns` array) |
+| Creator earnings → Business revenue | Creator generates clicks/conversions on a link → business dashboard revenue numbers stay static |
+| Leaderboard | 100% hardcoded — current user never appears, can't see own rank |
+| Dashboard badges | Hardcoded `earned: true/false` — never react to actual milestones (clicks, earnings, links count) |
 
-**Files: `src/pages/Payouts.tsx`**
+### 3. Medium — navigation gaps
+| Missing entry point | Impact |
+|---|---|
+| No nav link to `/leaderboard` from Creator Dashboard or Navbar | Page is orphaned |
+| No nav link to `/campaigns` from Creator Dashboard | Creators have to go back to landing |
+| No login/sign-in concept | Onboarding goes straight to dashboard; no way to "switch role" or revisit onboarding |
+| `BusinessDetail` "Join" button on a campaign | Routes to `/campaigns` page instead of joining inline |
 
-- Add a withdrawal confirmation modal with:
-  - Selected amount display
-  - Selected payment method
-  - "Confirm Withdrawal" button
-  - Processing state with spinner
-- After confirming: deduct from available balance, add a new transaction to the list with "pending" status
-- Add a "Mark as Default" action for payment methods that actually updates state
-- Add an "Add Payment Method" mini form (type + details) that appends to the list
+### 4. Low — polish
+- All data resets on page refresh (no `localStorage` persistence) — context starts fresh every session
+- "Total Earned" on Dashboard uses `balance.totalEarned` (static $4,250) instead of summing live link earnings
+- Withdrawal pending status never auto-flips to "completed"
+- No empty state for businesses with zero campaigns in BusinessDetail
+- Notifications / activity feed for creators (only businesses have one)
 
-### 3. Affiliate Context Provider
+---
 
-**New file: `src/contexts/AffiliateContext.tsx`**
+## 🛠 Recommended Fix Priority
 
-- React context with `useState` for:
-  - `affiliateLinks`: array of generated links with click/conversion/earning data
-  - `joinedCampaigns`: array of campaign IDs the user has joined
-  - `balance`: available, pending, total earned, total withdrawn
-  - `transactions`: earnings and withdrawal history
-- Helper functions: `generateLink()`, `joinCampaign()`, `requestWithdrawal()`, `addPaymentMethod()`
-- Wrap app in provider via `App.tsx`
+**Phase 1 — Wire the existing flows** (highest ROI, low effort)
+1. Persist `AffiliateContext` to `localStorage` so demo state survives refresh
+2. Save Onboarding output into context → use it in `CreatorProfile` & `BusinessOwnerDashboard`
+3. Unify payment methods (delete duplicate state in `CreatorProfile`, read from context)
+4. Add Leaderboard + Campaigns links to Creator Dashboard header
 
-### 4. Connect the Dots
+**Phase 2 — Make the Business side reactive** (medium effort)
+5. Move campaigns list into context so business-created campaigns appear in `/campaigns`
+6. Compute Business Dashboard stats from real campaign + link data
+7. Make View / Edit buttons in business campaigns tab open a modal
 
-**Files: `src/pages/SearchResults.tsx`, `src/pages/BusinessDetail.tsx`**
+**Phase 3 — Connect the two sides** (the big one)
+8. When a creator's link "earns," increment the matching business's revenue
+9. Inject current creator into Leaderboard with live rank
+10. Auto-award badges when thresholds hit (first link, $100 earned, 10 links, etc.)
 
-- On search results: each business card gets a small "Generate Link" icon button
-- On business detail: prominent "Promote This Business" CTA that generates link + navigates to dashboard
-- Campaign join → appears in dashboard active links section
-- Withdrawal → updates balance and transaction list immediately
+**Phase 4 — Polish**
+11. Auto-complete pending withdrawals after ~10s (simulated)
+12. Add a creator activity feed mirroring the business one
+13. Add a "Switch to business view" toggle in Navbar for the demo
 
-### Files Changed/Created
+---
 
-| Action | File |
-|--------|------|
-| Create | `src/contexts/AffiliateContext.tsx` |
-| Edit | `src/App.tsx` (wrap with provider) |
-| Edit | `src/pages/Dashboard.tsx` (use context) |
-| Edit | `src/pages/Payouts.tsx` (withdrawal flow, payment methods) |
-| Edit | `src/pages/Campaigns.tsx` (join state) |
-| Edit | `src/pages/BusinessDetail.tsx` (promote button) |
-| Edit | `src/pages/SearchResults.tsx` (generate link button) |
+## How would you like to proceed?
 
+Pick what to tackle and I'll build it:
+- **A — Just Phase 1** (quick wins: persistence + onboarding data + nav links + unified payments)
+- **B — Phases 1 + 2** (fix everything on each side, but keep them independent)
+- **C — Full end-to-end (Phases 1–3)** (the real demo: business actions ripple to creator side and vice versa)
+- **D — Custom** — tell me which specific gaps to fix
