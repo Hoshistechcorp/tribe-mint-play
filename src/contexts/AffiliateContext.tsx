@@ -807,13 +807,32 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
   const simulateGiftCardRedemption = useCallback((amount?: number) => {
     setState((prev) => {
       if (!prev.giftCardProgram.enrolled) return prev;
-      const denoms = prev.giftCardProgram.denominations;
-      const amt = amount ?? denoms[Math.floor(Math.random() * denoms.length)];
-      const code = `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      // Pick a random active card; if none, just record an anonymous event
+      const active = prev.giftCardProgram.cards.filter((c) => c.status === "active" && c.remainingBalance > 0);
+      let updatedCards = prev.giftCardProgram.cards;
+      let code: string;
+      let amt: number;
+      if (active.length > 0) {
+        const target = active[Math.floor(Math.random() * active.length)];
+        amt = amount ?? target.remainingBalance;
+        amt = Math.min(amt, target.remainingBalance);
+        code = target.code;
+        const remaining = +(target.remainingBalance - amt).toFixed(2);
+        updatedCards = prev.giftCardProgram.cards.map((c) =>
+          c.id === target.id
+            ? { ...c, remainingBalance: remaining, status: remaining <= 0 ? "redeemed" as const : "active" as const, redeemedAt: remaining <= 0 ? "just now" : c.redeemedAt, redeemedAmount: +((c.redeemedAmount ?? 0) + amt).toFixed(2) }
+            : c
+        );
+      } else {
+        const denoms = prev.giftCardProgram.denominations;
+        amt = amount ?? denoms[Math.floor(Math.random() * denoms.length)];
+        code = `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
       const newRedemption = { id: `gr${Date.now()}`, code, amount: amt, date: "just now" };
       const updated: IbloovGiftCardProgram = {
         ...prev.giftCardProgram,
-        cardsRedeemed: prev.giftCardProgram.cardsRedeemed + 1,
+        cards: updatedCards,
+        cardsRedeemed: prev.giftCardProgram.cardsRedeemed + (active.length > 0 && updatedCards.find(c => c.code === code)?.status === "redeemed" ? 1 : 0),
         redeemedValue: +(prev.giftCardProgram.redeemedValue + amt).toFixed(2),
         outstandingLiability: +Math.max(0, prev.giftCardProgram.outstandingLiability - amt).toFixed(2),
         recentRedemptions: [newRedemption, ...prev.giftCardProgram.recentRedemptions].slice(0, 8),
@@ -822,12 +841,90 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         ...prev,
         giftCardProgram: updated,
         activity: [
-          { id: `a${Date.now()}`, emoji: "🎟️", text: `Gift card ${code} redeemed for $${amt}`, date: "just now" },
+          { id: `a${Date.now()}`, emoji: "🎟️", text: `Gift card ${code} redeemed for $${amt.toFixed(2)}`, date: "just now" },
           ...prev.activity,
         ].slice(0, 20),
       };
     });
   }, []);
+
+  const redeemGiftCard = useCallback((cardId: string, amount?: number): boolean => {
+    let ok = true;
+    setState((prev) => {
+      const card = prev.giftCardProgram.cards.find((c) => c.id === cardId);
+      if (!card || card.status !== "active" || card.remainingBalance <= 0) { ok = false; return prev; }
+      const amt = Math.min(amount ?? card.remainingBalance, card.remainingBalance);
+      const remaining = +(card.remainingBalance - amt).toFixed(2);
+      const newStatus: GiftCard["status"] = remaining <= 0 ? "redeemed" : "active";
+      const updatedCards = prev.giftCardProgram.cards.map((c) =>
+        c.id === cardId
+          ? { ...c, remainingBalance: remaining, status: newStatus, redeemedAt: newStatus === "redeemed" ? "just now" : c.redeemedAt, redeemedAmount: +((c.redeemedAmount ?? 0) + amt).toFixed(2) }
+          : c
+      );
+      const newRedemption = { id: `gr${Date.now()}`, code: card.code, amount: amt, date: "just now" };
+      return {
+        ...prev,
+        giftCardProgram: {
+          ...prev.giftCardProgram,
+          cards: updatedCards,
+          cardsRedeemed: prev.giftCardProgram.cardsRedeemed + (newStatus === "redeemed" ? 1 : 0),
+          redeemedValue: +(prev.giftCardProgram.redeemedValue + amt).toFixed(2),
+          outstandingLiability: +Math.max(0, prev.giftCardProgram.outstandingLiability - amt).toFixed(2),
+          recentRedemptions: [newRedemption, ...prev.giftCardProgram.recentRedemptions].slice(0, 8),
+        },
+        activity: [
+          { id: `a${Date.now()}`, emoji: "🎟️", text: `Redeemed ${card.code} — $${amt.toFixed(2)}`, date: "just now" },
+          ...prev.activity,
+        ].slice(0, 20),
+      };
+    });
+    return ok;
+  }, []);
+
+  const voidGiftCard = useCallback((cardId: string) => {
+    setState((prev) => {
+      const card = prev.giftCardProgram.cards.find((c) => c.id === cardId);
+      if (!card || card.status !== "active") return prev;
+      const refundLiability = card.remainingBalance;
+      return {
+        ...prev,
+        giftCardProgram: {
+          ...prev.giftCardProgram,
+          cards: prev.giftCardProgram.cards.map((c) =>
+            c.id === cardId ? { ...c, status: "voided" as const, remainingBalance: 0 } : c
+          ),
+          outstandingLiability: +Math.max(0, prev.giftCardProgram.outstandingLiability - refundLiability).toFixed(2),
+        },
+        activity: [
+          { id: `a${Date.now()}`, emoji: "🚫", text: `Voided gift card ${card.code}`, date: "just now" },
+          ...prev.activity,
+        ].slice(0, 20),
+      };
+    });
+  }, []);
+
+  const resendGiftCard = useCallback((cardId: string) => {
+    setState((prev) => {
+      const card = prev.giftCardProgram.cards.find((c) => c.id === cardId);
+      if (!card) return prev;
+      return {
+        ...prev,
+        activity: [
+          { id: `a${Date.now()}`, emoji: "📧", text: `Resent ${card.code} to ${card.buyerEmail || "buyer"}`, date: "just now" },
+          ...prev.activity,
+        ].slice(0, 20),
+      };
+    });
+  }, []);
+
+  const exportGiftCardsCSV = useCallback((): string => {
+    const headers = ["Code", "Face Value", "Buyer Paid", "Buyer Name", "Buyer Email", "Sold Via", "Creator", "Issued", "Status", "Remaining", "Expires"];
+    const rows = state.giftCardProgram.cards.map((c) => [
+      c.code, c.faceValue, c.buyerPaid, c.buyerName ?? "", c.buyerEmail ?? "",
+      c.soldVia, c.creatorHandle ?? "", c.issuedAt, c.status, c.remainingBalance, c.expiresAt,
+    ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","));
+    return [headers.join(","), ...rows].join("\n");
+  }, [state.giftCardProgram.cards]);
 
   // Simulate gift card sales + occasional redemptions when enrolled
   useEffect(() => {
@@ -850,14 +947,43 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         if (Math.random() > 0.45) {
           const face = gc.denominations[Math.floor(Math.random() * gc.denominations.length)];
           const buyerPays = +(face * (1 - gc.redemptionDiscountPercent / 100)).toFixed(2);
+          const sample = [
+            { name: "Maya Chen", email: "maya@example.com", via: "creator" as const, handle: "@alexcreates" },
+            { name: "Tomi Bello", email: "tomi@example.com", via: "creator" as const, handle: "@foodieflora" },
+            { name: "Sara Lin", email: "sara@example.com", via: "direct" as const },
+            { name: "Diego Marin", email: "diego@example.com", via: "ibloov" as const },
+            { name: "Lola Okafor", email: "lola@example.com", via: "creator" as const, handle: "@nightowl" },
+          ];
+          const pick = sample[Math.floor(Math.random() * sample.length)];
+          const today = new Date();
+          const exp = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000);
+          const newCard: GiftCard = {
+            id: `gc${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            code: `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+            faceValue: face,
+            buyerPaid: buyerPays,
+            buyerName: pick.name,
+            buyerEmail: pick.email,
+            soldVia: pick.via,
+            creatorHandle: pick.handle,
+            issuedAt: today.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+            status: "active",
+            remainingBalance: face,
+            expiresAt: exp.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          };
           return {
             ...prev,
             giftCardProgram: {
               ...gc,
+              cards: [newCard, ...gc.cards].slice(0, 200),
               cardsIssued: gc.cardsIssued + 1,
               grossSales: +(gc.grossSales + buyerPays).toFixed(2),
               outstandingLiability: +(gc.outstandingLiability + face).toFixed(2),
             },
+            activity: [
+              { id: `a${Date.now()}`, emoji: "🎁", text: `${pick.name} bought a $${face} gift card${pick.handle ? ` via ${pick.handle}` : ""}`, date: "just now" },
+              ...prev.activity,
+            ].slice(0, 20),
           };
         }
         return prev;
