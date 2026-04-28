@@ -340,6 +340,8 @@ const defaultState: PersistedState = {
     liabilityCap: 5000,
     salesActive: true,
     recentRedemptions: [],
+    cards: [],
+    settlements: [],
   },
 };
 
