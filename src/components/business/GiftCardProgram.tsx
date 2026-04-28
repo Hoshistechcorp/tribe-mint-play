@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Gift, Sparkles, ShieldCheck, Wallet, TrendingUp, Pause, Play,
-  Settings2, X, Save, Plus, AlertTriangle, Receipt, Building2,
+  Settings2, X, Save, Plus, AlertTriangle, Receipt, Building2, ExternalLink,
 } from "lucide-react";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import { toast } from "@/hooks/use-toast";
 
 const GiftCardProgram = () => {
+  const navigate = useNavigate();
   const {
     giftCardProgram: gc,
     enrollGiftCardProgram,
@@ -138,6 +140,12 @@ const GiftCardProgram = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/business/gift-cards")}
+            className="px-3 py-2 rounded-lg bg-gradient-mint text-primary-foreground text-sm font-bold shadow-mint flex items-center gap-1.5"
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> Open manager
+          </button>
           <button
             onClick={() => { toggleGiftCardSales(); toast({ title: gc.salesActive ? "Sales paused ⏸️" : "Sales resumed ▶️" }); }}
             className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-bold flex items-center gap-1.5"
