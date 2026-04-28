@@ -279,6 +279,7 @@ const Onboarding = () => {
                     <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
                     <p className="text-xs text-muted-foreground">You can always update these later in your Settings.</p>
                   </div>
+                  <TermsBlock role="creator" checked={acceptedTerms} onChange={setAcceptedTerms} />
                 </motion.div>
               )}
 
@@ -379,6 +380,7 @@ const Onboarding = () => {
                       </p>
                     </div>
                   </div>
+                  <TermsBlock role="business" checked={acceptedTerms} onChange={setAcceptedTerms} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -433,3 +435,45 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+
+function TermsBlock({
+  role,
+  checked,
+  onChange,
+}: {
+  role: "creator" | "business";
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-gradient-card p-4 sm:p-5 space-y-3">
+      <label className="flex items-start gap-3 cursor-pointer">
+        <Checkbox
+          checked={checked}
+          onCheckedChange={(v) => onChange(v === true)}
+          className="mt-0.5"
+        />
+        <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+          I agree to the{" "}
+          <a href="#" className="text-primary underline underline-offset-2 hover:opacity-80">Terms of Service</a>
+          {" "}and{" "}
+          <a href="#" className="text-primary underline underline-offset-2 hover:opacity-80">Privacy Policy</a>
+          {role === "creator" && (
+            <>
+              , and acknowledge that payouts are processed via{" "}
+              <span className="font-semibold">Stripe Connect</span> under their connected-account terms.
+            </>
+          )}
+          {role === "business" && (
+            <>
+              , and understand TribeMint is <span className="font-semibold">commission-based</span> — no subscription fees, just a take-rate on affiliate-driven revenue.
+            </>
+          )}
+        </span>
+      </label>
+      <p className="text-[11px] text-muted-foreground pl-7">
+        TribeMint is a property of <span className="font-semibold text-foreground/80">Ibloov</span>.
+      </p>
+    </div>
+  );
+}
