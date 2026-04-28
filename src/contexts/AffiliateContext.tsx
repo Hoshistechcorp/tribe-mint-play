@@ -1061,6 +1061,10 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         updateGiftCardProgram,
         toggleGiftCardSales,
         simulateGiftCardRedemption,
+        redeemGiftCard,
+        voidGiftCard,
+        resendGiftCard,
+        exportGiftCardsCSV,
       }}
     >
       {children}
