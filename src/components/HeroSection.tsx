@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal } from "lucide-react";
-import ibloovLogo from "@/assets/ibloov-logo.png";
+import ibloovLogo from "@/assets/ibloov-logo.jpeg";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const HeroSection = () => {
             >
               <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
               <span>by</span>
-              <img src={ibloovLogo} alt="iBloov" className="h-6 sm:h-8 w-auto object-contain" />
+              <img src={ibloovLogo} alt="iBloov" className="h-3.5 sm:h-5 w-auto object-contain" />
             </motion.div>
 
             <motion.h1
