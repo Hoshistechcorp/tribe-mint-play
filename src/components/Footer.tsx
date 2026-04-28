@@ -29,7 +29,8 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 sm:mt-10 pt-4 sm:pt-6 border-t border-border text-center text-[11px] sm:text-xs text-muted-foreground">
-          © 2026 TribeMint. All rights reserved.
+          © 2026 TribeMint — a property of <span className="font-semibold text-foreground/80">Ibloov</span>. All rights reserved.
+          <span className="block mt-1 opacity-70">Commission-based platform · Payouts via Stripe Connect</span>
         </div>
       </div>
     </footer>
