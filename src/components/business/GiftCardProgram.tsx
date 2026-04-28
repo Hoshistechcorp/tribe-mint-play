@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Gift, Sparkles, ShieldCheck, Wallet, TrendingUp, Pause, Play,
-  Settings2, X, Save, Plus, AlertTriangle, Receipt, Building2,
+  Settings2, X, Save, Plus, AlertTriangle, Receipt, Building2, ExternalLink,
 } from "lucide-react";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import { toast } from "@/hooks/use-toast";
 
 const GiftCardProgram = () => {
+  const navigate = useNavigate();
   const {
     giftCardProgram: gc,
     enrollGiftCardProgram,
