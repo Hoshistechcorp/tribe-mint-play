@@ -32,7 +32,7 @@ const HeroSection = () => {
             >
               <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
               <span>by</span>
-              <img src={ibloovLogo} alt="iBloov" className="h-3.5 sm:h-5 w-auto object-contain" />
+              <img src={ibloovLogo} alt="iBloov" className="h-6 sm:h-8 w-auto object-contain" />
             </motion.div>
 
             <motion.h1
