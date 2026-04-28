@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Plus, Users, DollarSign, BarChart3, Edit3, Trash2, Eye,
-  TrendingUp, Star, X, Save, Pause, Play, Tags, MousePointerClick, AlertTriangle,
+  TrendingUp, Star, X, Save, Pause, Play, Tags, MousePointerClick, AlertTriangle, Gift,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import CreateCampaignModal from "@/components/business/CreateCampaignModal";
 import AnalyticsCharts from "@/components/business/AnalyticsCharts";
 import ActivityFeed from "@/components/business/ActivityFeed";
+import GiftCardProgram from "@/components/business/GiftCardProgram";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate, type BizCampaign } from "@/contexts/AffiliateContext";
 
@@ -30,7 +31,7 @@ const BusinessOwnerDashboard = () => {
     affiliateLinks,
   } = useAffiliate();
 
-  const [activeTab, setActiveTab] = useState<"overview" | "campaigns" | "affiliates" | "profile">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "campaigns" | "giftcards" | "affiliates" | "profile">("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [profileDraft, setProfileDraft] = useState(businessProfile);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -46,6 +47,7 @@ const BusinessOwnerDashboard = () => {
   const tabs = [
     { key: "overview", label: "Overview 📊", icon: BarChart3 },
     { key: "campaigns", label: "Campaigns 📢", icon: BarChart3 },
+    { key: "giftcards", label: "Gift Cards 🎁", icon: Gift },
     { key: "affiliates", label: "Affiliates 👥", icon: Users },
     { key: "profile", label: "Profile ✏️", icon: Edit3 },
   ] as const;
@@ -260,6 +262,8 @@ const BusinessOwnerDashboard = () => {
               )}
             </motion.div>
           )}
+
+          {activeTab === "giftcards" && <GiftCardProgram />}
 
           {activeTab === "affiliates" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
