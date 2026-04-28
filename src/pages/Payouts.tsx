@@ -246,6 +246,19 @@ const Payouts = () => {
                       <Plus className="w-3 h-3" /> Add
                     </button>
                   </div>
+
+                  {/* Stripe Connect — primary payout rail */}
+                  <button
+                    onClick={() => toast({ title: "Stripe Connect", description: "Connected-account onboarding will launch here. Demo only." })}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors"
+                  >
+                    <div className="w-7 h-7 rounded-md bg-[#635bff] text-white flex items-center justify-center text-[10px] font-black tracking-tight">S</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground leading-tight">Stripe Connect</p>
+                      <p className="text-[10px] text-muted-foreground">Recommended · Fast global payouts</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-primary">Connect →</span>
+                  </button>
                   
                   {paymentMethods.map((pm) => {
                     const Icon = methodIcons[pm.type] || Building2;
