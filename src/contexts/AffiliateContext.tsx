@@ -59,6 +59,33 @@ export interface BusinessProfile {
   rating: number;
 }
 
+export interface IbloovGiftCardProgram {
+  enrolled: boolean;
+  enrolledAt?: string;
+  /** Business pays a small platform fee per redeemed card */
+  platformFeePercent: number;
+  /** Denominations the venue accepts */
+  denominations: number[];
+  /** Discount the venue absorbs to attract redemptions (e.g. 10% = card $50 → buyer pays $45) */
+  redemptionDiscountPercent: number;
+  /** Total face value live in market */
+  cardsIssued: number;
+  /** Cards redeemed in-venue */
+  cardsRedeemed: number;
+  /** Total $ collected from gift card sales (net of discount) */
+  grossSales: number;
+  /** $ already redeemed against inventory at the venue */
+  redeemedValue: number;
+  /** Outstanding liability = grossSales - redeemedValue */
+  outstandingLiability: number;
+  /** Auto-pause sales when liability exceeds this cap */
+  liabilityCap: number;
+  /** Whether sales are currently active */
+  salesActive: boolean;
+  /** Recent redemption events for display */
+  recentRedemptions: { id: string; code: string; amount: number; date: string }[];
+}
+
 export interface BizCampaign {
   id: string;
   title: string;
@@ -129,6 +156,14 @@ interface AffiliateContextType {
   toggleCampaignPause: (id: string) => void;
   /** Compute discounted price for a buyer based on the campaign attached to a business */
   getDiscountForBusiness: (businessId: string) => { discountPercent: number; cpcRate: number; paused: boolean } | null;
+
+  // Ibloov Gift Card program (business side)
+  giftCardProgram: IbloovGiftCardProgram;
+  enrollGiftCardProgram: (opts?: Partial<IbloovGiftCardProgram>) => void;
+  unenrollGiftCardProgram: () => void;
+  updateGiftCardProgram: (patch: Partial<IbloovGiftCardProgram>) => void;
+  toggleGiftCardSales: () => void;
+  simulateGiftCardRedemption: (amount?: number) => void;
 
   // Activity (creator)
   activity: ActivityEvent[];
@@ -233,6 +268,7 @@ interface PersistedState {
   activity: ActivityEvent[];
   referralCode: string;
   referrals: Referral[];
+  giftCardProgram: IbloovGiftCardProgram;
 }
 
 const defaultState: PersistedState = {
@@ -255,6 +291,20 @@ const defaultState: PersistedState = {
     { id: "r2", name: "Tomi Bello", joinedAt: "Mar 18, 2026", status: "joined", earned: 8.0 },
     { id: "r3", name: "Sara Lin", joinedAt: "Mar 22, 2026", status: "pending", earned: 0 },
   ],
+  giftCardProgram: {
+    enrolled: false,
+    platformFeePercent: 5,
+    denominations: [25, 50, 100, 200],
+    redemptionDiscountPercent: 10,
+    cardsIssued: 0,
+    cardsRedeemed: 0,
+    grossSales: 0,
+    redeemedValue: 0,
+    outstandingLiability: 0,
+    liabilityCap: 5000,
+    salesActive: true,
+    recentRedemptions: [],
+  },
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
