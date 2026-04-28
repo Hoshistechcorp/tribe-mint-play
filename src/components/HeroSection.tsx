@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal } from "lucide-react";
-import ibloovLogo from "@/assets/ibloov-logo.jpeg";
+import ibloovLogo from "@/assets/ibloov-logo.png";
 
 const HeroSection = () => {
   const navigate = useNavigate();
