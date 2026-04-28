@@ -263,6 +263,8 @@ const BusinessOwnerDashboard = () => {
             </motion.div>
           )}
 
+          {activeTab === "giftcards" && <GiftCardProgram />}
+
           {activeTab === "affiliates" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
               <h3 className="font-heading font-bold text-lg">Top Performing Affiliates 🏆</h3>
