@@ -891,6 +891,12 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         referrals: state.referrals,
         referralEarnings,
         simulateReferralSignup,
+        giftCardProgram: state.giftCardProgram,
+        enrollGiftCardProgram,
+        unenrollGiftCardProgram,
+        updateGiftCardProgram,
+        toggleGiftCardSales,
+        simulateGiftCardRedemption,
       }}
     >
       {children}
