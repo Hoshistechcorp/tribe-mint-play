@@ -19,6 +19,7 @@ import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
 import { useAffiliate } from "@/contexts/AffiliateContext";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Role = "creator" | "business" | null;
 
@@ -27,6 +28,7 @@ const Onboarding = () => {
   const { setCreatorProfile, setBusinessProfile } = useAffiliate();
   const [role, setRole] = useState<Role>(null);
   const [step, setStep] = useState(0); // 0 = role select, 1-3 = role-specific steps
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Creator state
   const [creatorData, setCreatorData] = useState({
@@ -101,12 +103,12 @@ const Onboarding = () => {
     if (role === "creator") {
       if (step === 1) return creatorData.displayName.trim() && creatorData.username.trim();
       if (step === 2) return creatorData.niche.length > 0;
-      return true;
+      return acceptedTerms;
     }
     if (role === "business") {
       if (step === 1) return businessData.name.trim() && businessData.category;
       if (step === 2) return businessData.description.trim();
-      return true;
+      return acceptedTerms;
     }
     return false;
   };
