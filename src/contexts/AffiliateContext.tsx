@@ -723,6 +723,111 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     return { discountPercent: c.discountPercent, cpcRate: c.cpcRate, paused: c.payoutsPaused };
   }, [state.bizCampaigns]);
 
+  // ===== Ibloov Gift Card program =====
+  const enrollGiftCardProgram = useCallback((opts?: Partial<IbloovGiftCardProgram>) => {
+    setState((prev) => ({
+      ...prev,
+      giftCardProgram: {
+        ...prev.giftCardProgram,
+        ...opts,
+        enrolled: true,
+        enrolledAt: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        salesActive: true,
+      },
+      activity: [
+        { id: `a${Date.now()}`, emoji: "🎁", text: `Enrolled in Ibloov Gift Card program`, date: "just now" },
+        ...prev.activity,
+      ].slice(0, 20),
+    }));
+  }, []);
+
+  const unenrollGiftCardProgram = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      giftCardProgram: { ...prev.giftCardProgram, enrolled: false, salesActive: false },
+      activity: [
+        { id: `a${Date.now()}`, emoji: "🚪", text: `Left Ibloov Gift Card program`, date: "just now" },
+        ...prev.activity,
+      ].slice(0, 20),
+    }));
+  }, []);
+
+  const updateGiftCardProgram = useCallback((patch: Partial<IbloovGiftCardProgram>) => {
+    setState((prev) => ({
+      ...prev,
+      giftCardProgram: { ...prev.giftCardProgram, ...patch },
+    }));
+  }, []);
+
+  const toggleGiftCardSales = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      giftCardProgram: { ...prev.giftCardProgram, salesActive: !prev.giftCardProgram.salesActive },
+    }));
+  }, []);
+
+  const simulateGiftCardRedemption = useCallback((amount?: number) => {
+    setState((prev) => {
+      if (!prev.giftCardProgram.enrolled) return prev;
+      const denoms = prev.giftCardProgram.denominations;
+      const amt = amount ?? denoms[Math.floor(Math.random() * denoms.length)];
+      const code = `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const newRedemption = { id: `gr${Date.now()}`, code, amount: amt, date: "just now" };
+      const updated: IbloovGiftCardProgram = {
+        ...prev.giftCardProgram,
+        cardsRedeemed: prev.giftCardProgram.cardsRedeemed + 1,
+        redeemedValue: +(prev.giftCardProgram.redeemedValue + amt).toFixed(2),
+        outstandingLiability: +Math.max(0, prev.giftCardProgram.outstandingLiability - amt).toFixed(2),
+        recentRedemptions: [newRedemption, ...prev.giftCardProgram.recentRedemptions].slice(0, 8),
+      };
+      return {
+        ...prev,
+        giftCardProgram: updated,
+        activity: [
+          { id: `a${Date.now()}`, emoji: "🎟️", text: `Gift card ${code} redeemed for $${amt}`, date: "just now" },
+          ...prev.activity,
+        ].slice(0, 20),
+      };
+    });
+  }, []);
+
+  // Simulate gift card sales + occasional redemptions when enrolled
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setState((prev) => {
+        const gc = prev.giftCardProgram;
+        if (!gc.enrolled || !gc.salesActive) return prev;
+        // Cap reached → auto-pause
+        if (gc.outstandingLiability >= gc.liabilityCap) {
+          return {
+            ...prev,
+            giftCardProgram: { ...gc, salesActive: false },
+            activity: [
+              { id: `a${Date.now()}`, emoji: "⚠️", text: `Gift card sales paused — liability cap reached`, date: "just now" },
+              ...prev.activity,
+            ].slice(0, 20),
+          };
+        }
+        // Random sale
+        if (Math.random() > 0.45) {
+          const face = gc.denominations[Math.floor(Math.random() * gc.denominations.length)];
+          const buyerPays = +(face * (1 - gc.redemptionDiscountPercent / 100)).toFixed(2);
+          return {
+            ...prev,
+            giftCardProgram: {
+              ...gc,
+              cardsIssued: gc.cardsIssued + 1,
+              grossSales: +(gc.grossSales + buyerPays).toFixed(2),
+              outstandingLiability: +(gc.outstandingLiability + face).toFixed(2),
+            },
+          };
+        }
+        return prev;
+      });
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Derived: badges based on real milestones
   const badges = useMemo(() => {
     const totalLinks = state.affiliateLinks.length;
