@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ibloovLogo from "@/assets/ibloov-logo.jpeg";
+import ibloovLogo from "@/assets/ibloov-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
