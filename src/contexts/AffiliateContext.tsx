@@ -84,6 +84,38 @@ export interface IbloovGiftCardProgram {
   salesActive: boolean;
   /** Recent redemption events for display */
   recentRedemptions: { id: string; code: string; amount: number; date: string }[];
+  /** Full ledger of every issued card */
+  cards: GiftCard[];
+  /** Settlement payouts from Ibloov to the venue */
+  settlements: GiftCardSettlement[];
+}
+
+export interface GiftCard {
+  id: string;
+  code: string;
+  faceValue: number;
+  buyerPaid: number;
+  buyerName?: string;
+  buyerEmail?: string;
+  soldVia: "creator" | "direct" | "ibloov";
+  creatorHandle?: string;
+  issuedAt: string;
+  status: "active" | "redeemed" | "expired" | "voided";
+  redeemedAt?: string;
+  redeemedAmount?: number;
+  /** Optional partial-redemption remaining balance */
+  remainingBalance: number;
+  expiresAt: string;
+}
+
+export interface GiftCardSettlement {
+  id: string;
+  date: string;
+  cardsCount: number;
+  grossRedeemed: number;
+  platformFee: number;
+  netPayout: number;
+  status: "pending" | "paid";
 }
 
 export interface BizCampaign {
@@ -164,6 +196,10 @@ interface AffiliateContextType {
   updateGiftCardProgram: (patch: Partial<IbloovGiftCardProgram>) => void;
   toggleGiftCardSales: () => void;
   simulateGiftCardRedemption: (amount?: number) => void;
+  redeemGiftCard: (cardId: string, amount?: number) => boolean;
+  voidGiftCard: (cardId: string) => void;
+  resendGiftCard: (cardId: string) => void;
+  exportGiftCardsCSV: () => string;
 
   // Activity (creator)
   activity: ActivityEvent[];
