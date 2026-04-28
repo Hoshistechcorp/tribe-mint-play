@@ -25,7 +25,7 @@ const Navbar = () => {
           </span>
           <span className="hidden sm:flex items-center gap-1.5 pl-2 ml-1 border-l border-border">
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">by</span>
-            <img src={ibloovLogo} alt="iBloov" className="h-4 w-auto object-contain" />
+            <img src={ibloovLogo} alt="iBloov" className="h-7 lg:h-8 w-auto object-contain" />
           </span>
         </a>
 
