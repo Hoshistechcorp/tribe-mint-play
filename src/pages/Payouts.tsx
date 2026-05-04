@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, DollarSign, ArrowDownToLine, ArrowUpFromLine, Clock,
-  CheckCircle2, XCircle, Wallet, Building2, CreditCard, Plus, X, Loader2,
-} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
@@ -13,9 +9,9 @@ import PageTransition from "@/components/PageTransition";
 const withdrawalAmounts = [10, 25, 50, 100, 250, 500];
 
 const statusConfig = {
-  completed: { icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10", label: "Completed" },
-  pending: { icon: Clock, color: "text-secondary", bg: "bg-secondary/10", label: "Pending" },
-  failed: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", label: "Failed" },
+  completed: { emoji: "✅", color: "text-primary", bg: "bg-primary/10", label: "Completed" },
+  pending: { emoji: "⏳", color: "text-secondary", bg: "bg-secondary/10", label: "Pending" },
+  failed: { emoji: "❌", color: "text-destructive", bg: "bg-destructive/10", label: "Failed" },
 };
 
 const methodIcons: Record<string, typeof Building2> = { bank: Building2, paystack: Wallet, flexit: CreditCard };
@@ -82,7 +78,7 @@ const Payouts = () => {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <button onClick={() => navigate("/dashboard")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <span>←</span>
             </button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold font-heading">Payouts 💸</h1>
@@ -97,8 +93,8 @@ const Payouts = () => {
           {/* Balance cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { label: "Available", value: balance.available, color: "text-primary", icon: Wallet },
-              { label: "Pending", value: balance.pending, color: "text-secondary", icon: Clock },
+              { label: "Available", value: balance.available, color: "text-primary", emoji: "👛" },
+              { label: "Pending", value: balance.pending, color: "text-secondary", emoji: "⏳" },
               { label: "Total Earned", value: balance.totalEarned, color: "text-accent", icon: ArrowDownToLine },
               { label: "Total Withdrawn", value: balance.totalWithdrawn, color: "text-muted-foreground", icon: ArrowUpFromLine },
             ].map((s, i) => (
@@ -225,7 +221,7 @@ const Payouts = () => {
 
                 {/* Custom amount */}
                 <div className="relative mb-4">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <span>💲</span>
                   <input
                     type="number"
                     value={withdrawAmount}
@@ -243,7 +239,7 @@ const Payouts = () => {
                       onClick={() => setShowAddMethod(!showAddMethod)}
                       className="text-[10px] text-primary font-medium hover:underline flex items-center gap-1"
                     >
-                      <Plus className="w-3 h-3" /> Add
+                      <span>＋</span> Add
                     </button>
                   </div>
 
@@ -365,7 +361,7 @@ const Payouts = () => {
                 <h3 className="text-lg font-bold font-heading">Confirm Withdrawal</h3>
                 {!isProcessing && (
                   <button onClick={() => setShowConfirmModal(false)} className="p-1 rounded-lg hover:bg-muted">
-                    <X className="w-4 h-4" />
+                    <span>✕</span>
                   </button>
                 )}
               </div>
@@ -402,7 +398,7 @@ const Payouts = () => {
                   className="flex-1 px-4 py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center justify-center gap-2 disabled:opacity-70"
                 >
                   {isProcessing ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                    <><span>⏳</span> Processing...</>
                   ) : (
                     "Confirm 💸"
                   )}

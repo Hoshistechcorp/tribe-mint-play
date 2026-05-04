@@ -1,20 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  ArrowLeft,
-  Megaphone,
-  Store,
-  User,
-  MapPin,
-  Instagram,
-  Twitter,
-  Globe,
-  Camera,
-  Check,
-  Sparkles,
-} from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
@@ -163,7 +149,7 @@ const Onboarding = () => {
                         <p className="font-bold font-heading">Creator</p>
                         <p className="text-xs text-muted-foreground">Share links, earn cash, level up</p>
                       </div>
-                      {role === "creator" && <Check className="w-5 h-5 text-primary" />}
+                      {role === "creator" && <span>✓</span>}
                     </button>
 
                     <button
@@ -175,13 +161,13 @@ const Onboarding = () => {
                       }`}
                     >
                       <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
-                        <Store className="w-6 h-6 text-secondary" />
+                        <span>🏪</span>
                       </div>
                       <div>
                         <p className="font-bold font-heading">Business</p>
                         <p className="text-xs text-muted-foreground">Get affiliates promoting you</p>
                       </div>
-                      {role === "business" && <Check className="w-5 h-5 text-primary" />}
+                      {role === "business" && <span>✓</span>}
                     </button>
                   </div>
                 </motion.div>
@@ -209,7 +195,7 @@ const Onboarding = () => {
                     <div>
                       <label className="text-xs text-muted-foreground font-medium">City</label>
                       <div className="relative mt-1">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <span>📍</span>
                         <input value={creatorData.city} onChange={(e) => setCreatorData({ ...creatorData, city: e.target.value })} placeholder="Lagos, Nigeria" className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                       </div>
                     </div>
@@ -255,13 +241,13 @@ const Onboarding = () => {
                   </div>
                   <div className="space-y-4 rounded-2xl bg-gradient-card border border-border p-6 shadow-card">
                     {[
-                      { key: "instagram" as const, icon: Instagram, label: "Instagram", placeholder: "@handle" },
-                      { key: "twitter" as const, icon: Twitter, label: "Twitter / X", placeholder: "@handle" },
-                      { key: "website" as const, icon: Globe, label: "Website", placeholder: "yoursite.com" },
+                      { key: "instagram" as const, emoji: "📸", label: "Instagram", placeholder: "@handle" },
+                      { key: "twitter" as const, emoji: "🐦", label: "Twitter / X", placeholder: "@handle" },
+                      { key: "website" as const, emoji: "🌐", label: "Website", placeholder: "yoursite.com" },
                     ].map((s) => (
                       <div key={s.key} className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          <s.icon className="w-5 h-5 text-foreground" />
+                          <span>{s.emoji || "📌"}</span>
                         </div>
                         <div className="flex-1">
                           <label className="text-xs text-muted-foreground font-medium">{s.label}</label>
@@ -276,7 +262,7 @@ const Onboarding = () => {
                     ))}
                   </div>
                   <div className="p-4 rounded-xl bg-primary/5 border border-primary/15 flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span>✨</span>
                     <p className="text-xs text-muted-foreground">You can always update these later in your Settings.</p>
                   </div>
                   <TermsBlock role="creator" checked={acceptedTerms} onChange={setAcceptedTerms} />
@@ -296,7 +282,7 @@ const Onboarding = () => {
                         {businessData.logo}
                       </div>
                       <button className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
-                        <Camera className="w-3 h-3" /> Upload Logo
+                        <span>📷</span> Upload Logo
                       </button>
                     </div>
                     <div>
@@ -392,7 +378,7 @@ const Onboarding = () => {
                   onClick={() => setStep(step - 1)}
                   className="px-4 py-2.5 bg-muted text-foreground rounded-xl text-sm font-medium hover:bg-muted/80 transition-colors flex items-center gap-2"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Back
+                  <span>←</span> Back
                 </button>
               )}
               <div className="flex-1" />
@@ -410,7 +396,7 @@ const Onboarding = () => {
                 className="px-6 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {step === 0 ? "Get Started" : step === totalSteps ? "Finish 🎉" : "Continue"}
-                <ArrowRight className="w-4 h-4" />
+                <span>→</span>
               </button>
             </div>
 

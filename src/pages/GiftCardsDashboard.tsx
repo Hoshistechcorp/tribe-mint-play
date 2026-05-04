@@ -1,11 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  Gift, ArrowLeft, Search, Filter, Download, Pause, Play, Settings2,
-  Receipt, ShieldCheck, Wallet, TrendingUp, AlertTriangle, X, Save,
-  Mail, Ban, Check, QrCode, ChevronRight, DollarSign, Sparkles,
-} from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import { useAffiliate, type GiftCard } from "@/contexts/AffiliateContext";
@@ -98,7 +93,7 @@ const GiftCardsDashboard = () => {
         <Navbar />
         <div className="min-h-screen bg-background pt-16">
           <div className="container py-16 max-w-2xl space-y-6 text-center">
-            <Gift className="w-12 h-12 text-primary mx-auto" />
+            <span>🎁</span>
             <h1 className="text-3xl font-extrabold font-heading">Gift Card Manager</h1>
             <p className="text-muted-foreground">
               Your venue isn't enrolled in the Ibloov Gift Card program yet. Opt in to start
@@ -109,7 +104,7 @@ const GiftCardsDashboard = () => {
                 onClick={() => { enrollGiftCardProgram(); toast({ title: "You're in! 🎁" }); }}
                 className="px-6 py-3 rounded-full bg-gradient-mint text-primary-foreground font-extrabold text-sm shadow-mint flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4" /> Opt in now
+                <span>✨</span> Opt in now
               </button>
               <button
                 onClick={() => navigate("/business-dashboard")}
@@ -146,11 +141,11 @@ const GiftCardsDashboard = () => {
         <div className="border-b border-border bg-card/50 backdrop-blur-xl">
           <div className="container flex flex-wrap items-center gap-3 h-auto py-3 sm:h-16 sm:py-0">
             <button onClick={() => navigate("/business-dashboard")} className="p-2 rounded-lg hover:bg-muted">
-              <ArrowLeft className="w-4 h-4" />
+              <span>←</span>
             </button>
             <div className="flex-1 min-w-0">
               <h1 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2">
-                <Gift className="w-4 h-4 text-primary" /> Gift Card Manager
+                <span>🎁</span> Gift Card Manager
               </h1>
               <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
                 {businessProfile.name} · {gc.salesActive ? "Selling" : "Sales paused"}
@@ -161,13 +156,13 @@ const GiftCardsDashboard = () => {
                 onClick={() => { toggleGiftCardSales(); toast({ title: gc.salesActive ? "Sales paused ⏸️" : "Sales resumed ▶️" }); }}
                 className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-xs font-bold flex items-center gap-1.5"
               >
-                {gc.salesActive ? <><Pause className="w-3.5 h-3.5" /> Pause</> : <><Play className="w-3.5 h-3.5" /> Resume</>}
+                {gc.salesActive ? <><span>⏸</span> Pause</> : <><span>▶</span> Resume</>}
               </button>
               <button
                 onClick={() => { setDraft(gc); setShowSettings(true); }}
                 className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-xs font-bold flex items-center gap-1.5"
               >
-                <Settings2 className="w-3.5 h-3.5" /> Settings
+                <span>⚙️</span> Settings
               </button>
             </div>
           </div>
@@ -177,10 +172,10 @@ const GiftCardsDashboard = () => {
           {/* KPI grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {[
-              { label: "Cards issued", value: gc.cardsIssued, icon: Receipt, color: "text-primary" },
-              { label: "Cards redeemed", value: `${gc.cardsRedeemed} (${redemptionRate}%)`, icon: Gift, color: "text-secondary" },
-              { label: "Gross sales", value: `$${gc.grossSales.toFixed(2)}`, icon: TrendingUp, color: "text-accent" },
-              { label: "Outstanding", value: `$${gc.outstandingLiability.toFixed(2)}`, icon: Wallet, color: "text-primary" },
+              { label: "Cards issued", value: gc.cardsIssued, emoji: "🧾", color: "text-primary" },
+              { label: "Cards redeemed", value: `${gc.cardsRedeemed} (${redemptionRate}%)`, emoji: "🎁", color: "text-secondary" },
+              { label: "Gross sales", value: `$${gc.grossSales.toFixed(2)}`, emoji: "📈", color: "text-accent" },
+              { label: "Outstanding", value: `$${gc.outstandingLiability.toFixed(2)}`, emoji: "👛", color: "text-primary" },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 className="p-4 rounded-2xl bg-gradient-card border border-border shadow-card">
@@ -197,7 +192,7 @@ const GiftCardsDashboard = () => {
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-card border border-border shadow-card space-y-2">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary" />
+                <span>🛡️</span>
                 <span className="font-bold">Liability vs cap</span>
               </div>
               <span className="text-muted-foreground">${gc.outstandingLiability.toFixed(0)} / ${gc.liabilityCap.toLocaleString()}</span>
@@ -210,7 +205,7 @@ const GiftCardsDashboard = () => {
             </div>
             {liabilityPct >= 80 && (
               <p className="flex items-center gap-1.5 text-[11px] text-accent font-bold">
-                <AlertTriangle className="w-3 h-3" /> Approaching cap — sales auto-pause at 100%.
+                <span>⚠️</span> Approaching cap — sales auto-pause at 100%.
               </p>
             )}
           </div>
@@ -233,7 +228,7 @@ const GiftCardsDashboard = () => {
               {/* Quick redeem (POS) */}
               <div className="lg:col-span-2 p-5 rounded-2xl bg-gradient-card border border-border shadow-card space-y-3">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-primary" />
+                  <span>📱</span>
                   <h3 className="font-heading font-bold">Point-of-sale redemption</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -303,7 +298,7 @@ const GiftCardsDashboard = () => {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 <div className="relative flex-1 min-w-[200px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <span>🔍</span>
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -323,13 +318,13 @@ const GiftCardsDashboard = () => {
                   <option value="expired">Expired</option>
                 </select>
                 <button onClick={handleExport} className="px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 text-sm font-bold flex items-center gap-1.5">
-                  <Download className="w-3.5 h-3.5" /> CSV
+                  <span>⬇</span> CSV
                 </button>
               </div>
 
               {filteredCards.length === 0 ? (
                 <div className="p-10 text-center text-muted-foreground rounded-2xl border border-dashed border-border">
-                  <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <span>🎁</span>
                   <p className="text-sm">No gift cards match your filters yet.</p>
                   <p className="text-xs mt-1">Cards will appear here as they're sold.</p>
                 </div>
@@ -375,7 +370,7 @@ const GiftCardsDashboard = () => {
                                 onClick={() => { setSelected(c); setRedeemAmount(String(c.remainingBalance)); }}
                                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1 ml-auto"
                               >
-                                Manage <ChevronRight className="w-3 h-3" />
+                                Manage <span>›</span>
                               </button>
                             </td>
                           </tr>
@@ -393,7 +388,7 @@ const GiftCardsDashboard = () => {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
               {gc.recentRedemptions.length === 0 ? (
                 <div className="p-10 text-center text-muted-foreground rounded-2xl border border-dashed border-border">
-                  <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <span>🎁</span>
                   <p className="text-sm">No redemptions yet.</p>
                 </div>
               ) : (
@@ -402,7 +397,7 @@ const GiftCardsDashboard = () => {
                   return (
                     <div key={r.id} className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center">
-                        <Check className="w-5 h-5" />
+                        <span>✓</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-mono text-xs">{r.code}</p>
@@ -443,7 +438,7 @@ const GiftCardsDashboard = () => {
               </div>
               <div className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
                 <h3 className="font-heading font-bold text-sm mb-3 flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-primary" /> Settlement history
+                  <span>💲</span> Settlement history
                 </h3>
                 {gc.settlements.length === 0 ? (
                   <p className="text-xs text-muted-foreground">
@@ -483,7 +478,7 @@ const GiftCardsDashboard = () => {
                 className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl bg-card border border-border shadow-card p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between">
                   <h3 className="font-heading font-bold text-lg">Gift card details</h3>
-                  <button onClick={() => setSelected(null)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setSelected(null)} className="p-1.5 rounded-lg hover:bg-muted"><span>✕</span></button>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-gradient-mint text-primary-foreground">
@@ -541,7 +536,7 @@ const GiftCardsDashboard = () => {
                         onClick={() => handleRedeem(selected)}
                         className="px-4 py-2.5 rounded-lg bg-gradient-mint text-primary-foreground font-bold text-sm shadow-mint flex items-center gap-1.5"
                       >
-                        <Check className="w-4 h-4" /> Redeem
+                        <span>✓</span> Redeem
                       </button>
                     </div>
                     <div className="flex gap-2 pt-1">
@@ -549,7 +544,7 @@ const GiftCardsDashboard = () => {
                         onClick={() => { resendGiftCard(selected.id); toast({ title: "Email resent 📧" }); }}
                         className="flex-1 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-xs font-bold flex items-center justify-center gap-1.5"
                       >
-                        <Mail className="w-3.5 h-3.5" /> Resend email
+                        <span>✉️</span> Resend email
                       </button>
                       <button
                         onClick={() => {
@@ -582,7 +577,7 @@ const GiftCardsDashboard = () => {
                 className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between">
                   <h3 className="font-heading font-bold text-lg">Program settings</h3>
-                  <button onClick={() => setShowSettings(false)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setShowSettings(false)} className="p-1.5 rounded-lg hover:bg-muted"><span>✕</span></button>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground font-medium">Denominations</label>
@@ -611,7 +606,7 @@ const GiftCardsDashboard = () => {
                   onClick={() => { updateGiftCardProgram(draft); setShowSettings(false); toast({ title: "Settings saved ✅" }); }}
                   className="w-full px-4 py-2.5 rounded-lg bg-gradient-mint text-primary-foreground font-bold text-sm flex items-center justify-center gap-2"
                 >
-                  <Save className="w-4 h-4" /> Save changes
+                  <span>💾</span> Save changes
                 </button>
               </motion.div>
             </motion.div>

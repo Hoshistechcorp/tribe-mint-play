@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft, MapPin, Star, DollarSign, TrendingUp, BarChart3,
-  Users, Link2, Clock, Globe, Heart, Share2, Utensils, Hotel, Wine,
-  Edit3, Save, ThumbsUp, MessageSquare, Filter, Check,
-} from "lucide-react";
 import { sampleBusinesses } from "@/data/sampleBusinesses";
 import { sampleCampaigns } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
@@ -88,7 +83,7 @@ const BusinessDetail = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
             <div className="absolute top-4 left-4">
               <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-card/80 backdrop-blur-sm hover:bg-card transition-colors">
-                <ArrowLeft className="w-5 h-5" />
+                <span>←</span>
               </button>
             </div>
             <div className="absolute top-4 right-4 flex gap-2">
@@ -102,14 +97,14 @@ const BusinessDetail = () => {
                 onClick={() => { navigator.clipboard.writeText(window.location.href); toast({ title: "Link copied! 🔗" }); }}
                 className="p-2 rounded-xl bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
               >
-                <Share2 className="w-5 h-5" />
+                <span>📤</span>
               </button>
               {isOwner && (
                 <button
                   onClick={() => setIsEditing(!isEditing)}
                   className="p-2 rounded-xl bg-primary/20 backdrop-blur-sm hover:bg-primary/30 text-primary transition-colors"
                 >
-                  <Edit3 className="w-5 h-5" />
+                  <span>✏️</span>
                 </button>
               )}
             </div>
@@ -129,8 +124,8 @@ const BusinessDetail = () => {
                       </div>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1"><TypeIcon className="w-4 h-4" /> {business.type}</span>
-                        <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {business.city}</span>
-                        <span className="flex items-center gap-1"><Star className="w-4 h-4 text-secondary" /> {avgRating} ({allReviews.length})</span>
+                        <span className="flex items-center gap-1"><span>📍</span> {business.city}</span>
+                        <span className="flex items-center gap-1"><span>⭐</span> {avgRating} ({allReviews.length})</span>
                       </div>
                     </div>
                   </div>
@@ -147,7 +142,7 @@ const BusinessDetail = () => {
                         onClick={() => { setIsEditing(false); toast({ title: "Description updated! ✅" }); }}
                         className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm flex items-center gap-2"
                       >
-                        <Save className="w-4 h-4" /> Save
+                        <span>💾</span> Save
                       </button>
                     </div>
                   ) : (
@@ -178,10 +173,10 @@ const BusinessDetail = () => {
                   <h2 className="text-lg font-bold font-heading mb-4">Commission Breakdown 💰</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {[
-                      { label: "Commission", value: `${business.commission}%`, icon: DollarSign, color: "text-primary" },
-                      { label: "Avg EPC", value: `$${business.avgEPC}`, icon: TrendingUp, color: "text-secondary" },
-                      { label: "Conv. Rate", value: `${business.conversionRate}%`, icon: BarChart3, color: "text-accent" },
-                      { label: "Affiliates", value: business.totalAffiliates.toString(), icon: Users, color: "text-muted-foreground" },
+                      { label: "Commission", value: `${business.commission}%`, emoji: "💲", color: "text-primary" },
+                      { label: "Avg EPC", value: `$${business.avgEPC}`, emoji: "📈", color: "text-secondary" },
+                      { label: "Conv. Rate", value: `${business.conversionRate}%`, emoji: "📊", color: "text-accent" },
+                      { label: "Affiliates", value: business.totalAffiliates.toString(), emoji: "👥", color: "text-muted-foreground" },
                     ].map((stat, i) => (
                       <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 + i * 0.05 }} className="p-4 rounded-xl bg-muted/50 text-center">
                         <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color}`} />
@@ -219,9 +214,9 @@ const BusinessDetail = () => {
                             <p className="font-bold text-sm font-heading">{c.title}</p>
                             <p className="text-xs text-muted-foreground">{c.description}</p>
                             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> {c.commission}%</span>
-                              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {c.deadline}</span>
-                              <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {c.slots - c.slotsUsed} spots</span>
+                              <span className="flex items-center gap-1"><span>💲</span> {c.commission}%</span>
+                              <span className="flex items-center gap-1"><span>⏳</span> {c.deadline}</span>
+                              <span className="flex items-center gap-1"><span>👥</span> {c.slots - c.slotsUsed} spots</span>
                             </div>
                           </div>
                           <button
@@ -251,7 +246,7 @@ const BusinessDetail = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-bold font-heading">Affiliate Reviews ⭐</h2>
                     <div className="flex items-center gap-1">
-                      <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>🔽</span>
                       {(["all", "5", "4", "3"] as const).map((f) => (
                         <button
                           key={f}
@@ -353,11 +348,11 @@ const BusinessDetail = () => {
                   </div>
 
                   <button onClick={handleGenerateLink} className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint mb-3">
-                    {hasLink ? <><Check className="w-4 h-4" /> Copy Affiliate Link</> : <><Link2 className="w-4 h-4" /> Generate Affiliate Link</>}
+                    {hasLink ? <><span>✓</span> Copy Affiliate Link</> : <><span>🔗</span> Generate Affiliate Link</>}
                   </button>
 
                   <button onClick={() => navigate("/campaigns")} className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border text-foreground rounded-xl font-medium text-sm hover:bg-muted transition-colors">
-                    <Globe className="w-4 h-4" /> View Campaigns
+                    <span>🌐</span> View Campaigns
                   </button>
 
                   <div className="mt-6 pt-4 border-t border-border space-y-3 text-xs text-muted-foreground">
