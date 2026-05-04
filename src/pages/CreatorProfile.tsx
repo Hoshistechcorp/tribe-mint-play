@@ -32,7 +32,7 @@ const CreatorProfile = () => {
   const [socials, setSocials] = useState([
     { platform: "Instagram", handle: creatorProfile.socials.instagram || "—", connected: !!creatorProfile.socials.instagram, emoji: "📸", followers: "12.4K" },
     { platform: "Twitter / X", handle: creatorProfile.socials.twitter || "—", connected: !!creatorProfile.socials.twitter, emoji: "🐦", followers: "8.2K" },
-    { platform: "YouTube", handle: "—", connected: false, icon: Youtube, followers: "—" },
+    { platform: "YouTube", handle: "—", connected: false, emoji: "▶️", followers: "—" },
     { platform: "Website", handle: creatorProfile.socials.website || "—", connected: !!creatorProfile.socials.website, emoji: "🌐", followers: "—" },
   ]);
 
@@ -40,8 +40,8 @@ const CreatorProfile = () => {
   const [newMethodName, setNewMethodName] = useState("");
   const [newMethodType, setNewMethodType] = useState<"bank" | "paystack" | "flexit">("bank");
 
-  const methodIcon = (type: string) =>
-    type === "bank" ? Building2 : type === "paystack" ? Wallet : CreditCard;
+  const methodEmoji = (type: string) =>
+    type === "bank" ? "🏦" : type === "paystack" ? "💳" : "💳";
 
   const handleSaveProfile = () => {
     setCreatorProfile(profile);
@@ -165,7 +165,7 @@ const CreatorProfile = () => {
               {/* Appearance */}
               <div className="rounded-2xl bg-gradient-card border border-border shadow-card p-6 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Palette className="w-5 h-5 text-primary" />
+                  <span className="text-lg">🎨</span>
                   <h3 className="font-bold font-heading">Appearance</h3>
                 </div>
                 <div className="flex items-center justify-between">
@@ -216,14 +216,14 @@ const CreatorProfile = () => {
           {activeTab === "payments" && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               {paymentMethods.map((p) => {
-                const Icon = methodIcon(p.type);
+                const emoji = methodEmoji(p.type);
                 return (
                 <div
                   key={p.id}
                   className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
                 >
                   <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-foreground" />
+                    <span className="text-lg">{emoji}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

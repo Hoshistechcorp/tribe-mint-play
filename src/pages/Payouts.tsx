@@ -14,7 +14,7 @@ const statusConfig = {
   failed: { emoji: "❌", color: "text-destructive", bg: "bg-destructive/10", label: "Failed" },
 };
 
-const methodIcons: Record<string, typeof Building2> = { bank: Building2, paystack: Wallet, flexit: CreditCard };
+const methodEmojis: Record<string, string> = { bank: "🏦", paystack: "💳", flexit: "⚡" };
 
 const Payouts = () => {
   const navigate = useNavigate();
@@ -95,8 +95,8 @@ const Payouts = () => {
             {[
               { label: "Available", value: balance.available, color: "text-primary", emoji: "👛" },
               { label: "Pending", value: balance.pending, color: "text-secondary", emoji: "⏳" },
-              { label: "Total Earned", value: balance.totalEarned, color: "text-accent", icon: ArrowDownToLine },
-              { label: "Total Withdrawn", value: balance.totalWithdrawn, color: "text-muted-foreground", icon: ArrowUpFromLine },
+              { label: "Total Earned", value: balance.totalEarned, color: "text-accent", emoji: "📥" },
+              { label: "Total Withdrawn", value: balance.totalWithdrawn, color: "text-muted-foreground", emoji: "📤" },
             ].map((s, i) => (
               <motion.div
                 key={s.label}
@@ -106,7 +106,7 @@ const Payouts = () => {
                 className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <s.icon className={`w-4 h-4 ${s.color}`} />
+                  <span className="text-sm">{s.emoji}</span>
                   <span className="text-xs text-muted-foreground font-medium">{s.label}</span>
                 </div>
                 <p className={`text-2xl font-bold font-heading ${s.color}`}>${s.value.toFixed(2)}</p>
@@ -146,7 +146,6 @@ const Payouts = () => {
                 ) : (
                   filteredTx.map((tx, i) => {
                     const status = statusConfig[tx.status];
-                    const StatusIcon = status.icon;
                     return (
                       <motion.div
                         key={tx.id}
@@ -161,9 +160,9 @@ const Payouts = () => {
                           tx.type === "earning" ? "bg-primary/10" : "bg-secondary/10"
                         }`}>
                           {tx.type === "earning" ? (
-                            <ArrowDownToLine className="w-4 h-4 text-primary" />
+                            <span className="text-sm">⬇️</span>
                           ) : (
-                            <ArrowUpFromLine className="w-4 h-4 text-secondary" />
+                            <span className="text-sm">⬆️</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -172,7 +171,7 @@ const Payouts = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${status.bg} ${status.color} flex items-center gap-1`}>
-                            <StatusIcon className="w-3 h-3" />
+                            <span>{status.emoji}</span>
                             {status.label}
                           </span>
                           <span className={`font-bold text-sm font-heading ${tx.amount > 0 ? "text-primary" : "text-foreground"}`}>
@@ -257,7 +256,7 @@ const Payouts = () => {
                   </button>
                   
                   {paymentMethods.map((pm) => {
-                    const Icon = methodIcons[pm.type] || Building2;
+                    const emoji = methodEmojis[pm.type] || "🏦";
                     return (
                       <button
                         key={pm.id}
@@ -268,7 +267,7 @@ const Payouts = () => {
                             : "bg-muted/50 border border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        <Icon className="w-4 h-4" />
+                         <span>{emoji}</span>
                         <span className="font-medium flex-1">{pm.name}</span>
                         {pm.isDefault ? (
                           <span className="text-[10px] text-primary font-bold">Default</span>
@@ -374,7 +373,7 @@ const Payouts = () => {
               <div className="p-3 rounded-xl bg-muted/30 flex items-center gap-3">
                 {selectedMethodObj && (
                   <>
-                    {(() => { const Icon = methodIcons[selectedMethodObj.type] || Building2; return <Icon className="w-4 h-4 text-muted-foreground" />; })()}
+                   <span>{methodEmojis[selectedMethodObj.type] || "🏦"}</span>
                     <div>
                       <p className="text-sm font-medium">{selectedMethodObj.name}</p>
                       <p className="text-[10px] text-muted-foreground">Arrives within 24 hours</p>

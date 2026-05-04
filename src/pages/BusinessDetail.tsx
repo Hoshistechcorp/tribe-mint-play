@@ -9,7 +9,7 @@ import { useAffiliate } from "@/contexts/AffiliateContext";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 
-const typeIcons: Record<string, typeof Utensils> = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
+const typeEmojis: Record<string, string> = { restaurant: "🍽️", hotel: "🏨", lounge: "🍷" };
 
 const allReviews = [
   { name: "SarahK", avatar: "👩‍🦱", rating: 5, text: "Amazing commissions and easy tracking. Love promoting this place!", date: "2 days ago", helpful: 12 },
@@ -57,7 +57,7 @@ const BusinessDetail = () => {
     );
   }
 
-  const TypeIcon = typeIcons[business.type] || Utensils;
+  const typeEmoji = typeEmojis[business.type] || "🍽️";
   const filteredReviews = allReviews.filter((r) => reviewFilter === "all" || r.rating === Number(reviewFilter));
   const displayedReviews = showAllReviews ? filteredReviews : filteredReviews.slice(0, 4);
   const avgRating = (allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length).toFixed(1);
@@ -91,7 +91,7 @@ const BusinessDetail = () => {
                 onClick={() => { setLiked(!liked); toast({ title: liked ? "Removed from favorites" : "Added to favorites ❤️" }); }}
                 className={`p-2 rounded-xl backdrop-blur-sm transition-colors ${liked ? "bg-destructive/20 text-destructive" : "bg-card/80 hover:bg-card"}`}
               >
-                <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
+                <span className="text-lg">{liked ? "❤️" : "🤍"}</span>
               </button>
               <button
                 onClick={() => { navigator.clipboard.writeText(window.location.href); toast({ title: "Link copied! 🔗" }); }}
@@ -123,7 +123,7 @@ const BusinessDetail = () => {
                         {business.featured && <span className="text-xs px-2 py-0.5 rounded-md bg-primary/15 text-primary font-bold">⭐ Featured</span>}
                       </div>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1"><TypeIcon className="w-4 h-4" /> {business.type}</span>
+                        <span className="flex items-center gap-1">{typeEmoji} {business.type}</span>
                         <span className="flex items-center gap-1"><span>📍</span> {business.city}</span>
                         <span className="flex items-center gap-1"><span>⭐</span> {avgRating} ({allReviews.length})</span>
                       </div>
@@ -179,7 +179,7 @@ const BusinessDetail = () => {
                       { label: "Affiliates", value: business.totalAffiliates.toString(), emoji: "👥", color: "text-muted-foreground" },
                     ].map((stat, i) => (
                       <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 + i * 0.05 }} className="p-4 rounded-xl bg-muted/50 text-center">
-                        <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color}`} />
+                        <span className="text-lg block mx-auto mb-2">{stat.emoji}</span>
                         <p className={`text-xl font-bold font-heading ${stat.color}`}>{stat.value}</p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">{stat.label}</p>
                       </motion.div>
@@ -267,7 +267,7 @@ const BusinessDetail = () => {
                       <p className="text-3xl font-bold font-heading text-primary">{avgRating}</p>
                       <div className="flex gap-0.5 justify-center mt-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`w-3 h-3 ${i < Math.round(Number(avgRating)) ? "text-secondary fill-secondary" : "text-muted"}`} />
+                          <span key={i} className={`text-xs ${i < Math.round(Number(avgRating)) ? "text-secondary" : "text-muted"}`}>★</span>
                         ))}
                       </div>
                       <p className="text-[10px] text-muted-foreground mt-1">{allReviews.length} reviews</p>
@@ -305,7 +305,7 @@ const BusinessDetail = () => {
                               <span className="font-bold text-sm">{r.name}</span>
                               <div className="flex gap-0.5">
                                 {Array.from({ length: r.rating }).map((_, j) => (
-                                  <Star key={j} className="w-3 h-3 text-secondary fill-secondary" />
+                                   <span key={j} className="text-xs text-secondary">★</span>
                                 ))}
                               </div>
                               <span className="text-[10px] text-muted-foreground ml-auto">{r.date}</span>
@@ -316,10 +316,10 @@ const BusinessDetail = () => {
                                 onClick={() => toast({ title: "Thanks for your feedback! 👍" })}
                                 className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                               >
-                                <ThumbsUp className="w-3 h-3" /> Helpful ({r.helpful})
+                                 👍 Helpful ({r.helpful})
                               </button>
                               <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
-                                <MessageSquare className="w-3 h-3" /> Reply
+                                 💬 Reply
                               </button>
                             </div>
                           </div>
