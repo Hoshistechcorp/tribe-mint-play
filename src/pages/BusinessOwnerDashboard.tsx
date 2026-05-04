@@ -62,7 +62,7 @@ const BusinessOwnerDashboard = () => {
   const activeAffiliates = bizCampaigns.reduce((s, c) => s + c.affiliates, 0);
   const totalDiscountSpent = bizCampaigns.reduce((s, c) => s + c.discountSpent, 0);
   const totalClickSpent = bizCampaigns.reduce((s, c) => s + c.clickSpent, 0);
-  const totalBudget = bizCampaigns.reduce((s, c) => s + c.budget, 0);
+  const totalBudget = bizCampaigns.reduce((s, c) => s + (Number(c.budget) || 0), 0);
   const activeCampaigns = bizCampaigns.filter(c => c.status === "active" && !c.payoutsPaused).length;
 
   const handleDelete = (id: string) => {
