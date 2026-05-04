@@ -143,7 +143,7 @@ const Onboarding = () => {
                       }`}
                     >
                       <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                        <Megaphone className="w-6 h-6 text-primary" />
+                         <span className="text-2xl">📢</span>
                       </div>
                       <div>
                         <p className="font-bold font-heading">Creator</p>

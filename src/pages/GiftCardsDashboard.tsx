@@ -180,7 +180,7 @@ const GiftCardsDashboard = () => {
               <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 className="p-4 rounded-2xl bg-gradient-card border border-border shadow-card">
                 <div className="flex items-center gap-2 mb-2">
-                  <s.icon className={`w-4 h-4 ${s.color}`} />
+                  <span className="text-sm">{s.emoji}</span>
                   <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{s.label}</span>
                 </div>
                 <p className={`text-lg sm:text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
@@ -556,7 +556,7 @@ const GiftCardsDashboard = () => {
                         }}
                         className="px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-xs font-bold flex items-center gap-1.5"
                       >
-                        <Ban className="w-3.5 h-3.5" /> Void
+                         🚫 Void
                       </button>
                     </div>
                   </div>

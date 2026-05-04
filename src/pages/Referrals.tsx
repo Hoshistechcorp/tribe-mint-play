@@ -102,7 +102,7 @@ const Referrals = () => {
                 transition={{ delay: i * 0.06 }}
                 className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
                 <div className="flex items-center gap-2 mb-2">
-                  <s.icon className={`w-4 h-4 ${s.color}`} />
+                  <span className="text-sm">{s.emoji}</span>
                   <span className="text-xs text-muted-foreground font-medium">{s.label}</span>
                 </div>
                 <p className={`text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>

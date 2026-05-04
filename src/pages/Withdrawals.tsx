@@ -6,8 +6,8 @@ import { useAffiliate, type Transaction } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
-const methodIcons: Record<string, typeof Building2> = {
-  bank: Building2, paystack: Wallet, flexit: CreditCard,
+const methodEmojis: Record<string, string> = {
+  bank: "🏦", paystack: "💳", flexit: "⚡",
 };
 
 const Withdrawals = () => {
@@ -112,7 +112,7 @@ const Withdrawals = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
               className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
               <div className="flex items-center gap-2 mb-2">
-                <ArrowUpFromLine className="w-4 h-4 text-primary" />
+                 <span className="text-sm">⬆️</span>
                 <span className="text-xs text-muted-foreground font-medium">Pending Amount</span>
               </div>
               <p className="text-2xl font-bold font-heading text-primary">${pendingTotal.toFixed(2)}</p>
@@ -159,7 +159,7 @@ const Withdrawals = () => {
               </div>
             ) : (
               filtered.map((tx, i) => {
-                const Icon = methodIcons[getMethod(tx.methodId)?.type || ""] || ArrowUpFromLine;
+                const emoji = methodEmojis[getMethod(tx.methodId)?.type || ""] || "⬆️";
                 const isPending = tx.status === "pending";
                 return (
                   <motion.div key={tx.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
@@ -170,7 +170,7 @@ const Withdrawals = () => {
                       tx.status === "completed" ? "bg-primary/10 text-primary" :
                       "bg-destructive/10 text-destructive"
                     }`}>
-                      <Icon className="w-5 h-5" />
+                       <span className="text-lg">{emoji}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm truncate">${Math.abs(tx.amount).toFixed(2)} → {tx.source}</p>
@@ -241,7 +241,7 @@ const Withdrawals = () => {
                     <p className="font-medium">{selected.source}</p></div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                   <span>📅</span>
                   <div className="flex-1"><p className="text-xs text-muted-foreground">Requested</p>
                     <p className="font-medium">{selected.date}</p></div>
                 </div>
