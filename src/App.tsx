@@ -22,6 +22,8 @@ import GiftCardsDashboard from "./pages/GiftCardsDashboard";
 import NotFound from "./pages/NotFound";
 import CampaignApplicants from "./pages/CampaignApplicants";
 import MyCampaigns from "./pages/MyCampaigns";
+import GiftCardCheckout from "./pages/GiftCardCheckout";
+import MyGiftCards from "./pages/MyGiftCards";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const AnimatedRoutes = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/my-campaigns" element={<MyCampaigns />} />
         <Route path="/campaign-applicants" element={<CampaignApplicants />} />
+        <Route path="/gift-card-checkout" element={<GiftCardCheckout />} />
+        <Route path="/my-gift-cards" element={<MyGiftCards />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

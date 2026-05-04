@@ -203,6 +203,32 @@ const BusinessDetail = () => {
                   </div>
                 </motion.div>
 
+                {/* Gift Cards */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="p-6 rounded-2xl bg-gradient-card border border-border shadow-card">
+                    <h2 className="text-lg font-bold font-heading mb-2">Gift Cards 🎁</h2>
+                     <p className="text-xs text-muted-foreground mb-4">
+                      Buy an Ibloov Gift Card for {business.name}. Perfect for birthdays, date nights, or treating yourself.
+                      {offer && offer.discountPercent > 0 && ` Save ${offer.discountPercent}% on every card!`}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                      {[25, 50, 100, 200].map((amt) => {
+                        const disc = offer?.discountPercent ?? 0;
+                        const price = +(amt * (1 - disc / 100)).toFixed(2);
+                        return (
+                          <button key={amt} onClick={() => navigate(`/gift-card-checkout?business=${id}&amount=${amt}`)}
+                            className="p-3 rounded-xl bg-gradient-to-br from-emerald-600/10 to-emerald-800/10 border border-border hover:border-primary/40 transition-all text-center group">
+                            <p className="text-lg font-bold font-heading group-hover:text-primary transition-colors">${amt}</p>
+                            {disc > 0 && <p className="text-[10px] text-primary font-bold">Pay ${price}</p>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button onClick={() => navigate(`/gift-card-checkout?business=${id}`)}
+                      className="w-full py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm shadow-mint hover:opacity-90 transition-opacity">
+                      🎁 Buy a Gift Card
+                    </button>
+                </motion.div>
+
                 {/* Campaigns */}
                 {campaigns.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-6 rounded-2xl bg-gradient-card border border-border shadow-card">

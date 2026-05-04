@@ -171,6 +171,24 @@ export interface CampaignApplication {
   note?: string;
 }
 
+export interface PurchasedGiftCard {
+  id: string;
+  code: string;
+  businessId: string;
+  businessName: string;
+  faceValue: number;
+  buyerPaid: number;
+  recipientName: string;
+  recipientEmail: string;
+  senderName: string;
+  personalMessage?: string;
+  purchasedAt: string;
+  status: "active" | "redeemed" | "expired";
+  remainingBalance: number;
+  expiresAt: string;
+  refCode?: string;
+}
+
 interface Balance {
   available: number;
   pending: number;
@@ -246,6 +264,20 @@ interface AffiliateContextType {
 
   // Creator's own campaigns tracking
   creatorCampaigns: { campaignId: string; status: "active" | "completed" | "queued" | "applied" }[];
+
+  // Buyer gift cards
+  purchasedGiftCards: PurchasedGiftCard[];
+  purchaseGiftCard: (opts: {
+    businessId: string;
+    businessName: string;
+    faceValue: number;
+    buyerPaid: number;
+    recipientName: string;
+    recipientEmail: string;
+    senderName: string;
+    personalMessage?: string;
+    refCode?: string;
+  }) => PurchasedGiftCard;
 }
 
 const AffiliateContext = createContext<AffiliateContextType | null>(null);
@@ -328,6 +360,7 @@ interface PersistedState {
   referrals: Referral[];
   giftCardProgram: IbloovGiftCardProgram;
   campaignApplications: CampaignApplication[];
+  purchasedGiftCards: PurchasedGiftCard[];
 }
 
 const defaultState: PersistedState = {
@@ -373,6 +406,7 @@ const defaultState: PersistedState = {
     { id: "app4", campaignId: "c2", campaignTitle: "Spring Getaway 🌸", applicantName: "Kofi Mensah", applicantUsername: "kofimensah", applicantAvatar: "🧔", applicantNiche: ["Lifestyle"], applicantFollowers: 9800, appliedAt: "May 1, 2026", status: "approved" },
     { id: "app5", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Rina Shah", applicantUsername: "rinashah", applicantAvatar: "👩", applicantNiche: ["Luxury", "Travel"], applicantFollowers: 45000, appliedAt: "Apr 27, 2026", status: "rejected" },
   ],
+  purchasedGiftCards: [],
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
@@ -1066,6 +1100,73 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const purchaseGiftCard = useCallback((opts: {
+    businessId: string;
+    businessName: string;
+    faceValue: number;
+    buyerPaid: number;
+    recipientName: string;
+    recipientEmail: string;
+    senderName: string;
+    personalMessage?: string;
+    refCode?: string;
+  }): PurchasedGiftCard => {
+    const today = new Date();
+    const exp = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const card: PurchasedGiftCard = {
+      id: `pgc${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      code: `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+      businessId: opts.businessId,
+      businessName: opts.businessName,
+      faceValue: opts.faceValue,
+      buyerPaid: opts.buyerPaid,
+      recipientName: opts.recipientName,
+      recipientEmail: opts.recipientEmail,
+      senderName: opts.senderName,
+      personalMessage: opts.personalMessage,
+      purchasedAt: today.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      status: "active",
+      remainingBalance: opts.faceValue,
+      expiresAt: exp.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      refCode: opts.refCode,
+    };
+    setState((prev) => {
+      // Also add to business gift card program if enrolled
+      const gcUpdate = prev.giftCardProgram.enrolled ? {
+        giftCardProgram: {
+          ...prev.giftCardProgram,
+          cards: [{
+            id: card.id,
+            code: card.code,
+            faceValue: card.faceValue,
+            buyerPaid: card.buyerPaid,
+            buyerName: opts.recipientName,
+            buyerEmail: opts.recipientEmail,
+            soldVia: (opts.refCode ? "creator" : "direct") as GiftCard["soldVia"],
+            creatorHandle: opts.refCode,
+            issuedAt: card.purchasedAt,
+            status: "active" as const,
+            remainingBalance: card.faceValue,
+            expiresAt: card.expiresAt,
+          }, ...prev.giftCardProgram.cards].slice(0, 200),
+          cardsIssued: prev.giftCardProgram.cardsIssued + 1,
+          grossSales: +(prev.giftCardProgram.grossSales + card.buyerPaid).toFixed(2),
+          outstandingLiability: +(prev.giftCardProgram.outstandingLiability + card.faceValue).toFixed(2),
+        },
+      } : {};
+      return {
+        ...prev,
+        ...gcUpdate,
+        purchasedGiftCards: [card, ...prev.purchasedGiftCards],
+        activity: [
+          { id: `a${Date.now()}`, emoji: "🎁", text: `Gift card purchased: $${card.faceValue} for ${opts.recipientName}`, date: "just now" },
+          ...prev.activity,
+        ].slice(0, 20),
+      };
+    });
+    return card;
+  }, []);
+
   const creatorCampaigns = useMemo(() => {
     return state.joinedCampaigns.map((cId) => {
       const campaign = allCampaigns.find((c) => c.id === cId);
@@ -1129,6 +1230,8 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         approveApplication,
         rejectApplication,
         creatorCampaigns,
+        purchasedGiftCards: state.purchasedGiftCards,
+        purchaseGiftCard,
       }}
     >
       {children}
