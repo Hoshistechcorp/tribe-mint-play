@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
-import { TrendingUp, MousePointerClick, Users, DollarSign, Target } from "lucide-react";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 
 const CampaignAnalytics = () => {
@@ -39,7 +38,7 @@ const CampaignAnalytics = () => {
 
       {rows.length === 0 ? (
         <div className="p-8 rounded-2xl border border-border bg-gradient-card text-center">
-          <Target className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <span className="text-4xl block mx-auto mb-3">🎯</span>
           <p className="text-muted-foreground text-sm mb-4">You haven't joined any campaigns yet.</p>
           <button onClick={() => navigate("/campaigns")}
             className="px-6 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm">
@@ -64,21 +63,21 @@ const CampaignAnalytics = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div className="p-2.5 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-1 mb-0.5">
-                    <MousePointerClick className="w-3 h-3 text-secondary" />
+                    <span className="text-[10px]">🖱️</span>
                     <span className="text-[10px] text-muted-foreground font-medium">Clicks</span>
                   </div>
                   <p className="font-bold font-heading text-sm">{r.clicks.toLocaleString()}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-1 mb-0.5">
-                    <Users className="w-3 h-3 text-accent" />
+                    <span className="text-[10px]">👥</span>
                     <span className="text-[10px] text-muted-foreground font-medium">Conv.</span>
                   </div>
                   <p className="font-bold font-heading text-sm">{r.conversions}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-1 mb-0.5">
-                    <DollarSign className="w-3 h-3 text-primary" />
+                    <span className="text-[10px]">💲</span>
                     <span className="text-[10px] text-muted-foreground font-medium">Earned</span>
                   </div>
                   <p className="font-bold font-heading text-sm text-primary">${r.earned.toFixed(2)}</p>
