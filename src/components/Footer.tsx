@@ -1,36 +1,60 @@
 const Footer = () => {
   return (
-    <footer className="border-t border-border py-8 sm:py-12 bg-background">
+    <footer className="border-t border-border py-10 sm:py-14 bg-background" itemScope itemType="https://schema.org/Organization">
       <div className="container">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
-          <div className="col-span-2 sm:col-span-1 mb-2 sm:mb-0">
-            <p className="font-heading font-bold text-lg mb-1.5 sm:mb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-1 space-y-3">
+            <p className="font-heading font-bold text-lg" itemProp="name">
               <span className="text-gradient-mint">Tribe</span>Mint 🌿
             </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Promote. Earn. Grow.
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Hospitality affiliate marketing platform by{" "}
+              <span className="font-semibold text-foreground/80" itemProp="parentOrganization">Ibloov</span>.
+              Commission-based — no subscriptions.
             </p>
+            <p className="text-xs text-muted-foreground" itemProp="email">hello@tribemint.com</p>
           </div>
+
+          {/* Platform */}
           <div>
-            <p className="font-heading font-bold text-xs sm:text-sm mb-2 sm:mb-3 text-muted-foreground uppercase tracking-wider">Platform</p>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li><a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a></li>
-              <li><a href="#earn" className="hover:text-primary transition-colors">Earn</a></li>
-              <li><a href="#tiers" className="hover:text-primary transition-colors">Tiers</a></li>
+            <p className="font-heading font-bold text-xs mb-3 text-muted-foreground uppercase tracking-wider">Platform</p>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              <li><a href="/#what-it-is" className="hover:text-foreground transition-colors">What It Is</a></li>
+              <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a></li>
+              <li><a href="/#features" className="hover:text-foreground transition-colors">Features</a></li>
+              <li><a href="/#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
+              <li><a href="/#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
             </ul>
           </div>
+
+          {/* Resources */}
           <div>
-            <p className="font-heading font-bold text-xs sm:text-sm mb-2 sm:mb-3 text-muted-foreground uppercase tracking-wider">Connect</p>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Twitter / X</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">TikTok</a></li>
+            <p className="font-heading font-bold text-xs mb-3 text-muted-foreground uppercase tracking-wider">Resources</p>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              <li><a href="/#use-cases" className="hover:text-foreground transition-colors">Use Cases</a></li>
+              <li><a href="/#integrations" className="hover:text-foreground transition-colors">Integrations</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">API Docs</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+            </ul>
+          </div>
+
+          {/* Legal & Social */}
+          <div>
+            <p className="font-heading font-bold text-xs mb-3 text-muted-foreground uppercase tracking-wider">Connect</p>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              <li><a href="#" className="hover:text-foreground transition-colors">Twitter / X</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Instagram</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">TikTok</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 sm:mt-10 pt-4 sm:pt-6 border-t border-border text-center text-[11px] sm:text-xs text-muted-foreground">
-          © 2026 TribeMint — a property of <span className="font-semibold text-foreground/80">Ibloov</span>. All rights reserved.
-          <span className="block mt-1 opacity-70">Commission-based platform · Payouts via Stripe Connect</span>
+
+        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground">
+          <p>© 2026 TribeMint — a property of Ibloov. All rights reserved.</p>
+          <p>Commission-based platform · Payouts via Stripe Connect</p>
         </div>
       </div>
     </footer>
