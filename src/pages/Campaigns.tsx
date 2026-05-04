@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Users, Clock, Gift, Link2, Sparkles, Lock, Globe, Check, Copy } from "lucide-react";
 import { type Campaign } from "@/data/sampleCampaigns";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
@@ -10,15 +9,15 @@ import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
 const tabs = [
-  { label: "All", value: "all", icon: Globe, emoji: "🌐" },
-  { label: "Open", value: "open", icon: Users, emoji: "🟢" },
-  { label: "Featured", value: "featured", icon: Sparkles, emoji: "⭐" },
-  { label: "Exclusive", value: "exclusive", icon: Lock, emoji: "🔒" },
+  { label: "All", value: "all", emoji: "🌐" },
+  { label: "Open", value: "open", emoji: "🟢" },
+  { label: "Featured", value: "featured", emoji: "⭐" },
+  { label: "Exclusive", value: "exclusive", emoji: "🔒" },
 ];
 
 const typeBadge: Record<Campaign["type"], { bg: string; text: string; label: string }> = {
   open: { bg: "bg-primary/15", text: "text-primary", label: "🟢 Open" },
-  featured: { bg: "bg-secondary/15", text: "text-secondary", label: "⭐ Featured" },
+  featured: { bg: "bg-secondary/15", text: "text-secondary", label: "⭐ Apply to join" },
   exclusive: { bg: "bg-accent/15", text: "text-accent", label: "🔒 Exclusive" },
 };
 
@@ -37,6 +36,14 @@ const Campaigns = () => {
       const code = campaign.businessName.toLowerCase().replace(/\s+/g, "-");
       navigator.clipboard.writeText(`tribemint.link/${code}/${campaign.id}`);
       toast({ title: "📋 Link Copied!", description: `Your link for "${campaign.title}" has been copied.` });
+      return;
+    }
+
+    if (campaign.type === "featured") {
+      toast({
+        title: "📩 Application Submitted!",
+        description: `Your request to join "${campaign.title}" has been sent. The campaign creator will review and approve your application.`,
+      });
       return;
     }
     
@@ -58,7 +65,7 @@ const Campaigns = () => {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <button onClick={() => navigate("/")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              ←
             </button>
             <div>
               <h1 className="text-2xl font-bold font-heading">Campaigns 🎯</h1>
@@ -128,7 +135,7 @@ const Campaigns = () => {
                     })()}
                     {joined && (
                       <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-primary/90 text-primary-foreground text-[10px] font-bold flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Joined
+                        ✓ Joined
                       </span>
                     )}
                   </div>
@@ -136,8 +143,8 @@ const Campaigns = () => {
                   <div className="p-5 space-y-3">
                     <div>
                       <h3 className="font-bold font-heading text-base">{campaign.title}</h3>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3" /> {campaign.businessName} · {campaign.city}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        📍 {campaign.businessName} · {campaign.city}
                       </p>
                     </div>
 
@@ -145,15 +152,21 @@ const Campaigns = () => {
 
                     {campaign.bonusReward && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/10 border border-secondary/20">
-                        <Gift className="w-3.5 h-3.5 text-secondary" />
+                        <span className="text-secondary">🎁</span>
                         <span className="text-xs font-medium text-secondary">{campaign.bonusReward}</span>
+                      </div>
+                    )}
+
+                    {campaign.type === "featured" && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/5 border border-secondary/15">
+                        <span className="text-[10px] text-secondary font-medium">⭐ Open to all · Creator approval required before you can participate</span>
                       </div>
                     )}
 
                     <div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {slotsLeft} spots left</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {campaign.deadline}</span>
+                        <span>{slotsLeft} spots left</span>
+                        <span>⏳ {campaign.deadline}</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <motion.div
@@ -180,13 +193,19 @@ const Campaigns = () => {
                           ? "bg-muted text-foreground border border-border"
                           : campaign.type === "exclusive"
                             ? "bg-gradient-coral text-secondary-foreground shadow-coral"
-                            : "bg-gradient-mint text-primary-foreground shadow-mint"
+                            : campaign.type === "featured"
+                              ? "bg-secondary/20 text-secondary border border-secondary/30"
+                              : "bg-gradient-mint text-primary-foreground shadow-mint"
                       }`}
                     >
                       {joined ? (
-                        <><Copy className="w-4 h-4" /> Copy Link</>
+                        <>📋 Copy Link</>
+                      ) : campaign.type === "featured" ? (
+                        <>📩 Apply to Join</>
+                      ) : campaign.type === "exclusive" ? (
+                        <>🔒 Request Invite</>
                       ) : (
-                        <><Link2 className="w-4 h-4" /> {campaign.type === "exclusive" ? "Request Invite" : "Join & Get Link"}</>
+                        <>🔗 Join & Get Link</>
                       )}
                     </button>
                   </div>
