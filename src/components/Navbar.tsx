@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ibloovLogo from "@/assets/ibloov-logo.jpeg";
 
@@ -52,8 +51,8 @@ const Navbar = () => {
           </button>
         </div>
 
-        <button className="md:hidden p-2 -mr-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={22} /> : <Menu size={22} />}
+        <button className="md:hidden p-2 -mr-2 text-foreground text-xl" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? "✕" : "☰"}
         </button>
       </div>
 
