@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import ibloovLogo from "@/assets/ibloov-logo.jpeg";
 
 const HeroSection = () => {
@@ -71,18 +70,18 @@ const HeroSection = () => {
             >
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">🔍</span>
                   <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="Search spots to promote..."
-                    className="w-full pl-10 pr-3 py-3 rounded-xl bg-muted border-none text-base sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full pl-9 pr-3 py-3 rounded-xl bg-muted border-none text-base sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
                 <div className="relative flex-shrink-0 sm:w-32">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">📍</span>
                   <input
                     type="text"
                     value={city}
@@ -98,7 +97,7 @@ const HeroSection = () => {
                     className="p-3 rounded-xl bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                     aria-label="Filters"
                   >
-                    <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
+                    <span className="text-base">⚙️</span>
                   </button>
                   <button
                     onClick={handleSearch}
