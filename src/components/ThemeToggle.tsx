@@ -1,4 +1,3 @@
-import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const ThemeToggle = () => {
@@ -10,8 +9,8 @@ const ThemeToggle = () => {
       className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
       aria-label="Toggle theme"
     >
-      <Sun className="w-4 h-4 hidden dark:block" />
-      <Moon className="w-4 h-4 block dark:hidden" />
+      <span className="hidden dark:block text-sm">☀️</span>
+      <span className="block dark:hidden text-sm">🌙</span>
     </button>
   );
 };
