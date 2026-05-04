@@ -207,7 +207,7 @@ const BusinessDetail = () => {
                 {campaigns.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="p-6 rounded-2xl bg-gradient-card border border-border shadow-card">
                     <h2 className="text-lg font-bold font-heading mb-2">Gift Cards 🎁</h2>
-                    <p className="text-xs text-muted-foreground mb-4">
+                     <p className="text-xs text-muted-foreground mb-4">
                       Buy an Ibloov Gift Card for {business.name}. Perfect for birthdays, date nights, or treating yourself.
                       {offer && offer.discountPercent > 0 && ` Save ${offer.discountPercent}% on every card!`}
                     </p>
@@ -229,7 +229,6 @@ const BusinessDetail = () => {
                       🎁 Buy a Gift Card
                     </button>
                   </motion.div>
-                )}
 
                 {/* Campaigns */}
                 {campaigns.length > 0 && (
