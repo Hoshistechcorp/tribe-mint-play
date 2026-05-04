@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Users, Clock, Link2, ArrowRight } from "lucide-react";
 import { sampleCampaigns, type Campaign } from "@/data/sampleCampaigns";
 
 const filters = [
@@ -13,7 +12,7 @@ const filters = [
 
 const typeBadge: Record<Campaign["type"], { bg: string; text: string; label: string }> = {
   open: { bg: "bg-primary/15", text: "text-primary", label: "🟢 Open" },
-  featured: { bg: "bg-secondary/15", text: "text-secondary", label: "⭐ Featured" },
+  featured: { bg: "bg-secondary/15", text: "text-secondary", label: "⭐ Apply to join" },
   exclusive: { bg: "bg-accent/15", text: "text-accent", label: "🔒 Exclusive" },
 };
 
@@ -43,7 +42,7 @@ const CampaignsPreview = () => {
             onClick={() => navigate("/campaigns")}
             className="self-start sm:self-end inline-flex items-center gap-1.5 text-sm font-bold text-foreground hover:text-primary transition-colors"
           >
-            View all <ArrowRight className="w-4 h-4" />
+            View all →
           </button>
         </div>
 
@@ -105,15 +104,15 @@ const CampaignsPreview = () => {
                 <div className="p-4 space-y-2.5">
                   <div>
                     <h3 className="font-bold font-heading text-sm leading-tight">{campaign.title}</h3>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3" /> {campaign.businessName} · {campaign.city}
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      📍 {campaign.businessName} · {campaign.city}
                     </p>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
-                      <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {slotsLeft} left</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {campaign.deadline}</span>
+                      <span>{slotsLeft} left</span>
+                      <span>⏳ {campaign.deadline}</span>
                     </div>
                     <div className="h-1 bg-muted rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-mint rounded-full" style={{ width: `${progress}%` }} />
@@ -125,7 +124,7 @@ const CampaignsPreview = () => {
                       #{campaign.tags[0]}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                      <Link2 className="w-3.5 h-3.5" /> Get link
+                      Get link →
                     </span>
                   </div>
                 </div>
@@ -139,7 +138,7 @@ const CampaignsPreview = () => {
             onClick={() => navigate("/campaigns")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-military text-lime font-bold text-sm hover:opacity-90 transition-opacity"
           >
-            See all campaigns <ArrowRight className="w-4 h-4" />
+            See all campaigns →
           </button>
         </div>
       </div>
