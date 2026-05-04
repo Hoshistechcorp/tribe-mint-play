@@ -406,6 +406,7 @@ const defaultState: PersistedState = {
     { id: "app4", campaignId: "c2", campaignTitle: "Spring Getaway 🌸", applicantName: "Kofi Mensah", applicantUsername: "kofimensah", applicantAvatar: "🧔", applicantNiche: ["Lifestyle"], applicantFollowers: 9800, appliedAt: "May 1, 2026", status: "approved" },
     { id: "app5", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Rina Shah", applicantUsername: "rinashah", applicantAvatar: "👩", applicantNiche: ["Luxury", "Travel"], applicantFollowers: 45000, appliedAt: "Apr 27, 2026", status: "rejected" },
   ],
+  purchasedGiftCards: [],
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
