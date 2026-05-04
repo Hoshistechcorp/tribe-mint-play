@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Loader2, Wand2, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 
@@ -73,9 +72,9 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
             className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold font-heading flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-primary" /> Edit Vanity Code
+                ✨ Edit Vanity Code
               </h3>
-              <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+              <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted"><span className="text-sm">✕</span></button>
             </div>
 
             <div>
@@ -93,7 +92,7 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
               <div className="mt-2 min-h-[20px] text-xs flex items-center gap-1.5">
                 {!valid && cleaned.length > 0 && (
                   <span className="text-muted-foreground flex items-center gap-1.5">
-                    <AlertCircle className="w-3.5 h-3.5" /> Too short
+                    ⚠️ Too short
                   </span>
                 )}
                 {valid && isSameAsCurrent && (
@@ -101,17 +100,17 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
                 )}
                 {valid && !isSameAsCurrent && checking && (
                   <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Checking availability...
+                    ⏳ Checking availability...
                   </span>
                 )}
                 {valid && !isSameAsCurrent && !checking && available === true && (
                   <span className="text-primary font-semibold flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5" /> Available ✨
+                    ✓ Available ✨
                   </span>
                 )}
                 {valid && !isSameAsCurrent && !checking && available === false && (
                   <span className="text-destructive font-semibold flex items-center gap-1.5">
-                    <X className="w-3.5 h-3.5" /> Already taken
+                    ✕ Already taken
                   </span>
                 )}
               </div>
@@ -130,7 +129,7 @@ const VanityCodeEditor = ({ open, onClose, linkId, currentCode }: Props) => {
               </button>
               <button onClick={handleSave} disabled={saving || !valid || isSameAsCurrent || checking || available === false}
                 className="flex-1 px-4 py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center justify-center gap-2 disabled:opacity-50">
-                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
+                {saving ? <>⏳ Saving...</> : <>✓ Save</>}
               </button>
             </div>
           </motion.div>
