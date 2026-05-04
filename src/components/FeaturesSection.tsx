@@ -1,14 +1,13 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Zap, BarChart3, QrCode, Trophy, Globe, CreditCard } from "lucide-react";
 import { useRef } from "react";
 
 const features = [
-  { icon: Zap, title: "One-Tap Share", desc: "Instant sharing everywhere.", emoji: "⚡" },
-  { icon: BarChart3, title: "Live Stats", desc: "Real-time click & earning data.", emoji: "📊" },
-  { icon: QrCode, title: "QR Codes", desc: "Share in person at events.", emoji: "📲" },
-  { icon: Trophy, title: "Gamified", desc: "Badges, leaderboards, prizes.", emoji: "🏆" },
-  { icon: Globe, title: "Global", desc: "Multi-currency payouts worldwide.", emoji: "🌍" },
-  { icon: CreditCard, title: "Fast Pay", desc: "Cash out within 24 hours.", emoji: "💳" },
+  { title: "One-Tap Share", desc: "Instant sharing everywhere.", emoji: "⚡" },
+  { title: "Live Stats", desc: "Real-time click & earning data.", emoji: "📊" },
+  { title: "QR Codes", desc: "Share in person at events.", emoji: "📲" },
+  { title: "Gamified", desc: "Badges, leaderboards, prizes.", emoji: "🏆" },
+  { title: "Global", desc: "Multi-currency payouts worldwide.", emoji: "🌍" },
+  { title: "Fast Pay", desc: "Cash out within 24 hours.", emoji: "💳" },
 ];
 
 const FeaturesSection = () => {
@@ -45,7 +44,7 @@ const FeaturesSection = () => {
               className="p-6 rounded-2xl bg-gradient-card border border-border hover:border-primary/30 transition-all group shadow-card cursor-default"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <f.icon className="w-5 h-5 text-primary" />
+                <span className="text-xl">{f.emoji}</span>
               </div>
               <h3 className="text-lg font-bold font-heading mb-1">
                 {f.title} {f.emoji}
