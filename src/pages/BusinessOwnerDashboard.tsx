@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  Plus, Users, DollarSign, BarChart3, Edit3, Trash2, Eye,
-  TrendingUp, Star, X, Save, Pause, Play, Tags, MousePointerClick, AlertTriangle, Gift,
-} from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import CreateCampaignModal from "@/components/business/CreateCampaignModal";
@@ -45,11 +41,11 @@ const BusinessOwnerDashboard = () => {
   const totalClickSpent = bizCampaigns.reduce((s, c) => s + c.clickSpent, 0);
 
   const tabs = [
-    { key: "overview", label: "Overview 📊", icon: BarChart3 },
-    { key: "campaigns", label: "Campaigns 📢", icon: BarChart3 },
-    { key: "giftcards", label: "Gift Cards 🎁", icon: Gift },
-    { key: "affiliates", label: "Affiliates 👥", icon: Users },
-    { key: "profile", label: "Profile ✏️", icon: Edit3 },
+    { key: "overview", label: "Overview 📊" },
+    { key: "campaigns", label: "Campaigns 📢" },
+    { key: "giftcards", label: "Gift Cards 🎁" },
+    { key: "affiliates", label: "Affiliates 👥" },
+    { key: "profile", label: "Profile ✏️" },
   ] as const;
 
   const handleDelete = (id: string) => {
@@ -84,7 +80,7 @@ const BusinessOwnerDashboard = () => {
               onClick={() => setShowCreateModal(true)}
               className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" /> New Campaign
+              ＋ New Campaign
             </button>
           </div>
         </div>
@@ -92,15 +88,15 @@ const BusinessOwnerDashboard = () => {
         <div className="container py-8 space-y-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: DollarSign, color: "text-primary" },
-              { label: "Active Affiliates", value: activeAffiliates, icon: Users, color: "text-secondary" },
-              { label: "Discount Spend", value: `$${totalDiscountSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: Tags, color: "text-accent" },
-              { label: "Click Payout", value: `$${totalClickSpent.toFixed(2)}`, icon: MousePointerClick, color: "text-primary" },
+              { label: "Total Revenue", value: `$${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, emoji: "💲", color: "text-primary" },
+              { label: "Active Affiliates", value: activeAffiliates, emoji: "👥", color: "text-secondary" },
+              { label: "Discount Spend", value: `$${totalDiscountSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, emoji: "🏷️", color: "text-accent" },
+              { label: "Click Payout", value: `$${totalClickSpent.toFixed(2)}`, emoji: "🖱️", color: "text-primary" },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                 className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
                 <div className="flex items-center gap-2 mb-2">
-                  <s.icon className={`w-4 h-4 ${s.color}`} />
+                  <span className="text-sm">{s.emoji}</span>
                   <span className="text-xs text-muted-foreground font-medium">{s.label}</span>
                 </div>
                 <p className={`text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
@@ -157,16 +153,16 @@ const BusinessOwnerDashboard = () => {
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title={c.payoutsPaused ? "Resume" : "Pause"}
                       >
-                        {c.payoutsPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+                        {c.payoutsPaused ? <span>▶</span> : <span>⏸</span>}
                       </button>
                       <button onClick={() => setViewingCampaign(c)} className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
-                        <Eye className="w-4 h-4" />
+                        <span>👁</span>
                       </button>
                       <button onClick={() => setEditingCampaign({ ...c })} className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors">
-                        <Edit3 className="w-4 h-4" />
+                        <span>✏️</span>
                       </button>
                       <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors">
-                        <Trash2 className="w-4 h-4" />
+                        <span>🗑️</span>
                       </button>
                     </div>
                   </div>
@@ -188,11 +184,11 @@ const BusinessOwnerDashboard = () => {
                   {/* Manager budget controls */}
                   <div className="mt-4 p-4 rounded-xl bg-background/40 border border-border space-y-3">
                     <div className="flex items-center gap-2">
-                      <Tags className="w-3.5 h-3.5 text-accent" />
+                      <span className="text-xs">🏷️</span>
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Manager controls</span>
                       {c.payoutsPaused && (
                         <span className="ml-auto flex items-center gap-1 text-[10px] text-destructive font-bold">
-                          <AlertTriangle className="w-3 h-3" /> Top-up to resume
+                          ⚠️ Top-up to resume
                         </span>
                       )}
                     </div>
@@ -277,7 +273,7 @@ const BusinessOwnerDashboard = () => {
                     <p className="text-xs text-muted-foreground">{a.clicks.toLocaleString()} clicks · {a.conversions} conversions</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-primary" />
+                    <span className="text-sm">📈</span>
                     <span className="text-sm font-bold text-primary">{a.earned}</span>
                   </div>
                   {i < 3 && <span className="text-lg">{["🥇", "🥈", "🥉"][i]}</span>}
@@ -333,7 +329,7 @@ const BusinessOwnerDashboard = () => {
                         </div>
                         <button onClick={() => { setProfileDraft(businessProfile); setIsEditing(true); }}
                           className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
-                          <Edit3 className="w-3 h-3" /> Edit
+                          ✏️ Edit
                         </button>
                       </div>
                       <p className="text-sm text-muted-foreground">{businessProfile.description}</p>
@@ -382,7 +378,7 @@ const BusinessOwnerDashboard = () => {
                 className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold font-heading">{viewingCampaign.title}</h3>
-                  <button onClick={() => setViewingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setViewingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted text-sm">✕</button>
                 </div>
                 {viewingCampaign.description && <p className="text-sm text-muted-foreground">{viewingCampaign.description}</p>}
                 <div className="grid grid-cols-2 gap-3 text-xs">
@@ -409,7 +405,7 @@ const BusinessOwnerDashboard = () => {
                 className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold font-heading">Edit Campaign</h3>
-                  <button onClick={() => setEditingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setEditingCampaign(null)} className="p-1.5 rounded-lg hover:bg-muted text-sm">✕</button>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground font-medium">Title</label>
@@ -468,7 +464,7 @@ const BusinessOwnerDashboard = () => {
                 </div>
                 <button onClick={handleSaveEdit}
                   className="w-full px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm flex items-center justify-center gap-2">
-                  <Save className="w-4 h-4" /> Save Changes
+                  💾 Save Changes
                 </button>
               </motion.div>
             </motion.div>

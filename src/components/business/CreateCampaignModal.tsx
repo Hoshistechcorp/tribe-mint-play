@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CalendarIcon, DollarSign, Percent, Tag, FileText, Tags, MousePointerClick } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,7 +15,7 @@ interface CreateCampaignModalProps {
 
 const campaignTypes = [
   { value: "open", label: "🟢 Open", desc: "Anyone can join" },
-  { value: "featured", label: "⭐ Featured", desc: "Highlighted on marketplace" },
+  { value: "featured", label: "⭐ Featured", desc: "Open to all · You approve applicants" },
   { value: "exclusive", label: "🔒 Exclusive", desc: "Invite-only affiliates" },
 ];
 
@@ -103,8 +102,8 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-bold font-heading">Create Campaign 📢</h2>
-              <button onClick={onClose} className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
-                <X className="w-4 h-4" />
+              <button onClick={onClose} className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm">
+                ✕
               </button>
             </div>
 
@@ -113,7 +112,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
               {/* Title */}
               <div>
                 <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                  <Tag className="w-3 h-3" /> Campaign Name
+                  🏷️ Campaign Name
                 </label>
                 <input
                   value={title}
@@ -127,7 +126,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
               {/* Description */}
               <div>
                 <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                  <FileText className="w-3 h-3" /> Description
+                  📄 Description
                 </label>
                 <textarea
                   value={description}
@@ -164,7 +163,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                    <DollarSign className="w-3 h-3" /> Budget
+                    💲 Budget
                   </label>
                   <input
                     type="number"
@@ -177,7 +176,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                    <Percent className="w-3 h-3" /> Commission %
+                    ％ Commission %
                   </label>
                   <input
                     type="number"
@@ -200,7 +199,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                         "w-full px-3 py-2.5 rounded-lg border border-border text-sm text-left flex items-center gap-2",
                         !startDate && "text-muted-foreground"
                       )}>
-                        <CalendarIcon className="w-3.5 h-3.5" />
+                        📅
                         {startDate ? format(startDate, "MMM d, yyyy") : "Pick date"}
                       </button>
                     </PopoverTrigger>
@@ -217,7 +216,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                         "w-full px-3 py-2.5 rounded-lg border border-border text-sm text-left flex items-center gap-2",
                         !endDate && "text-muted-foreground"
                       )}>
-                        <CalendarIcon className="w-3.5 h-3.5" />
+                        📅
                         {endDate ? format(endDate, "MMM d, yyyy") : "Pick date"}
                       </button>
                     </PopoverTrigger>
@@ -231,7 +230,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
               {/* Offer & Payouts */}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
                 <div className="flex items-center gap-2">
-                  <Tags className="w-4 h-4 text-primary" />
+                  <span className="text-primary">🏷️</span>
                   <h3 className="text-sm font-bold font-heading">Offer & Payouts</h3>
                 </div>
 
@@ -259,7 +258,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                 {/* Discount budget */}
                 <div>
                   <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                    <DollarSign className="w-3 h-3" /> Discount budget cap
+                    💲 Discount budget cap
                   </label>
                   <input
                     type="number"
@@ -279,7 +278,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                      <MousePointerClick className="w-3 h-3" /> Pay per click
+                      🖱️ Pay per click
                     </label>
                     <input
                       type="number"
@@ -292,7 +291,7 @@ const CreateCampaignModal = ({ open, onClose, onCreated }: CreateCampaignModalPr
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-                      <DollarSign className="w-3 h-3" /> Click budget cap
+                      💲 Click budget cap
                     </label>
                     <input
                       type="number"

@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Play } from "lucide-react";
 
 const DemoVideoSection = () => {
   return (
@@ -29,7 +28,7 @@ const DemoVideoSection = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-military-dark to-military opacity-80" />
           <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3">
             <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-lime flex items-center justify-center group-hover:scale-110 transition-transform shadow-lime">
-              <Play className="w-6 h-6 sm:w-8 sm:h-8 text-military fill-military ml-0.5 sm:ml-1" />
+              <span className="text-2xl sm:text-3xl ml-0.5 sm:ml-1">▶️</span>
             </div>
             <p className="text-white/60 text-xs sm:text-sm font-medium">Watch TribeMint in action</p>
           </div>

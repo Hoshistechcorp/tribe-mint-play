@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  Gift, Sparkles, ShieldCheck, Wallet, TrendingUp, Pause, Play,
-  Settings2, X, Save, Plus, AlertTriangle, Receipt, Building2, ExternalLink,
-} from "lucide-react";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -33,7 +29,7 @@ const GiftCardProgram = () => {
           <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[11px] font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" /> AuraLink × Ibloov
+              ✨ AuraLink × Ibloov
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold font-heading">
               Sell Ibloov Gift Cards <span className="font-display italic text-primary">at your venue.</span>
@@ -46,12 +42,12 @@ const GiftCardProgram = () => {
 
             <div className="grid sm:grid-cols-3 gap-3 pt-2">
               {[
-                { icon: TrendingUp, title: "New revenue", desc: "Cash upfront — guests redeem later." },
-                { icon: ShieldCheck, title: "Fraud-protected", desc: "Unique codes, single-use, tracked." },
-                { icon: Wallet, title: "No subscriptions", desc: `Just ${gc.platformFeePercent}% per redeemed card.` },
+                { emoji: "📈", title: "New revenue", desc: "Cash upfront — guests redeem later." },
+                { emoji: "🛡️", title: "Fraud-protected", desc: "Unique codes, single-use, tracked." },
+                { emoji: "👛", title: "No subscriptions", desc: `Just ${gc.platformFeePercent}% per redeemed card.` },
               ].map((b) => (
                 <div key={b.title} className="p-4 rounded-xl bg-background/60 border border-border">
-                  <b.icon className="w-5 h-5 text-primary mb-2" />
+                  <span className="text-xl mb-2 block">{b.emoji}</span>
                   <p className="font-bold text-sm">{b.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{b.desc}</p>
                 </div>
@@ -63,7 +59,7 @@ const GiftCardProgram = () => {
                 onClick={() => setConfirmEnroll(true)}
                 className="px-6 py-3 bg-gradient-mint text-primary-foreground rounded-full font-extrabold text-sm shadow-mint hover:opacity-90 transition-opacity flex items-center gap-2"
               >
-                <Gift className="w-4 h-4" /> Opt in to Ibloov Gift Cards
+                🎁 Opt in to Ibloov Gift Cards
               </button>
               <a
                 href="#"
@@ -92,7 +88,7 @@ const GiftCardProgram = () => {
                 className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-heading font-bold text-lg">Confirm enrollment</h3>
-                  <button onClick={() => setConfirmEnroll(false)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setConfirmEnroll(false)} className="p-1.5 rounded-lg hover:bg-muted text-sm">✕</button>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Your venue will appear in the Ibloov Gift Card directory. You can pause sales or
@@ -129,7 +125,7 @@ const GiftCardProgram = () => {
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" />
+            <span className="text-lg">🎁</span>
             <h2 className="font-heading font-bold text-lg">Ibloov Gift Cards</h2>
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
               gc.salesActive ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
@@ -144,19 +140,19 @@ const GiftCardProgram = () => {
             onClick={() => navigate("/business/gift-cards")}
             className="px-3 py-2 rounded-lg bg-gradient-mint text-primary-foreground text-sm font-bold shadow-mint flex items-center gap-1.5"
           >
-            <ExternalLink className="w-3.5 h-3.5" /> Open manager
+            ↗ Open manager
           </button>
           <button
             onClick={() => { toggleGiftCardSales(); toast({ title: gc.salesActive ? "Sales paused ⏸️" : "Sales resumed ▶️" }); }}
             className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-bold flex items-center gap-1.5"
           >
-            {gc.salesActive ? <><Pause className="w-3.5 h-3.5" /> Pause</> : <><Play className="w-3.5 h-3.5" /> Resume</>}
+            {gc.salesActive ? <>⏸ Pause</> : <>▶ Resume</>}
           </button>
           <button
             onClick={() => { setDraft(gc); setShowSettings(true); }}
             className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-bold flex items-center gap-1.5"
           >
-            <Settings2 className="w-3.5 h-3.5" /> Settings
+            ⚙️ Settings
           </button>
         </div>
       </div>
@@ -164,14 +160,14 @@ const GiftCardProgram = () => {
       {/* KPI grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Cards issued", value: gc.cardsIssued, icon: Receipt, color: "text-primary" },
-          { label: "Cards redeemed", value: gc.cardsRedeemed, icon: Gift, color: "text-secondary" },
-          { label: "Gross sales", value: `$${gc.grossSales.toFixed(2)}`, icon: TrendingUp, color: "text-accent" },
-          { label: "Outstanding", value: `$${gc.outstandingLiability.toFixed(2)}`, icon: Wallet, color: "text-primary" },
+          { label: "Cards issued", value: gc.cardsIssued, emoji: "🧾", color: "text-primary" },
+          { label: "Cards redeemed", value: gc.cardsRedeemed, emoji: "🎁", color: "text-secondary" },
+          { label: "Gross sales", value: `$${gc.grossSales.toFixed(2)}`, emoji: "📈", color: "text-accent" },
+          { label: "Outstanding", value: `$${gc.outstandingLiability.toFixed(2)}`, emoji: "👛", color: "text-primary" },
         ].map((s) => (
           <div key={s.label} className="p-4 rounded-2xl bg-gradient-card border border-border shadow-card">
             <div className="flex items-center gap-2 mb-2">
-              <s.icon className={`w-4 h-4 ${s.color}`} />
+              <span className="text-sm">{s.emoji}</span>
               <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{s.label}</span>
             </div>
             <p className={`text-xl sm:text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
@@ -183,7 +179,7 @@ const GiftCardProgram = () => {
       <div className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-primary" />
+            <span className="text-sm">🛡️</span>
             <span className="text-sm font-bold">Liability vs cap</span>
           </div>
           <span className="text-xs text-muted-foreground">
@@ -198,7 +194,7 @@ const GiftCardProgram = () => {
         </div>
         {liabilityPct >= 80 && (
           <p className="flex items-center gap-1.5 text-[11px] text-accent font-bold">
-            <AlertTriangle className="w-3 h-3" /> Approaching cap — sales auto-pause at 100%.
+            ⚠️ Approaching cap — sales auto-pause at 100%.
           </p>
         )}
       </div>
@@ -207,7 +203,7 @@ const GiftCardProgram = () => {
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card space-y-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-primary" />
+            <span className="text-sm">🏢</span>
             <span className="text-sm font-bold">Live denominations</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -229,14 +225,14 @@ const GiftCardProgram = () => {
         <div className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-primary" />
+              <span className="text-sm">🧾</span>
               <span className="text-sm font-bold">Recent redemptions</span>
             </div>
             <button
               onClick={() => { simulateGiftCardRedemption(); toast({ title: "Redemption recorded 🎟️" }); }}
               className="px-2.5 py-1 rounded-md bg-primary/10 text-primary text-[11px] font-bold flex items-center gap-1 hover:bg-primary/20 transition-colors"
             >
-              <Plus className="w-3 h-3" /> Demo redeem
+              ＋ Demo redeem
             </button>
           </div>
           {gc.recentRedemptions.length === 0 ? (
@@ -266,7 +262,7 @@ const GiftCardProgram = () => {
               className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between">
                 <h3 className="font-heading font-bold text-lg">Gift Card settings</h3>
-                <button onClick={() => setShowSettings(false)} className="p-1.5 rounded-lg hover:bg-muted"><X className="w-4 h-4" /></button>
+                <button onClick={() => setShowSettings(false)} className="p-1.5 rounded-lg hover:bg-muted text-sm">✕</button>
               </div>
 
               <div>
@@ -313,7 +309,7 @@ const GiftCardProgram = () => {
                   onClick={() => { updateGiftCardProgram(draft); setShowSettings(false); toast({ title: "Settings saved ✅" }); }}
                   className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-mint text-primary-foreground font-bold text-sm flex items-center justify-center gap-2"
                 >
-                  <Save className="w-4 h-4" /> Save
+                  💾 Save
                 </button>
               </div>
             </motion.div>

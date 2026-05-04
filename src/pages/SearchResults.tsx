@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, MapPin, Utensils, Hotel, Wine, DollarSign, TrendingUp, BarChart3, ArrowLeft, Link2, Users, Check } from "lucide-react";
 import { sampleBusinesses, type Business } from "@/data/sampleBusinesses";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
@@ -9,7 +8,7 @@ import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
 
-const typeIcons = { restaurant: Utensils, hotel: Hotel, lounge: Wine };
+const typeEmojis: Record<string, string> = { restaurant: "🍽️", hotel: "🏨", lounge: "🍸" };
 
 const SearchResults = () => {
   const { generateLink, affiliateLinks } = useAffiliate();
@@ -65,7 +64,7 @@ const SearchResults = () => {
               onClick={() => navigate("/")}
               className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <span className="text-lg">←</span>
             </button>
             <h1 className="text-2xl font-bold font-heading">
               Explore Businesses
@@ -76,7 +75,7 @@ const SearchResults = () => {
           <div className="bg-card border border-border rounded-2xl p-4 mb-8 shadow-card">
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base text-muted-foreground">🔍</span>
                 <input
                   type="text"
                   value={query}
@@ -86,7 +85,7 @@ const SearchResults = () => {
                 />
               </div>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">📍</span>
                 <input
                   type="text"
                   value={cityFilter}
@@ -120,9 +119,9 @@ const SearchResults = () => {
             <div className="flex flex-wrap gap-2">
               <span className="text-xs text-muted-foreground font-medium self-center mr-1">Sort:</span>
               {[
-                { label: "High Commission", value: "commission", icon: DollarSign },
-                { label: "Best EPC", value: "epc", icon: TrendingUp },
-                { label: "Top Converting", value: "conversion", icon: BarChart3 },
+                { label: "High Commission", value: "commission", emoji: "💲" },
+                { label: "Best EPC", value: "epc", emoji: "📈" },
+                { label: "Top Converting", value: "conversion", emoji: "📊" },
               ].map((f) => (
                 <button
                   key={f.value}
@@ -133,7 +132,7 @@ const SearchResults = () => {
                       : "bg-muted text-muted-foreground hover:text-foreground border border-transparent"
                   }`}
                 >
-                  <f.icon className="w-3.5 h-3.5" />
+                  <span className="text-xs">{f.emoji}</span>
                   {f.label}
                 </button>
               ))}
@@ -148,7 +147,7 @@ const SearchResults = () => {
           {/* Results grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((biz, i) => {
-              const TypeIcon = typeIcons[biz.type];
+              const typeEmoji = typeEmojis[biz.type] || "🏪";
               return (
                 <motion.div
                   key={biz.id}
@@ -171,7 +170,7 @@ const SearchResults = () => {
                       </span>
                     )}
                     <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-card/80 backdrop-blur-sm text-xs font-medium flex items-center gap-1">
-                      <TypeIcon className="w-3 h-3" />
+                      <span>{typeEmoji}</span>
                       {biz.type}
                     </div>
                   </div>
@@ -181,7 +180,7 @@ const SearchResults = () => {
                       <div>
                         <h3 className="font-bold font-heading text-base">{biz.name}</h3>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {biz.city}
+                          📍 {biz.city}
                         </p>
                       </div>
                       <span className="text-sm font-bold text-primary">{biz.commission}%</span>
@@ -192,15 +191,15 @@ const SearchResults = () => {
                     {/* Earning metrics */}
                     <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3 text-secondary" />
+                        <span className="text-[10px]">📈</span>
                         <span>${biz.avgEPC} EPC</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <BarChart3 className="w-3 h-3 text-accent" />
+                        <span className="text-[10px]">📊</span>
                         <span>{biz.conversionRate}% CR</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
+                        <span className="text-[10px]">👥</span>
                         <span>{biz.totalAffiliates}</span>
                       </div>
                     </div>
@@ -214,7 +213,7 @@ const SearchResults = () => {
                             hasLink ? "bg-muted text-foreground border border-border" : "bg-gradient-mint text-primary-foreground shadow-mint"
                           }`}
                         >
-                          {hasLink ? <><Check className="w-4 h-4" /> Copy Link</> : <><Link2 className="w-4 h-4" /> Generate Link</>}
+                          {hasLink ? <>✓ Copy Link</> : <>🔗 Generate Link</>}
                         </button>
                       );
                     })()}

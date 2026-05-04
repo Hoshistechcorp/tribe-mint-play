@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, Copy, Check, Share2, Users, DollarSign, UserPlus, Sparkles, QrCode,
-} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
@@ -38,10 +35,10 @@ const Referrals = () => {
   const pendingRefs = referrals.filter((r) => r.status === "pending").length;
 
   const stats = [
-    { label: "Total Referred", value: referrals.length, icon: Users, color: "text-primary" },
-    { label: "Active", value: activeRefs, icon: UserPlus, color: "text-accent" },
-    { label: "Pending", value: pendingRefs, icon: Sparkles, color: "text-secondary" },
-    { label: "Referral Earnings", value: `$${referralEarnings.toFixed(2)}`, icon: DollarSign, color: "text-primary" },
+    { label: "Total Referred", value: referrals.length, emoji: "👥", color: "text-primary" },
+    { label: "Active", value: activeRefs, emoji: "👤+", color: "text-accent" },
+    { label: "Pending", value: pendingRefs, emoji: "✨", color: "text-secondary" },
+    { label: "Referral Earnings", value: `$${referralEarnings.toFixed(2)}`, emoji: "💲", color: "text-primary" },
   ];
 
   const statusBadge = (s: string) => {
@@ -58,7 +55,7 @@ const Referrals = () => {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <button onClick={() => navigate("/dashboard")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <span>←</span>
             </button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold font-heading">Referrals 🤝</h1>
@@ -77,22 +74,22 @@ const Referrals = () => {
               <div className="flex items-center gap-2 p-3 rounded-xl bg-background/20 backdrop-blur-sm mb-4">
                 <span className="flex-1 font-mono text-sm font-bold truncate">{referralUrl}</span>
                 <button onClick={copy} className="p-2 rounded-lg bg-background/20 hover:bg-background/30 transition-colors">
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <span>✓</span> : <span>📋</span>}
                 </button>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 <button onClick={share}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background text-foreground font-bold text-sm hover:opacity-90 transition-opacity">
-                  <Share2 className="w-4 h-4" /> Share
+                  <span>📤</span> Share
                 </button>
                 <button onClick={() => setQrOpen(true)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background/20 backdrop-blur-sm font-bold text-sm hover:bg-background/30 transition-colors">
-                  <QrCode className="w-4 h-4" /> QR Code
+                  <span>📱</span> QR Code
                 </button>
                 <button onClick={() => { simulateReferralSignup(); toast({ title: "🎉 Demo signup!", description: "A new referral just joined." }); }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background/20 backdrop-blur-sm font-bold text-sm hover:bg-background/30 transition-colors">
-                  <Sparkles className="w-4 h-4" /> Simulate signup
+                  <span>✨</span> Simulate signup
                 </button>
               </div>
             </div>

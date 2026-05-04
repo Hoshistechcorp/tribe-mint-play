@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
 
 const sides = [
   {
@@ -87,7 +86,7 @@ const ThreeSidesSection = () => {
               <ul className="space-y-1.5 sm:space-y-2">
                 {side.benefits.map((b) => (
                   <li key={b} className="flex items-center gap-2 text-xs sm:text-sm text-white/80">
-                    <Check className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${side.checkColor}`} />
+                    <span className="flex-shrink-0">✓</span>
                     {b}
                   </li>
                 ))}

@@ -3,22 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "@/components/PageTransition";
 import { useAffiliate } from "@/contexts/AffiliateContext";
-import {
-  ArrowLeft,
-  DollarSign,
-  MousePointerClick,
-  Users,
-  TrendingUp,
-  Link2,
-  Copy,
-  ExternalLink,
-  Check,
-  Trophy,
-  Target,
-  QrCode,
-  Wand2,
-  UserPlus,
-} from "lucide-react";
 import LinkQRDialog from "@/components/LinkQRDialog";
 import VanityCodeEditor from "@/components/VanityCodeEditor";
 import CampaignAnalytics from "@/components/CampaignAnalytics";
@@ -37,10 +21,10 @@ const Dashboard = () => {
   const avgEPC = totalClicks > 0 ? (totalEarned / totalClicks) : 0;
 
   const stats = [
-    { label: "Total Earned", value: `$${totalEarned.toFixed(2)}`, icon: DollarSign, color: "text-primary" },
-    { label: "Total Clicks", value: totalClicks.toLocaleString(), icon: MousePointerClick, color: "text-secondary" },
-    { label: "Conversions", value: totalConversions.toLocaleString(), icon: Users, color: "text-accent" },
-    { label: "Avg EPC", value: `$${avgEPC.toFixed(2)}`, icon: TrendingUp, color: "text-primary" },
+    { label: "Total Earned", value: `$${totalEarned.toFixed(2)}`, emoji: "💲", color: "text-primary" },
+    { label: "Total Clicks", value: totalClicks.toLocaleString(), emoji: "🖱️", color: "text-secondary" },
+    { label: "Conversions", value: totalConversions.toLocaleString(), emoji: "👥", color: "text-accent" },
+    { label: "Avg EPC", value: `$${avgEPC.toFixed(2)}`, emoji: "📈", color: "text-primary" },
   ];
 
   const recentEarnings = transactions.filter((t) => t.type === "earning").slice(0, 5);
@@ -57,7 +41,7 @@ const Dashboard = () => {
       <div className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container flex items-center gap-4 h-16">
           <button onClick={() => navigate("/")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+            <span className="text-lg">←</span>
           </button>
           <div className="flex-1">
             <h1 className="font-heading font-bold text-lg">Welcome, {creatorProfile.displayName.split(" ")[0]} 👋</h1>
@@ -65,13 +49,13 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => navigate("/campaigns")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
-              <Target className="w-4 h-4" /> Campaigns
+              🎯 Campaigns
             </button>
             <button onClick={() => navigate("/leaderboard")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
-              <Trophy className="w-4 h-4" /> Leaderboard
+              🏆 Leaderboard
             </button>
             <button onClick={() => navigate("/referrals")} className="hidden md:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
-              <UserPlus className="w-4 h-4" /> Refer
+              👤+ Refer
             </button>
             <button onClick={() => navigate("/profile")} className="px-4 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               ⚙️
@@ -98,7 +82,7 @@ const Dashboard = () => {
               className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card"
             >
               <div className="flex items-center gap-2 mb-2">
-                <s.icon className={`w-4 h-4 ${s.color}`} />
+                <span className="text-sm">{s.emoji}</span>
                 <span className="text-xs text-muted-foreground font-medium">{s.label}</span>
               </div>
               <p className={`text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
@@ -134,7 +118,7 @@ const Dashboard = () => {
                     className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
                   >
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${link.active ? "bg-primary/10" : "bg-muted"}`}>
-                      <Link2 className={`w-5 h-5 ${link.active ? "text-primary" : "text-muted-foreground"}`} />
+                      <span className="text-lg">🔗</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -181,28 +165,28 @@ const Dashboard = () => {
                         }`}
                         title="Copy link"
                       >
-                        {copiedLink === link.code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {copiedLink === link.code ? <span>✓</span> : <span>📋</span>}
                       </button>
                       <button
                         onClick={() => setEditLink({ id: link.id, code: link.code })}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title="Edit vanity code"
                       >
-                        <Wand2 className="w-4 h-4" />
+                        <span>✨</span>
                       </button>
                       <button
                         onClick={() => setQrLink({ url: `https://tribemint.link/${link.code}`, label: link.businessName, businessId: link.businessId, code: link.code })}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title="QR code"
                       >
-                        <QrCode className="w-4 h-4" />
+                        <span>📱</span>
                       </button>
                       <button
                         onClick={() => navigate(`/business/${link.businessId}`)}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title="Open business"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <span>↗</span>
                       </button>
                     </div>
                   </motion.div>

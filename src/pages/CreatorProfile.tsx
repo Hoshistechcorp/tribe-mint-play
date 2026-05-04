@@ -1,23 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  User,
-  CreditCard,
-  Link2,
-  Save,
-  Instagram,
-  Twitter,
-  Youtube,
-  Globe,
-  Plus,
-  Trash2,
-  CheckCircle,
-  Palette,
-  Building2,
-  Wallet,
-} from "lucide-react";
 import { useTheme } from "next-themes";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
@@ -47,10 +30,10 @@ const CreatorProfile = () => {
   });
 
   const [socials, setSocials] = useState([
-    { platform: "Instagram", handle: creatorProfile.socials.instagram || "—", connected: !!creatorProfile.socials.instagram, icon: Instagram, followers: "12.4K" },
-    { platform: "Twitter / X", handle: creatorProfile.socials.twitter || "—", connected: !!creatorProfile.socials.twitter, icon: Twitter, followers: "8.2K" },
+    { platform: "Instagram", handle: creatorProfile.socials.instagram || "—", connected: !!creatorProfile.socials.instagram, emoji: "📸", followers: "12.4K" },
+    { platform: "Twitter / X", handle: creatorProfile.socials.twitter || "—", connected: !!creatorProfile.socials.twitter, emoji: "🐦", followers: "8.2K" },
     { platform: "YouTube", handle: "—", connected: false, icon: Youtube, followers: "—" },
-    { platform: "Website", handle: creatorProfile.socials.website || "—", connected: !!creatorProfile.socials.website, icon: Globe, followers: "—" },
+    { platform: "Website", handle: creatorProfile.socials.website || "—", connected: !!creatorProfile.socials.website, emoji: "🌐", followers: "—" },
   ]);
 
   const [showAddMethod, setShowAddMethod] = useState(false);
@@ -77,9 +60,9 @@ const CreatorProfile = () => {
   };
 
   const tabs = [
-    { key: "profile", label: "Profile 👤", icon: User },
-    { key: "socials", label: "Socials 🔗", icon: Link2 },
-    { key: "payments", label: "Payments 💳", icon: CreditCard },
+    { key: "profile", label: "Profile 👤", emoji: "👤" },
+    { key: "socials", label: "Socials 🔗", emoji: "🔗" },
+    { key: "payments", label: "Payments 💳", emoji: "💳" },
   ] as const;
 
   const toggleSocial = (index: number) => {
@@ -107,7 +90,7 @@ const CreatorProfile = () => {
         <div className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
           <div className="container flex items-center gap-4 h-16">
             <button onClick={() => navigate("/dashboard")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <span>←</span>
             </button>
             <div className="flex-1">
               <h1 className="font-heading font-bold text-lg">Settings</h1>
@@ -175,7 +158,7 @@ const CreatorProfile = () => {
                   onClick={handleSaveProfile}
                   className="px-5 py-2.5 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center gap-2"
                 >
-                  <Save className="w-4 h-4" /> Save Changes
+                  <span>💾</span> Save Changes
                 </button>
               </div>
 
@@ -208,7 +191,7 @@ const CreatorProfile = () => {
                   className="p-4 rounded-xl bg-gradient-card border border-border shadow-card flex items-center gap-4"
                 >
                   <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                    <s.icon className="w-5 h-5 text-foreground" />
+                    <span>{s.emoji || "📌"}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm font-heading">{s.platform}</p>
@@ -247,7 +230,7 @@ const CreatorProfile = () => {
                       <p className="font-bold text-sm font-heading">{p.name}</p>
                       {p.isDefault && (
                         <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" /> Default
+                          <span>✅</span> Default
                         </span>
                       )}
                     </div>
@@ -266,7 +249,7 @@ const CreatorProfile = () => {
                       onClick={() => removePayment(p.id)}
                       className="p-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <span>🗑️</span>
                     </button>
                   </div>
                 </div>
@@ -308,7 +291,7 @@ const CreatorProfile = () => {
                   onClick={() => setShowAddMethod(true)}
                   className="w-full p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
                 >
-                  <Plus className="w-4 h-4" /> Add Payment Method
+                  <span>＋</span> Add Payment Method
                 </button>
               )}
             </motion.div>

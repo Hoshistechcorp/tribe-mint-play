@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trophy, TrendingUp, MousePointerClick, ShoppingCart, Crown, Medal } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import { useAffiliate } from "@/contexts/AffiliateContext";
@@ -22,10 +21,10 @@ const creators = [
   { name: "Samuel Okoro", handle: "@samokoro", avatar: "🏋️", earnings: 17200, clicks: 13900, conversions: 780, streak: 5 },
 ];
 
-const metricTabs: { key: MetricKey; label: string; icon: typeof TrendingUp }[] = [
-  { key: "earnings", label: "Earnings 💰", icon: TrendingUp },
-  { key: "clicks", label: "Clicks 🖱️", icon: MousePointerClick },
-  { key: "conversions", label: "Conversions 🛒", icon: ShoppingCart },
+const metricTabs: { key: MetricKey; label: string }[] = [
+  { key: "earnings", label: "Earnings 💰" },
+  { key: "clicks", label: "Clicks 🖱️" },
+  { key: "conversions", label: "Conversions 🛒" },
 ];
 
 const formatValue = (key: MetricKey, value: number, weekly: boolean) => {
@@ -35,9 +34,9 @@ const formatValue = (key: MetricKey, value: number, weekly: boolean) => {
 };
 
 const getRankIcon = (rank: number) => {
-  if (rank === 1) return <Crown className="w-5 h-5 text-primary" />;
-  if (rank === 2) return <Medal className="w-5 h-5 text-muted-foreground" />;
-  if (rank === 3) return <Medal className="w-5 h-5 text-secondary" />;
+  if (rank === 1) return <span className="text-lg">👑</span>;
+  if (rank === 2) return <span className="text-lg">🥈</span>;
+  if (rank === 3) return <span className="text-lg">🥉</span>;
   return <span className="text-sm font-bold text-muted-foreground w-5 text-center">{rank}</span>;
 };
 
@@ -72,11 +71,11 @@ const Leaderboard = () => {
           {/* Header */}
           <div className="flex items-center gap-4">
             <button onClick={() => navigate("/dashboard")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <span className="text-lg">←</span>
             </button>
             <div>
               <h1 className="text-2xl font-bold font-heading flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-primary" /> Leaderboard
+                🏆 Leaderboard
               </h1>
               <p className="text-sm text-muted-foreground">You're rank #{myRank} this {timeFilter === "weekly" ? "week" : "month"} 🔥</p>
             </div>

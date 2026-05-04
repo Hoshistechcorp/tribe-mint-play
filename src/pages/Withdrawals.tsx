@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, Clock, CheckCircle2, XCircle, ArrowUpFromLine, Wallet,
-  Building2, CreditCard, Eye, X, Calendar, Hash, Loader2, Download,
-} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate, type Transaction } from "@/contexts/AffiliateContext";
 import Navbar from "@/components/Navbar";
@@ -90,7 +86,7 @@ const Withdrawals = () => {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <button onClick={() => navigate("/payouts")} className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+              <span>←</span>
             </button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold font-heading">Withdrawals 🏦</h1>
@@ -98,7 +94,7 @@ const Withdrawals = () => {
             </div>
             <button onClick={handleExportCSV}
               className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-mint text-primary-foreground text-xs sm:text-sm font-bold hover:opacity-90 transition-opacity shadow-mint">
-              <Download className="w-4 h-4" />
+              <span>⬇</span>
               <span className="hidden sm:inline">Export CSV</span>
             </button>
           </div>
@@ -108,7 +104,7 @@ const Withdrawals = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card">
               <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-secondary" />
+                <span>⏳</span>
                 <span className="text-xs text-muted-foreground font-medium">Pending</span>
               </div>
               <p className="text-2xl font-bold font-heading text-secondary">{pendingCount}</p>
@@ -124,7 +120,7 @@ const Withdrawals = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
               className="p-5 rounded-2xl bg-gradient-card border border-border shadow-card col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
+                <span>✅</span>
                 <span className="text-xs text-muted-foreground font-medium">Total Withdrawn</span>
               </div>
               <p className="text-2xl font-bold font-heading text-accent">${balance.totalWithdrawn.toFixed(2)}</p>
@@ -185,15 +181,15 @@ const Withdrawals = () => {
                       tx.status === "completed" ? "bg-primary/10 text-primary" :
                       "bg-destructive/10 text-destructive"
                     }`}>
-                      {tx.status === "completed" ? <><CheckCircle2 className="inline w-3 h-3 mr-1" />Done</> :
-                       isPending ? <><Clock className="inline w-3 h-3 mr-1" />Pending</> :
-                       <><XCircle className="inline w-3 h-3 mr-1" />Failed</>}
+                      {tx.status === "completed" ? <><span>✅</span>Done</> :
+                       isPending ? <><span>⏳</span>Pending</> :
+                       <><span>❌</span>Failed</>}
                     </span>
                     <div className="flex gap-2">
                       <button onClick={() => setSelected(tx)}
                         className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
                         title="Review">
-                        <Eye className="w-4 h-4" />
+                        <span>👁</span>
                       </button>
                       {isPending && (
                         <button onClick={() => setSelected(tx)}
@@ -223,7 +219,7 @@ const Withdrawals = () => {
                 <h3 className="text-lg font-bold font-heading">Withdrawal Details</h3>
                 {!confirming && (
                   <button onClick={() => setSelected(null)} className="p-1 rounded-lg hover:bg-muted">
-                    <X className="w-4 h-4" />
+                    <span>✕</span>
                   </button>
                 )}
               </div>
@@ -235,12 +231,12 @@ const Withdrawals = () => {
 
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                  <Hash className="w-4 h-4 text-muted-foreground" />
+                  <span>#️⃣</span>
                   <div className="flex-1"><p className="text-xs text-muted-foreground">Reference</p>
                     <p className="font-mono text-xs">{selected.id}</p></div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                  <Building2 className="w-4 h-4 text-muted-foreground" />
+                  <span>🏢</span>
                   <div className="flex-1"><p className="text-xs text-muted-foreground">Destination</p>
                     <p className="font-medium">{selected.source}</p></div>
                 </div>
@@ -250,7 +246,7 @@ const Withdrawals = () => {
                     <p className="font-medium">{selected.date}</p></div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>⏳</span>
                   <div className="flex-1"><p className="text-xs text-muted-foreground">ETA</p>
                     <p className="font-medium">{selected.estimatedArrival || "Within 24 hours"}</p></div>
                 </div>
@@ -264,7 +260,7 @@ const Withdrawals = () => {
                   </button>
                   <button onClick={() => handleConfirm(selected)} disabled={confirming}
                     className="flex-1 px-4 py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center justify-center gap-2 disabled:opacity-70">
-                    {confirming ? (<><Loader2 className="w-4 h-4 animate-spin" /> Confirming...</>) : "Confirm Payout ✅"}
+                    {confirming ? (<><span>⏳</span> Confirming...</>) : "Confirm Payout ✅"}
                   </button>
                 </div>
               ) : (
