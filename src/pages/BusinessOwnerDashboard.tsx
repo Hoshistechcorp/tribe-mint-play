@@ -8,7 +8,7 @@ import ActivityFeed from "@/components/business/ActivityFeed";
 import GiftCardProgram from "@/components/business/GiftCardProgram";
 import BusinessSidebar from "@/components/business/BusinessSidebar";
 import { toast } from "@/hooks/use-toast";
-import { useAffiliate, type BizCampaign } from "@/contexts/AffiliateContext";
+import { useAffiliate, type BizCampaign, type GiftCard } from "@/contexts/AffiliateContext";
 
 const topAffiliates = [
   { name: "Sarah M.", clicks: 1200, conversions: 45, earned: "$675", avatar: "🧑‍💻", niche: "Food & Lifestyle", joined: "2 weeks ago" },
@@ -26,11 +26,11 @@ const sampleApplicants = [
 ];
 
 const samplePayoutHistory = [
-  { id: "p1", affiliate: "Sarah M.", amount: 125.00, campaign: "Date Night Special", date: "May 2, 2026", status: "completed" },
-  { id: "p2", affiliate: "James K.", amount: 95.50, campaign: "Weekend Brunch Push", date: "May 1, 2026", status: "completed" },
-  { id: "p3", affiliate: "Aisha D.", amount: 78.00, campaign: "Date Night Special", date: "Apr 30, 2026", status: "pending" },
-  { id: "p4", affiliate: "David O.", amount: 62.25, campaign: "Happy Hour Blitz", date: "Apr 29, 2026", status: "completed" },
-  { id: "p5", affiliate: "Fatima B.", amount: 45.00, campaign: "Weekend Brunch Push", date: "Apr 28, 2026", status: "completed" },
+  { id: "p1", affiliate: "Sarah M.", amount: 125.00, campaign: "Date Night Special", date: "May 2, 2026", status: "completed" as const },
+  { id: "p2", affiliate: "James K.", amount: 95.50, campaign: "Weekend Brunch Push", date: "May 1, 2026", status: "completed" as const },
+  { id: "p3", affiliate: "Aisha D.", amount: 78.00, campaign: "Date Night Special", date: "Apr 30, 2026", status: "pending" as const },
+  { id: "p4", affiliate: "David O.", amount: 62.25, campaign: "Happy Hour Blitz", date: "Apr 29, 2026", status: "processing" as const },
+  { id: "p5", affiliate: "Fatima B.", amount: 45.00, campaign: "Weekend Brunch Push", date: "Apr 28, 2026", status: "completed" as const },
 ];
 
 const sampleReferrals = [
@@ -57,6 +57,19 @@ const BusinessOwnerDashboard = () => {
   const [viewingCampaign, setViewingCampaign] = useState<BizCampaign | null>(null);
   const [editingCampaign, setEditingCampaign] = useState<BizCampaign | null>(null);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  
+  // Payout management state
+  const [payoutRuns, setPayoutRuns] = useState(samplePayoutHistory);
+  const [payoutsPausedGlobal, setPayoutsPausedGlobal] = useState(false);
+  const [showPayoutConfirm, setShowPayoutConfirm] = useState<string | null>(null);
+  const [showCreatePayout, setShowCreatePayout] = useState(false);
+  const [newPayoutDraft, setNewPayoutDraft] = useState({ affiliate: "", amount: "", campaign: "" });
+
+  // Gift card CRUD state
+  const [showGenGiftCard, setShowGenGiftCard] = useState(false);
+  const [gcDraft, setGcDraft] = useState({ faceValue: 50, quantity: 1, buyerName: "", buyerEmail: "" });
+  const [gcFilter, setGcFilter] = useState<"all" | "active" | "redeemed" | "voided">("all");
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState<string | null>(null);
 
   const totalRevenue = bizCampaigns.reduce((s, c) => s + c.revenue, 0);
   const activeAffiliates = bizCampaigns.reduce((s, c) => s + c.affiliates, 0);
@@ -428,17 +441,88 @@ const BusinessOwnerDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-heading font-bold text-xl">Gift Cards</h2>
+                <h2 className="font-heading font-bold text-xl" id="giftcards-heading">Gift Cards</h2>
                 <p className="text-sm text-muted-foreground">Manage your Ibloov Gift Card program</p>
               </div>
-              {giftCardProgram.enrolled && (
-                <button onClick={() => navigate("/business/gift-cards")}
-                  className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm shadow-mint">
-                  ↗ Full Manager
-                </button>
+              {giftCardProgram.enrolled && giftCardProgram.cards && (
+                <div className="flex gap-2">
+                  <button onClick={() => setShowGenGiftCard(true)}
+                    className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm shadow-mint hover:opacity-90 transition-opacity"
+                    aria-label="Generate new gift cards">
+                    ＋ Generate Cards
+                  </button>
+                  <button onClick={() => navigate("/business/gift-cards")}
+                    className="px-4 py-2 bg-muted text-foreground rounded-lg font-bold text-sm hover:bg-muted/80 transition-colors">
+                    ↗ Full Manager
+                  </button>
+                </div>
               )}
             </div>
             <GiftCardProgram />
+
+            {/* Gift Card CRUD Table */}
+            {giftCardProgram.enrolled && giftCardProgram.cards && giftCardProgram.cards.length > 0 && (
+              <div className="rounded-2xl bg-gradient-card border border-border shadow-card overflow-hidden">
+                <div className="p-4 sm:p-6 border-b border-border">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <h3 className="font-heading font-bold">Gift Card Inventory</h3>
+                    <div className="flex rounded-xl border border-border overflow-hidden" role="radiogroup" aria-label="Gift card status filter">
+                      {(["all", "active", "redeemed", "voided"] as const).map(f => (
+                        <button key={f} onClick={() => setGcFilter(f)}
+                          className={`px-3 py-1.5 text-xs font-bold capitalize transition-colors ${gcFilter === f ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`}
+                          role="radio" aria-checked={gcFilter === f}>
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm" aria-labelledby="giftcards-heading">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th scope="col" className="text-left py-3 px-4 text-xs text-muted-foreground font-medium">Code</th>
+                        <th scope="col" className="text-left py-3 px-4 text-xs text-muted-foreground font-medium hidden sm:table-cell">Buyer</th>
+                        <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Face Value</th>
+                        <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium hidden md:table-cell">Remaining</th>
+                        <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Status</th>
+                        <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {giftCardProgram.cards
+                        .filter(c => gcFilter === "all" || c.status === gcFilter)
+                        .map((card) => (
+                        <tr key={card.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
+                          <td className="py-3 px-4 font-mono text-xs font-bold text-primary">{card.code}</td>
+                          <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">{card.buyerName || "—"}</td>
+                          <td className="py-3 px-4 text-right font-bold">${card.faceValue}</td>
+                          <td className="py-3 px-4 text-right hidden md:table-cell">${card.remainingBalance.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                              card.status === "active" ? "bg-primary/15 text-primary" :
+                              card.status === "redeemed" ? "bg-secondary/15 text-secondary" :
+                              "bg-destructive/15 text-destructive"
+                            }`}>{card.status}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            {card.status === "active" && (
+                              <button
+                                onClick={() => setShowRevokeConfirm(card.id)}
+                                className="px-2 py-1 rounded-lg bg-destructive/10 text-destructive text-[11px] font-bold hover:bg-destructive/20 transition-colors"
+                                aria-label={`Revoke gift card ${card.code}`}
+                              >
+                                Revoke
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </motion.div>
         );
 
@@ -446,14 +530,14 @@ const BusinessOwnerDashboard = () => {
         return (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div>
-              <h2 className="font-heading font-bold text-xl">Analytics</h2>
-              <p className="text-sm text-muted-foreground">Detailed performance metrics</p>
+              <h2 className="font-heading font-bold text-xl" id="analytics-heading">Analytics & Reports</h2>
+              <p className="text-sm text-muted-foreground">Filter by date and campaign, then export CSV or PDF</p>
             </div>
-            <AnalyticsCharts />
+            <AnalyticsCharts showExport={true} />
 
             {/* Conversion funnel */}
-            <div className="rounded-2xl bg-gradient-card border border-border shadow-card p-6">
-              <h3 className="font-heading font-bold mb-4">Conversion Funnel</h3>
+            <div className="rounded-2xl bg-gradient-card border border-border shadow-card p-4 sm:p-6">
+              <h3 className="font-heading font-bold mb-4">Conversion Funnel 🔄</h3>
               <div className="space-y-3">
                 {[
                   { stage: "Link Views", value: bizCampaigns.reduce((s, c) => s + c.clicks * 3, 0).toLocaleString(), pct: 100, color: "bg-muted-foreground" },
@@ -479,18 +563,45 @@ const BusinessOwnerDashboard = () => {
       case "payouts":
         return (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div>
-              <h2 className="font-heading font-bold text-xl">Payouts</h2>
-              <p className="text-sm text-muted-foreground">Track affiliate commission payouts</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="font-heading font-bold text-xl" id="payouts-heading">Payout Management</h2>
+                <p className="text-sm text-muted-foreground">Create runs, track status, and control payout flow</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setShowCreatePayout(true)}
+                  className="px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-sm shadow-mint hover:opacity-90 transition-opacity"
+                  aria-label="Create new payout run">
+                  ＋ New Payout Run
+                </button>
+                <button
+                  onClick={() => setShowPayoutConfirm(payoutsPausedGlobal ? "resume" : "pause")}
+                  className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${payoutsPausedGlobal ? "bg-primary/10 text-primary hover:bg-primary/20" : "bg-destructive/10 text-destructive hover:bg-destructive/20"}`}
+                  aria-label={payoutsPausedGlobal ? "Resume all payouts" : "Pause all payouts"}
+                >
+                  {payoutsPausedGlobal ? "▶ Resume All" : "⏸ Pause All"}
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            {payoutsPausedGlobal && (
+              <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/30 flex items-center gap-3" role="alert">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <p className="font-bold text-sm text-destructive">Payouts are globally paused</p>
+                  <p className="text-xs text-muted-foreground">No payouts will be processed until you resume.</p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: "Total Paid", value: `$${samplePayoutHistory.filter(p => p.status === "completed").reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "✅" },
-                { label: "Pending", value: `$${samplePayoutHistory.filter(p => p.status === "pending").reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "⏳" },
-                { label: "This Month", value: `$${samplePayoutHistory.reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "📅" },
+                { label: "Total Paid", value: `$${payoutRuns.filter(p => p.status === "completed").reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "✅" },
+                { label: "Processing", value: `$${payoutRuns.filter(p => p.status === "processing").reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "⏳" },
+                { label: "Pending", value: `$${payoutRuns.filter(p => p.status === "pending").reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "📋" },
+                { label: "This Month", value: `$${payoutRuns.reduce((s, p) => s + p.amount, 0).toFixed(2)}`, emoji: "📅" },
               ].map((s) => (
-                <div key={s.label} className="p-4 rounded-2xl bg-gradient-card border border-border shadow-card">
+                <div key={s.label} className="p-4 rounded-2xl bg-gradient-card border border-border shadow-card" role="status" aria-label={`${s.label}: ${s.value}`}>
                   <span className="text-lg">{s.emoji}</span>
                   <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
                   <p className="text-xl font-bold font-heading mt-1">{s.value}</p>
@@ -500,18 +611,19 @@ const BusinessOwnerDashboard = () => {
 
             <div className="rounded-2xl bg-gradient-card border border-border shadow-card overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" aria-labelledby="payouts-heading">
                   <thead>
                     <tr className="border-b border-border bg-muted/30">
-                      <th className="text-left py-3 px-4 text-xs text-muted-foreground font-medium">Affiliate</th>
-                      <th className="text-left py-3 px-4 text-xs text-muted-foreground font-medium hidden sm:table-cell">Campaign</th>
-                      <th className="text-left py-3 px-4 text-xs text-muted-foreground font-medium hidden md:table-cell">Date</th>
-                      <th className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Amount</th>
-                      <th className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Status</th>
+                      <th scope="col" className="text-left py-3 px-4 text-xs text-muted-foreground font-medium">Affiliate</th>
+                      <th scope="col" className="text-left py-3 px-4 text-xs text-muted-foreground font-medium hidden sm:table-cell">Campaign</th>
+                      <th scope="col" className="text-left py-3 px-4 text-xs text-muted-foreground font-medium hidden md:table-cell">Date</th>
+                      <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Amount</th>
+                      <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Status</th>
+                      <th scope="col" className="text-right py-3 px-4 text-xs text-muted-foreground font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {samplePayoutHistory.map((p) => (
+                    {payoutRuns.map((p) => (
                       <tr key={p.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
                         <td className="py-3 px-4 font-medium">{p.affiliate}</td>
                         <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">{p.campaign}</td>
@@ -519,8 +631,39 @@ const BusinessOwnerDashboard = () => {
                         <td className="py-3 px-4 text-right font-bold">${p.amount.toFixed(2)}</td>
                         <td className="py-3 px-4 text-right">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                            p.status === "completed" ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
+                            p.status === "completed" ? "bg-primary/15 text-primary" :
+                            p.status === "processing" ? "bg-secondary/15 text-secondary" :
+                            "bg-accent/15 text-accent"
                           }`}>{p.status}</span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          {p.status === "pending" && (
+                            <div className="flex justify-end gap-1">
+                              <button onClick={() => {
+                                setPayoutRuns(prev => prev.map(r => r.id === p.id ? { ...r, status: "processing" as const } : r));
+                                toast({ title: `Processing payout to ${p.affiliate} ⏳` });
+                              }} className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+                                aria-label={`Process payout to ${p.affiliate}`}>
+                                Process
+                              </button>
+                              <button onClick={() => {
+                                setPayoutRuns(prev => prev.filter(r => r.id !== p.id));
+                                toast({ title: "Payout cancelled", variant: "destructive" });
+                              }} className="px-2 py-1 rounded-lg bg-destructive/10 text-destructive text-[11px] font-bold hover:bg-destructive/20 transition-colors"
+                                aria-label={`Cancel payout to ${p.affiliate}`}>
+                                Cancel
+                              </button>
+                            </div>
+                          )}
+                          {p.status === "processing" && (
+                            <button onClick={() => {
+                              setPayoutRuns(prev => prev.map(r => r.id === p.id ? { ...r, status: "completed" as const } : r));
+                              toast({ title: `Payout to ${p.affiliate} completed ✅` });
+                            }} className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-bold hover:bg-primary/20 transition-colors"
+                              aria-label={`Complete payout to ${p.affiliate}`}>
+                              Complete
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -709,10 +852,10 @@ const BusinessOwnerDashboard = () => {
 
         <main className="flex-1 min-w-0 pb-20 lg:pb-0">
           {/* Top header bar */}
-          <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-xl">
-            <div className="flex items-center justify-between h-14 px-4 lg:px-8">
+          <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-xl" role="banner">
+            <div className="flex items-center justify-between h-16 px-4 lg:px-8">
               <div className="flex items-center gap-3">
-                <button onClick={() => navigate("/")} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => navigate("/")} className="text-xs text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded-lg px-2 py-1" aria-label="Go to homepage">
                   ← Home
                 </button>
                 <span className="text-border">|</span>
@@ -720,12 +863,13 @@ const BusinessOwnerDashboard = () => {
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-3 sm:px-4 py-2 bg-gradient-mint text-primary-foreground rounded-lg font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity shadow-mint"
+                className="px-3 sm:px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity shadow-mint focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                aria-label="Create new campaign"
               >
                 ＋ New Campaign
               </button>
             </div>
-          </div>
+          </header>
 
           {/* Mobile more menu */}
           <AnimatePresence>
@@ -750,7 +894,7 @@ const BusinessOwnerDashboard = () => {
           </AnimatePresence>
 
           {/* Content area */}
-          <div className="p-4 lg:p-8">
+          <div className="p-4 lg:p-8" role="main" aria-live="polite">
             {renderContent()}
           </div>
         </main>
@@ -777,6 +921,197 @@ const BusinessOwnerDashboard = () => {
             });
           }}
         />
+
+        {/* Payout pause/resume confirmation */}
+        <AnimatePresence>
+          {showPayoutConfirm && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowPayoutConfirm(null)} role="dialog" aria-modal="true" aria-label="Confirm payout action">
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <h3 className="text-lg font-bold font-heading">
+                  {showPayoutConfirm === "pause" ? "⏸ Pause all payouts?" : "▶ Resume all payouts?"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {showPayoutConfirm === "pause"
+                    ? "All pending and processing payouts will be held. Affiliates will be notified."
+                    : "All held payouts will resume processing. This cannot be undone."
+                  }
+                </p>
+                <div className="flex gap-2 pt-2">
+                  <button onClick={() => setShowPayoutConfirm(null)} className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-sm font-bold focus:outline-none focus:ring-2 focus:ring-ring">Cancel</button>
+                  <button onClick={() => {
+                    setPayoutsPausedGlobal(!payoutsPausedGlobal);
+                    setShowPayoutConfirm(null);
+                    toast({ title: payoutsPausedGlobal ? "Payouts resumed ▶️" : "Payouts paused ⏸️" });
+                  }} className={`flex-1 px-4 py-2.5 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-ring ${
+                    showPayoutConfirm === "pause" ? "bg-destructive text-destructive-foreground" : "bg-gradient-mint text-primary-foreground shadow-mint"
+                  }`}>{showPayoutConfirm === "pause" ? "Pause All" : "Resume All"}</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Create Payout Run modal */}
+        <AnimatePresence>
+          {showCreatePayout && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowCreatePayout(false)} role="dialog" aria-modal="true" aria-label="Create payout run">
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold font-heading">Create Payout Run</h3>
+                  <button onClick={() => setShowCreatePayout(false)} className="p-1.5 rounded-lg hover:bg-muted text-sm focus:outline-none focus:ring-2 focus:ring-ring" aria-label="Close">✕</button>
+                </div>
+                <div>
+                  <label htmlFor="payout-affiliate" className="text-xs text-muted-foreground font-medium">Affiliate name</label>
+                  <input id="payout-affiliate" value={newPayoutDraft.affiliate} onChange={(e) => setNewPayoutDraft({ ...newPayoutDraft, affiliate: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Sarah M." />
+                </div>
+                <div>
+                  <label htmlFor="payout-amount" className="text-xs text-muted-foreground font-medium">Amount ($)</label>
+                  <input id="payout-amount" type="number" value={newPayoutDraft.amount} onChange={(e) => setNewPayoutDraft({ ...newPayoutDraft, amount: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="125.00" />
+                </div>
+                <div>
+                  <label htmlFor="payout-campaign" className="text-xs text-muted-foreground font-medium">Campaign</label>
+                  <select id="payout-campaign" value={newPayoutDraft.campaign} onChange={(e) => setNewPayoutDraft({ ...newPayoutDraft, campaign: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option value="">Select campaign</option>
+                    {bizCampaigns.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
+                  </select>
+                </div>
+                <button onClick={() => {
+                  if (!newPayoutDraft.affiliate || !newPayoutDraft.amount) {
+                    toast({ title: "Please fill all fields", variant: "destructive" }); return;
+                  }
+                  setPayoutRuns(prev => [{
+                    id: `p${Date.now()}`, affiliate: newPayoutDraft.affiliate,
+                    amount: Number(newPayoutDraft.amount), campaign: newPayoutDraft.campaign,
+                    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                    status: "pending" as const,
+                  }, ...prev]);
+                  setNewPayoutDraft({ affiliate: "", amount: "", campaign: "" });
+                  setShowCreatePayout(false);
+                  toast({ title: "Payout run created ✅" });
+                }} className="w-full px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm shadow-mint focus:outline-none focus:ring-2 focus:ring-ring">
+                  💸 Create Run
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Generate Gift Card modal */}
+        <AnimatePresence>
+          {showGenGiftCard && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowGenGiftCard(false)} role="dialog" aria-modal="true" aria-label="Generate gift cards">
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold font-heading">🎁 Generate Gift Cards</h3>
+                  <button onClick={() => setShowGenGiftCard(false)} className="p-1.5 rounded-lg hover:bg-muted text-sm focus:outline-none focus:ring-2 focus:ring-ring" aria-label="Close">✕</button>
+                </div>
+                <div>
+                  <label htmlFor="gc-facevalue" className="text-xs text-muted-foreground font-medium">Face value ($)</label>
+                  <div className="flex gap-2 mt-1.5 flex-wrap">
+                    {giftCardProgram.denominations.map(d => (
+                      <button key={d} onClick={() => setGcDraft({ ...gcDraft, faceValue: d })}
+                        className={`px-3 py-2 rounded-xl text-sm font-bold transition-colors ${gcDraft.faceValue === d ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                        aria-pressed={gcDraft.faceValue === d}>
+                        ${d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="gc-qty" className="text-xs text-muted-foreground font-medium">Quantity</label>
+                  <input id="gc-qty" type="number" min={1} max={20} value={gcDraft.quantity}
+                    onChange={(e) => setGcDraft({ ...gcDraft, quantity: Math.min(20, Math.max(1, Number(e.target.value))) })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+                <div>
+                  <label htmlFor="gc-buyer" className="text-xs text-muted-foreground font-medium">Buyer name (optional)</label>
+                  <input id="gc-buyer" value={gcDraft.buyerName} onChange={(e) => setGcDraft({ ...gcDraft, buyerName: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Walk-in customer" />
+                </div>
+                <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    Generating <strong className="text-foreground">{gcDraft.quantity}</strong> × <strong className="text-foreground">${gcDraft.faceValue}</strong> cards
+                    = <strong className="text-primary">${gcDraft.quantity * gcDraft.faceValue}</strong> total face value
+                  </p>
+                </div>
+                <button onClick={() => {
+                  const { updateGiftCardProgram } = useAffiliate.arguments ? {} as any : {};
+                  for (let i = 0; i < gcDraft.quantity; i++) {
+                    const code = `IBL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+                    const newCard: GiftCard = {
+                      id: `gc-${Date.now()}-${i}`,
+                      code,
+                      faceValue: gcDraft.faceValue,
+                      buyerPaid: +(gcDraft.faceValue * (1 - giftCardProgram.redemptionDiscountPercent / 100)).toFixed(2),
+                      buyerName: gcDraft.buyerName || "Direct sale",
+                      soldVia: "direct",
+                      issuedAt: new Date().toLocaleDateString(),
+                      status: "active",
+                      remainingBalance: gcDraft.faceValue,
+                      expiresAt: new Date(Date.now() + 365 * 86400000).toLocaleDateString(),
+                    };
+                    giftCardProgram.cards.push(newCard);
+                  }
+                  giftCardProgram.cardsIssued += gcDraft.quantity;
+                  giftCardProgram.grossSales += gcDraft.quantity * +(gcDraft.faceValue * (1 - giftCardProgram.redemptionDiscountPercent / 100)).toFixed(2);
+                  giftCardProgram.outstandingLiability += gcDraft.quantity * gcDraft.faceValue;
+                  setShowGenGiftCard(false);
+                  toast({ title: `${gcDraft.quantity} gift card(s) generated 🎉` });
+                }} className="w-full px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm shadow-mint focus:outline-none focus:ring-2 focus:ring-ring">
+                  🎁 Generate {gcDraft.quantity} Card{gcDraft.quantity > 1 ? "s" : ""}
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Revoke Gift Card confirmation */}
+        <AnimatePresence>
+          {showRevokeConfirm && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowRevokeConfirm(null)} role="dialog" aria-modal="true" aria-label="Confirm gift card revocation">
+              <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-2xl bg-card border border-border shadow-card p-6 space-y-4">
+                <h3 className="text-lg font-bold font-heading">🚫 Revoke this gift card?</h3>
+                <p className="text-sm text-muted-foreground">
+                  This card will be voided and cannot be redeemed. The buyer may need a refund.
+                </p>
+                <div className="flex gap-2 pt-2">
+                  <button onClick={() => setShowRevokeConfirm(null)} className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-sm font-bold focus:outline-none focus:ring-2 focus:ring-ring">Keep Active</button>
+                  <button onClick={() => {
+                    const card = giftCardProgram.cards.find(c => c.id === showRevokeConfirm);
+                    if (card) {
+                      card.status = "voided";
+                      giftCardProgram.outstandingLiability -= card.remainingBalance;
+                      card.remainingBalance = 0;
+                    }
+                    setShowRevokeConfirm(null);
+                    toast({ title: "Gift card revoked 🚫", variant: "destructive" });
+                  }} className="flex-1 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-bold text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    Revoke
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {viewingCampaign && (

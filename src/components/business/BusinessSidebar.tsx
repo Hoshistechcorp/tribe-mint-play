@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 
@@ -35,6 +33,8 @@ const BusinessSidebar = ({ activeTab, onTabChange, collapsed, onToggleCollapse }
           "hidden lg:flex flex-col h-screen sticky top-0 border-r border-border bg-card/80 backdrop-blur-xl transition-all duration-300 z-30",
           collapsed ? "w-[68px]" : "w-[240px]"
         )}
+        role="navigation"
+        aria-label="Business dashboard navigation"
       >
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center gap-3">
@@ -53,17 +53,18 @@ const BusinessSidebar = ({ activeTab, onTabChange, collapsed, onToggleCollapse }
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5" aria-label="Dashboard sections">
           {navItems.map((item) => (
             <button
               key={item.key}
               onClick={() => onTabChange(item.key)}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-ring",
                 activeTab === item.key
                   ? "bg-primary text-primary-foreground shadow-mint"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
+              aria-current={activeTab === item.key ? "page" : undefined}
             >
               <span className="text-base flex-shrink-0">{item.emoji}</span>
               {!collapsed && <span className="truncate">{item.label}</span>}
@@ -86,8 +87,8 @@ const BusinessSidebar = ({ activeTab, onTabChange, collapsed, onToggleCollapse }
       </aside>
 
       {/* Mobile bottom nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border">
-        <div className="flex overflow-x-auto px-2 py-1.5 gap-0.5">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border" role="navigation" aria-label="Mobile navigation">
+        <div className="flex overflow-x-auto px-2 py-2 gap-1">
           {navItems.slice(0, 7).map((item) => (
             <button
               key={item.key}
