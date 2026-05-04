@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Download, Copy, Check } from "lucide-react";
 import QRCode from "qrcode";
 import { toast } from "@/hooks/use-toast";
 import { useAffiliate } from "@/contexts/AffiliateContext";
@@ -54,7 +53,7 @@ const LinkQRDialog = ({ open, onClose, url, label, businessId, code }: Props) =>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold font-heading">QR Code 📱</h3>
               <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted">
-                <X className="w-4 h-4" />
+                <span className="text-sm">✕</span>
               </button>
             </div>
 
@@ -77,13 +76,13 @@ const LinkQRDialog = ({ open, onClose, url, label, businessId, code }: Props) =>
             <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/50">
               <p className="flex-1 text-xs font-mono truncate text-muted-foreground">{url}</p>
               <button onClick={copy} className="p-1.5 rounded-lg hover:bg-muted">
-                {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <span className="text-xs text-primary">✓</span> : <span className="text-xs">📋</span>}
               </button>
             </div>
 
             <button onClick={download} disabled={!dataUrl}
               className="w-full px-4 py-3 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center justify-center gap-2 disabled:opacity-50">
-              <Download className="w-4 h-4" /> Download Printable QR
+              ⬇ Download Printable QR
             </button>
           </motion.div>
         </motion.div>
