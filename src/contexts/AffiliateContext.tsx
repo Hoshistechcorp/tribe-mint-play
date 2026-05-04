@@ -157,6 +157,20 @@ export interface Referral {
   earned: number;
 }
 
+export interface CampaignApplication {
+  id: string;
+  campaignId: string;
+  campaignTitle: string;
+  applicantName: string;
+  applicantUsername: string;
+  applicantAvatar: string;
+  applicantNiche: string[];
+  applicantFollowers: number;
+  appliedAt: string;
+  status: "pending" | "approved" | "rejected";
+  note?: string;
+}
+
 interface Balance {
   available: number;
   pending: number;
@@ -224,6 +238,14 @@ interface AffiliateContextType {
   referrals: Referral[];
   referralEarnings: number;
   simulateReferralSignup: () => void;
+
+  // Campaign applications (creator side)
+  campaignApplications: CampaignApplication[];
+  approveApplication: (applicationId: string) => void;
+  rejectApplication: (applicationId: string) => void;
+
+  // Creator's own campaigns tracking
+  creatorCampaigns: { campaignId: string; status: "active" | "completed" | "queued" | "applied" }[];
 }
 
 const AffiliateContext = createContext<AffiliateContextType | null>(null);
@@ -305,6 +327,7 @@ interface PersistedState {
   referralCode: string;
   referrals: Referral[];
   giftCardProgram: IbloovGiftCardProgram;
+  campaignApplications: CampaignApplication[];
 }
 
 const defaultState: PersistedState = {
@@ -343,6 +366,13 @@ const defaultState: PersistedState = {
     cards: [],
     settlements: [],
   },
+  campaignApplications: [
+    { id: "app1", campaignId: "c2", campaignTitle: "Spring Getaway 🌸", applicantName: "Jessica Morales", applicantUsername: "jessmorales", applicantAvatar: "👩‍🎨", applicantNiche: ["Travel", "Lifestyle"], applicantFollowers: 24500, appliedAt: "Apr 28, 2026", status: "pending" },
+    { id: "app2", campaignId: "c2", campaignTitle: "Spring Getaway 🌸", applicantName: "David Okonkwo", applicantUsername: "davidok", applicantAvatar: "🧑‍💼", applicantNiche: ["Food & Dining", "Hospitality"], applicantFollowers: 18200, appliedAt: "Apr 29, 2026", status: "pending" },
+    { id: "app3", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Lina Park", applicantUsername: "linapark", applicantAvatar: "👩‍🦰", applicantNiche: ["Romance", "Travel"], applicantFollowers: 32100, appliedAt: "Apr 30, 2026", status: "pending" },
+    { id: "app4", campaignId: "c2", campaignTitle: "Spring Getaway 🌸", applicantName: "Kofi Mensah", applicantUsername: "kofimensah", applicantAvatar: "🧔", applicantNiche: ["Lifestyle"], applicantFollowers: 9800, appliedAt: "May 1, 2026", status: "approved" },
+    { id: "app5", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Rina Shah", applicantUsername: "rinashah", applicantAvatar: "👩", applicantNiche: ["Luxury", "Travel"], applicantFollowers: 45000, appliedAt: "Apr 27, 2026", status: "rejected" },
+  ],
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
@@ -1018,6 +1048,36 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     [state.referrals]
   );
 
+  const approveApplication = useCallback((applicationId: string) => {
+    setState((prev) => ({
+      ...prev,
+      campaignApplications: prev.campaignApplications.map((a) =>
+        a.id === applicationId ? { ...a, status: "approved" as const } : a
+      ),
+    }));
+  }, []);
+
+  const rejectApplication = useCallback((applicationId: string) => {
+    setState((prev) => ({
+      ...prev,
+      campaignApplications: prev.campaignApplications.map((a) =>
+        a.id === applicationId ? { ...a, status: "rejected" as const } : a
+      ),
+    }));
+  }, []);
+
+  const creatorCampaigns = useMemo(() => {
+    return state.joinedCampaigns.map((cId) => {
+      const campaign = allCampaigns.find((c) => c.id === cId);
+      const deadlineDate = campaign?.deadline ? new Date(campaign.deadline) : null;
+      const isPast = deadlineDate && !isNaN(deadlineDate.getTime()) && deadlineDate < new Date();
+      const isFull = campaign ? campaign.slotsUsed >= campaign.slots : false;
+      let status: "active" | "completed" | "queued" | "applied" = "active";
+      if (isPast || isFull) status = "completed";
+      return { campaignId: cId, status };
+    });
+  }, [state.joinedCampaigns, allCampaigns]);
+
   return (
     <AffiliateContext.Provider
       value={{
@@ -1065,6 +1125,10 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         voidGiftCard,
         resendGiftCard,
         exportGiftCardsCSV,
+        campaignApplications: state.campaignApplications,
+        approveApplication,
+        rejectApplication,
+        creatorCampaigns,
       }}
     >
       {children}
