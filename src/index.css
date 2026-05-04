@@ -155,15 +155,9 @@
       scroll-behavior: auto !important;
     }
   }
-  /* Accessibility: minimum touch target sizing */
-  button, a, [role="button"], input, select, textarea {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  /* Allow smaller interactive elements where explicitly needed */
-  .touch-target-sm {
-    min-height: 32px;
-    min-width: 32px;
+  /* Accessibility: ensure readable base font size */
+  html {
+    font-size: 16px;
   }
   /* High contrast mode support */
   @media (forced-colors: active) {
