@@ -51,6 +51,9 @@ const Dashboard = () => {
             <button onClick={() => navigate("/campaigns")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               🎯 Campaigns
             </button>
+            <button onClick={() => navigate("/my-campaigns")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
+              📋 My Campaigns
+            </button>
             <button onClick={() => navigate("/leaderboard")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg font-medium text-sm hover:bg-muted transition-colors">
               🏆 Leaderboard
             </button>
