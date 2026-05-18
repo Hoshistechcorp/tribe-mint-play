@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
 import { useAffiliate } from "@/contexts/AffiliateContext";
 import { Checkbox } from "@/components/ui/checkbox";
+import onboardingHero from "@/assets/onboarding-hero.jpg";
 
 type Role = "creator" | "business" | null;
 
@@ -101,7 +102,7 @@ const Onboarding = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col lg:flex-row">
         {/* Progress bar */}
         {step > 0 && (
           <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted">
@@ -114,7 +115,34 @@ const Onboarding = () => {
           </div>
         )}
 
-        <div className="flex-1 flex items-center justify-center p-6">
+        {/* Left image panel */}
+        <aside
+          className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-secondary"
+          aria-hidden="true"
+        >
+          <img
+            src={onboardingHero}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/70 via-secondary/30 to-transparent" />
+          <div className="relative z-10 flex flex-col justify-between p-10 xl:p-14 text-primary-foreground w-full">
+            <div className="text-sm font-medium tracking-wide uppercase opacity-80">
+              TribeMint <span className="opacity-60">· by Ibloov</span>
+            </div>
+            <div className="space-y-4 max-w-md">
+              <h2 className="font-heading text-4xl xl:text-5xl font-bold leading-tight">
+                Where hospitality meets <span className="italic font-serif">influence</span>.
+              </h2>
+              <p className="text-sm xl:text-base opacity-80">
+                Join thousands of creators and venues turning real-world moments into recurring revenue.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        {/* Right form panel */}
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
           <div className="w-full max-w-lg">
             <AnimatePresence mode="wait">
               {/* Step 0: Role Selection */}
