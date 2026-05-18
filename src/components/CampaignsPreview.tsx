@@ -96,8 +96,8 @@ const CampaignsPreview = () => {
                   <span className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${badge.bg} ${badge.text}`}>
                     {badge.label}
                   </span>
-                  <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-card/90 backdrop-blur-sm text-[10px] font-bold text-primary">
-                    {campaign.commission}%
+                  <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-military text-lime text-[10px] font-extrabold shadow-md ring-1 ring-lime/30">
+                    {campaign.commission}% off
                   </span>
                 </div>
 

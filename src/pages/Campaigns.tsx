@@ -119,8 +119,8 @@ const Campaigns = () => {
                     <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold ${badge.bg} ${badge.text}`}>
                       {badge.label}
                     </span>
-                    <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-card/80 backdrop-blur-sm text-xs font-bold text-primary">
-                      {campaign.commission}%
+                    <span className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-military text-lime text-xs font-extrabold shadow-md ring-1 ring-lime/30">
+                      {campaign.commission}% off
                     </span>
                     {(() => {
                       const offer = getDiscountForBusiness(campaign.businessId);
