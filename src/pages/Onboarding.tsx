@@ -116,27 +116,42 @@ const Onboarding = () => {
         )}
 
         {/* Left image panel */}
-        <aside
-          className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-secondary"
-          aria-hidden="true"
-        >
+        <aside className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-secondary">
           <img
             src={onboardingHero}
-            alt=""
+            alt="Creator filming content at a hospitality venue"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/70 via-secondary/30 to-transparent" />
-          <div className="relative z-10 flex flex-col justify-between p-10 xl:p-14 text-primary-foreground w-full">
-            <div className="text-sm font-medium tracking-wide uppercase opacity-80">
-              TribeMint <span className="opacity-60">· by Ibloov</span>
+          {/* Stronger overlay for legibility — bottom-anchored gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/30" />
+          <div className="relative z-10 flex flex-col justify-between p-10 xl:p-14 w-full text-white">
+            <div className="inline-flex items-center gap-2 self-start rounded-full bg-black/50 backdrop-blur px-3 py-1.5 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              TribeMint <span className="opacity-70">· by Ibloov</span>
             </div>
-            <div className="space-y-4 max-w-md">
-              <h2 className="font-heading text-4xl xl:text-5xl font-bold leading-tight">
-                Where hospitality meets <span className="italic font-serif">influence</span>.
+            <div className="space-y-5 max-w-md">
+              <h2 className="font-heading text-4xl xl:text-5xl font-bold leading-[1.05] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+                The influencer marketplace for{" "}
+                <span className="italic font-serif text-primary">hospitality</span>.
               </h2>
-              <p className="text-sm xl:text-base opacity-80">
-                Join thousands of creators and venues turning real-world moments into recurring revenue.
+              <p className="text-base xl:text-lg leading-relaxed text-white/95 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">
+                Creators monetize their reach. Venues fill their seats. Every link, post and visit pays out.
               </p>
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                {[
+                  { k: "12K+", v: "Creators" },
+                  { k: "850+", v: "Venues" },
+                  { k: "$2.4M", v: "Paid out" },
+                ].map((s) => (
+                  <div
+                    key={s.v}
+                    className="rounded-xl bg-white/10 backdrop-blur-md ring-1 ring-white/15 px-3 py-2.5"
+                  >
+                    <p className="font-heading text-lg font-bold text-primary">{s.k}</p>
+                    <p className="text-[11px] uppercase tracking-wide text-white/80">{s.v}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </aside>
