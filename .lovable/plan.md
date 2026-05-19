@@ -1,115 +1,48 @@
-# Business-Controlled Discounts & Click Earnings — End-to-End
 
-Give business managers a real lever: they choose a **discount %** the creator can offer (e.g. 10% off a $50 gift card → buyer sees $45), set a **per-click payout (CPC)** for creators, and cap their exposure with a **discount budget**. Every creator-side surface reflects the discounted price + CPC, and every click/conversion debits the manager's budgets in real time.
+## Deliverable
 
----
+A full Product Manager spec PRD for TribeMint, delivered as three downloadable artifacts in `/mnt/documents/`:
 
-## 1. The data model (manager's control panel)
+- `TribeMint-PRD-v1.pdf`
+- `TribeMint-PRD-v1.docx`
+- `TribeMint-PRD-v1.md` (also rendered inline in chat)
 
-Extend `BizCampaign` with the manager's three levers + live spend:
+No application source code will be touched — this is a documentation-only deliverable.
 
-```text
-BizCampaign {
-  ...existing,
-  discountPercent: number,       // 0–50, what the buyer sees off
-  discountBudget: number,        // max $ the business will subsidize (discounts)
-  discountSpent: number,         // live-tracked
-  cpcRate: number,               // $ paid to creator per click (e.g. $0.05)
-  clickBudget: number,           // max $ for click payouts
-  clickSpent: number,            // live-tracked
-  payoutsPaused: boolean,        // auto-flip when a budget hits 0
-}
-```
+## PRD outline (19 sections)
 
-Same fields on the creator-facing `Campaign` (read-only mirror) so creators see the offer.
+1. Executive Summary — vision, positioning vs. Impact/Rakuten/CJ/ShareASale, OTAs, Shopify Collabs/TikTok Shop/Amazon Associates; business model (commission-only); north-star metric (a-GBV per active creator).
+2. Goals, Non-Goals, Success Criteria — 12-month targets, retention, payout latency, dispute rate.
+3. Personas — 3 creator, 3 business, 3 platform/admin.
+4. Glossary.
+5. System Overview & Architecture — services diagram (Identity/AuraLink, Offers, Tracking, Ledger, Gift Cards, Integrations Bus, Notifications) + recommended tech.
+6. Data Model — User, CreatorProfile, Business, Campaign, Link, Event, GiftCard, PayoutRun, LedgerEntry, IntegrationAccount.
+7. End-to-End User Flows — onboarding, campaign creation, click→conversion→payout, gift-card purchase (the 10-step flow), payouts management, disputes/refunds.
+8. Functional Requirements — user stories with acceptance criteria for Creator, Business, Admin.
+9. Non-Functional Requirements — performance, availability, security (SOC 2/OWASP), privacy (GDPR/CCPA/NDPR), accessibility (WCAG 2.1 AA), i18n, auditability.
+10. Interoperability with Other Affiliate Programs (deep dive) — adapter contract; per-partner sections for Booking.com / Expedia / Airbnb, Impact / Rakuten / CJ / ShareASale, Shopify Collabs / TikTok Shop / Amazon Associates; outbound publishing; conflict & precedence rules; tax/KYC; reliability SLOs.
+11. Analytics & Reporting — dashboards + CSV/PDF exports.
+12. Notifications — email, in-app toasts, push, outbound webhooks.
+13. Security & Privacy — AuraLink SSO, RBAC, `user_roles` + `has_role()` pattern, PCI scope.
+14. Rollout Plan — 6 phases over ~26 weeks.
+15. Risks & Mitigations — table.
+16. Open Questions.
+17. Appendix A — Sample API sketches.
+18. Appendix B — Event normalization schema.
+19. Appendix C — Settlement statement line items.
 
----
+## How it will be generated
 
-## 2. Manager UX — Business Dashboard
+1. Write the PRD content as a single Markdown file under `/mnt/documents/TribeMint-PRD-v1.md`.
+2. Convert to DOCX with `pandoc` (Arial body, headings styled, TOC enabled).
+3. Convert to PDF with `pandoc` + LaTeX (or Chromium fallback) at letter size, 1" margins.
+4. Visually QA every page of the PDF (render pages to images, inspect for overflow/typos/broken layout); fix and re-render until clean.
+5. Emit `<presentation-artifact>` tags for all three files plus the inline Markdown.
 
-**Create / Edit Campaign modal** gets a new "Offer & Payouts" section:
+## Notes
 
-- Discount % slider (0–50%) with live preview: "Original $50 → Buyer pays **$45**"
-- Discount budget input ($) with helper: "Covers ~111 redemptions at this rate"
-- CPC rate input ($/click), default $0.05
-- Click budget input ($) with helper: "Covers ~2,000 clicks"
-- Toggle: Pause payouts manually
+- No project source files will be modified.
+- Content is grounded in existing project memory (Ibloov ownership, commission-only model, Stripe Connect Express, gift-card flow already specified, dual-funnel design).
+- External integrations are described at the level of adapter contracts, OAuth/postback patterns, attribution precedence, settlement, and ToS guardrails — appropriate for a Full PM Spec depth.
 
-**Campaigns tab card** gains a "Manager Controls" strip:
-- Discount badge (e.g. "10% OFF")
-- Two budget bars: Discount spent / budget · Clicks spent / budget
-- Quick actions: Pause, Top-up budget (+$100 / +$500 / custom), Edit discount
-- Status pill auto-updates to "PAUSED — budget exhausted" when either budget hits 0
-
-**Overview stats** add two tiles: "Discount Spend" and "Click Spend" (live).
-
----
-
-## 3. Creator-side reflection
-
-Wherever a campaign/business is shown to creators, surface the offer:
-
-- **Campaigns list & BusinessDetail**: discount ribbon "10% OFF for your audience" + crossed-out original price next to discounted price (especially the Gift Card spotlight: $50 → ~~$50~~ **$45**).
-- **Generated link / QR**: includes the discount code visually ("Your audience saves 10% with `alex-tribe`").
-- **Dashboard link card**: shows the active CPC rate ("$0.05/click") and a small badge if payouts are paused so creators aren't surprised.
-
----
-
-## 4. Click-based earnings (the new earning model)
-
-Today the simulated tick only credits creators on conversions. Add CPC:
-
-- On every simulated click bump for a link, look up the campaign's `cpcRate` and credit `clickBump * cpcRate` to the creator's `earned` + `balance.available`, **and** debit the campaign's `clickSpent`.
-- On every conversion, in addition to commission, debit `discountSpent += originalPrice * discountPercent` (mirrors the subsidy the business is paying the buyer).
-- When `clickSpent >= clickBudget` → stop crediting clicks (link still tracks impressions, no $).
-- When `discountSpent >= discountBudget` → flip `payoutsPaused = true`, conversions stop, creator card shows "Offer paused".
-- Activity feed gets new event types: `💸 +$0.05 click payout from {biz}`, `⚠️ Discount budget exhausted on {campaign}`.
-
----
-
-## 5. End-to-end loop after this change
-
-```text
-Manager sets: 10% off, $500 discount budget, $0.05 CPC, $100 click budget
-   ↓
-Campaign appears to creators with "10% OFF · $0.05/click" badges
-   ↓
-Creator generates link / QR — buyer-facing price is auto-discounted
-   ↓
-Simulated clicks roll in:
-   • Creator earned += clicks × $0.05   (until click budget hits $100)
-   • Manager clickSpent ticks up live on dashboard
-   ↓
-Simulated conversions:
-   • Creator earned += sale × commission%
-   • Manager discountSpent += sale × 10%   (until $500 cap)
-   ↓
-When either budget exhausts → campaign auto-pauses, both sides notified
-   ↓
-Manager can top-up budget or change discount → ripples instantly to creators
-```
-
----
-
-## Technical notes
-
-- All logic stays in `AffiliateContext.tsx` (no backend). Add helpers: `topUpCampaignBudget(id, kind, amount)`, `setCampaignDiscount(id, pct)`, `setCampaignCPC(id, rate)`, `pauseCampaign(id)`.
-- The existing `setInterval` tick is the single place that mutates clicks/earnings — extend it to also handle CPC credit + budget debits + auto-pause.
-- New helper `getDiscountedPrice(original, campaign)` used by Gift Card spotlight, Campaigns cards, BusinessDetail, and link share dialogs.
-- Persisted via existing `STORAGE_KEY` so manager budgets survive refresh.
-- Defaults for existing seeded campaigns: 10% discount, $500 discount budget, $0.05 CPC, $100 click budget — so the demo is alive immediately.
-
----
-
-## Files touched
-
-- `src/contexts/AffiliateContext.tsx` — new fields, helpers, tick logic
-- `src/components/business/CreateCampaignModal.tsx` — Offer & Payouts section
-- `src/pages/BusinessOwnerDashboard.tsx` — manager controls strip + new stat tiles + edit modal fields
-- `src/data/sampleCampaigns.ts` — add discount/CPC defaults
-- `src/components/GiftCardSpotlight.tsx` — show discounted price
-- `src/pages/Campaigns.tsx` + `src/pages/BusinessDetail.tsx` — discount ribbon, CPC badge, paused state
-- `src/pages/Dashboard.tsx` + `src/components/CampaignAnalytics.tsx` — show CPC earnings split + paused indicator
-- `src/components/LinkQRDialog.tsx` — "your audience saves X%" line
-
-Approve to build, or tell me what to trim/change.
+Approve to generate the three artifacts.
