@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { User, Mail, Lock, Eye, EyeOff, Megaphone, Store, Check, ArrowRight, ArrowLeft, MapPin, Camera, Instagram, Twitter, Globe } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
@@ -13,13 +15,20 @@ type AuthMode = "signup" | "signin";
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { setCreatorProfile, setBusinessProfile } = useAffiliate();
+  const [searchParams] = useSearchParams();
+  const { setCreatorProfile, setBusinessProfile, setActiveRole, enableRole, accountsEnabled } = useAffiliate();
   const [role, setRole] = useState<Role>("creator");
   const [step, setStep] = useState(0); // 0 = role select, 1-3 = role-specific steps
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signup");
   const [auth, setAuth] = useState({ fullName: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+  // Preselect role from ?role= query (used by RoleSwitcher's "create other account" CTA)
+  useEffect(() => {
+    const r = searchParams.get("role");
+    if (r === "creator" || r === "business") setRole(r);
+  }, [searchParams]);
 
   // Creator state
   const [creatorData, setCreatorData] = useState({
@@ -82,6 +91,10 @@ const Onboarding = () => {
         logo: businessData.logo,
       });
     }
+    if (role) {
+      enableRole(role);
+      setActiveRole(role);
+    }
     toast({
       title: role === "creator" ? "Welcome to TribeMint! 🎉" : "Business registered! 🚀",
       description: role === "creator" ? "Start exploring campaigns and earning." : "Your business is ready for affiliates.",
@@ -117,7 +130,7 @@ const Onboarding = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+      <div className="min-h-screen bg-background flex flex-col md:flex-row">
         {/* Progress bar */}
         {step > 0 && (
           <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted">
@@ -131,7 +144,7 @@ const Onboarding = () => {
         )}
 
         {/* Left image panel */}
-        <aside className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-secondary">
+        <aside className="hidden md:flex md:w-[42%] xl:w-1/2 relative overflow-hidden bg-secondary min-h-screen">
           <img
             src={onboardingHero}
             alt="Creator filming content at a hospitality venue"
@@ -200,8 +213,8 @@ const Onboarding = () => {
                       <p className="text-xs font-semibold text-foreground mb-2">I'm joining as</p>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { id: "creator" as const, emoji: "📢", title: "Creator", sub: "Share & earn" },
-                          { id: "business" as const, emoji: "🏪", title: "Business", sub: "Get affiliates" },
+                          { id: "creator" as const, Icon: Megaphone, title: "Creator", sub: "Share & earn" },
+                          { id: "business" as const, Icon: Store, title: "Business", sub: "Get affiliates" },
                         ].map((r) => (
                           <button
                             key={r.id}
@@ -212,14 +225,17 @@ const Onboarding = () => {
                                 : "border-border bg-gradient-card hover:border-primary/30"
                             }`}
                           >
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${role === r.id ? "bg-primary/15" : "bg-muted"}`}>
-                              {r.emoji}
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${role === r.id ? "bg-primary/15 text-primary" : "bg-muted text-foreground"}`}>
+                              <r.Icon size={18} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-bold font-heading text-sm leading-tight">{r.title}</p>
                               <p className="text-[11px] text-muted-foreground">{r.sub}</p>
                             </div>
-                            {role === r.id && <span className="text-primary text-sm">✓</span>}
+                            {role === r.id && <Check size={16} className="text-primary" />}
+                            {role !== r.id && accountsEnabled[r.id] && (
+                              <span className="text-[10px] font-semibold text-muted-foreground uppercase">Linked</span>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -231,13 +247,13 @@ const Onboarding = () => {
                       <div>
                         <label className="text-xs font-semibold text-foreground">Full Name</label>
                         <div className="relative mt-1.5">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">👤</span>
+                          <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                           <input
                             value={auth.fullName}
                             onChange={(e) => setAuth({ ...auth, fullName: e.target.value })}
                             placeholder="Alex Thompson"
                             maxLength={60}
-                            className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            className="w-full pl-10 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                           />
                         </div>
                       </div>
@@ -245,34 +261,34 @@ const Onboarding = () => {
                     <div>
                       <label className="text-xs font-semibold text-foreground">Email</label>
                       <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">✉️</span>
+                        <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type="email"
                           value={auth.email}
                           onChange={(e) => setAuth({ ...auth, email: e.target.value })}
                           placeholder="you@email.com"
-                          className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-foreground">Password</label>
                       <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">🔒</span>
+                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type={showPassword ? "text" : "password"}
                           value={auth.password}
                           onChange={(e) => setAuth({ ...auth, password: e.target.value })}
                           placeholder="At least 6 characters"
-                          className="w-full pl-9 pr-10 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="w-full pl-10 pr-10 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((s) => !s)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                           aria-label="Toggle password visibility"
                         >
-                          {showPassword ? "🙈" : "👁️"}
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     </div>
@@ -300,7 +316,13 @@ const Onboarding = () => {
                     }}
                     className="w-full py-3 rounded-xl border border-border bg-background hover:bg-muted text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                   >
-                    <span className="text-base">🟢</span> Continue with Google
+                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.1V7.07H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.93l3.66-2.83z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83C6.71 7.31 9.14 5.38 12 5.38z"/>
+                    </svg>
+                    Continue with Google
                   </button>
 
                   <p className="text-center text-sm text-muted-foreground">
@@ -339,8 +361,8 @@ const Onboarding = () => {
                     <div>
                       <label className="text-xs text-muted-foreground font-medium">City</label>
                       <div className="relative mt-1">
-                        <span>📍</span>
-                        <input value={creatorData.city} onChange={(e) => setCreatorData({ ...creatorData, city: e.target.value })} placeholder="Lagos, Nigeria" className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                        <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input value={creatorData.city} onChange={(e) => setCreatorData({ ...creatorData, city: e.target.value })} placeholder="Lagos, Nigeria" className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                       </div>
                     </div>
                     <div>
@@ -385,13 +407,13 @@ const Onboarding = () => {
                   </div>
                   <div className="space-y-4 rounded-2xl bg-gradient-card border border-border p-6 shadow-card">
                     {[
-                      { key: "instagram" as const, emoji: "📸", label: "Instagram", placeholder: "@handle" },
-                      { key: "twitter" as const, emoji: "🐦", label: "Twitter / X", placeholder: "@handle" },
-                      { key: "website" as const, emoji: "🌐", label: "Website", placeholder: "yoursite.com" },
+                      { key: "instagram" as const, Icon: Instagram, label: "Instagram", placeholder: "@handle" },
+                      { key: "twitter" as const, Icon: Twitter, label: "Twitter / X", placeholder: "@handle" },
+                      { key: "website" as const, Icon: Globe, label: "Website", placeholder: "yoursite.com" },
                     ].map((s) => (
                       <div key={s.key} className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          <span>{s.emoji || "📌"}</span>
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-foreground">
+                          <s.Icon size={18} strokeWidth={2} />
                         </div>
                         <div className="flex-1">
                           <label className="text-xs text-muted-foreground font-medium">{s.label}</label>
@@ -426,7 +448,7 @@ const Onboarding = () => {
                         {businessData.logo}
                       </div>
                       <button className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
-                        <span>📷</span> Upload Logo
+                        <Camera size={14} /> Upload Logo
                       </button>
                     </div>
                     <div>

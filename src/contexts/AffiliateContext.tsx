@@ -210,6 +210,12 @@ interface AffiliateContextType {
   setCreatorProfile: (p: Partial<CreatorProfile>) => void;
   setBusinessProfile: (p: Partial<BusinessProfile>) => void;
 
+  // Multi-role account
+  activeRole: "creator" | "business";
+  accountsEnabled: { creator: boolean; business: boolean };
+  setActiveRole: (r: "creator" | "business") => void;
+  enableRole: (r: "creator" | "business") => void;
+
   // Campaigns (creator side reads merged list)
   allCampaigns: Campaign[];
   bizCampaigns: BizCampaign[];
@@ -361,6 +367,8 @@ interface PersistedState {
   giftCardProgram: IbloovGiftCardProgram;
   campaignApplications: CampaignApplication[];
   purchasedGiftCards: PurchasedGiftCard[];
+  activeRole: "creator" | "business";
+  accountsEnabled: { creator: boolean; business: boolean };
 }
 
 const defaultState: PersistedState = {
@@ -407,6 +415,8 @@ const defaultState: PersistedState = {
     { id: "app5", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Rina Shah", applicantUsername: "rinashah", applicantAvatar: "👩", applicantNiche: ["Luxury", "Travel"], applicantFollowers: 45000, appliedAt: "Apr 27, 2026", status: "rejected" },
   ],
   purchasedGiftCards: [],
+  activeRole: "creator",
+  accountsEnabled: { creator: true, business: true },
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
@@ -724,6 +734,21 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
 
   const setBusinessProfile = useCallback((p: Partial<BusinessProfile>) => {
     setState((prev) => ({ ...prev, businessProfile: { ...prev.businessProfile, ...p } }));
+  }, []);
+
+  const setActiveRole = useCallback((r: "creator" | "business") => {
+    setState((prev) => ({
+      ...prev,
+      activeRole: r,
+      accountsEnabled: { ...prev.accountsEnabled, [r]: true },
+    }));
+  }, []);
+
+  const enableRole = useCallback((r: "creator" | "business") => {
+    setState((prev) => ({
+      ...prev,
+      accountsEnabled: { ...prev.accountsEnabled, [r]: true },
+    }));
   }, []);
 
   const addBizCampaign = useCallback((c: Partial<BizCampaign> & { id: string; title: string; commission: number; description?: string; type?: string }) => {
@@ -1195,6 +1220,10 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
         badges,
         setCreatorProfile,
         setBusinessProfile,
+        activeRole: state.activeRole,
+        accountsEnabled: state.accountsEnabled,
+        setActiveRole,
+        enableRole,
         addBizCampaign,
         updateBizCampaign,
         deleteBizCampaign,
