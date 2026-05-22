@@ -361,6 +361,8 @@ interface PersistedState {
   giftCardProgram: IbloovGiftCardProgram;
   campaignApplications: CampaignApplication[];
   purchasedGiftCards: PurchasedGiftCard[];
+  activeRole: "creator" | "business";
+  accountsEnabled: { creator: boolean; business: boolean };
 }
 
 const defaultState: PersistedState = {
