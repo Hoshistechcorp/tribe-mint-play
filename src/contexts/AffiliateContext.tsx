@@ -210,6 +210,12 @@ interface AffiliateContextType {
   setCreatorProfile: (p: Partial<CreatorProfile>) => void;
   setBusinessProfile: (p: Partial<BusinessProfile>) => void;
 
+  // Multi-role account
+  activeRole: "creator" | "business";
+  accountsEnabled: { creator: boolean; business: boolean };
+  setActiveRole: (r: "creator" | "business") => void;
+  enableRole: (r: "creator" | "business") => void;
+
   // Campaigns (creator side reads merged list)
   allCampaigns: Campaign[];
   bizCampaigns: BizCampaign[];
