@@ -130,7 +130,7 @@ const Onboarding = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+      <div className="min-h-screen bg-background flex flex-col md:flex-row">
         {/* Progress bar */}
         {step > 0 && (
           <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted">
@@ -144,7 +144,7 @@ const Onboarding = () => {
         )}
 
         {/* Left image panel */}
-        <aside className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-secondary">
+        <aside className="hidden md:flex md:w-[42%] xl:w-1/2 relative overflow-hidden bg-secondary min-h-screen">
           <img
             src={onboardingHero}
             alt="Creator filming content at a hospitality venue"
