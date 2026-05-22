@@ -91,6 +91,10 @@ const Onboarding = () => {
         logo: businessData.logo,
       });
     }
+    if (role) {
+      enableRole(role);
+      setActiveRole(role);
+    }
     toast({
       title: role === "creator" ? "Welcome to TribeMint! 🎉" : "Business registered! 🚀",
       description: role === "creator" ? "Start exploring campaigns and earning." : "Your business is ready for affiliates.",
