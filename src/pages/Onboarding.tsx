@@ -9,13 +9,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import onboardingHero from "@/assets/onboarding-hero.jpg";
 
 type Role = "creator" | "business" | null;
+type AuthMode = "signup" | "signin";
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { setCreatorProfile, setBusinessProfile } = useAffiliate();
-  const [role, setRole] = useState<Role>(null);
+  const [role, setRole] = useState<Role>("creator");
   const [step, setStep] = useState(0); // 0 = role select, 1-3 = role-specific steps
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [mode, setMode] = useState<AuthMode>("signup");
+  const [auth, setAuth] = useState({ fullName: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Creator state
   const [creatorData, setCreatorData] = useState({
@@ -86,7 +90,18 @@ const Onboarding = () => {
   };
 
   const canProceed = () => {
-    if (step === 0) return !!role;
+    if (step === 0) {
+      if (mode === "signin") {
+        return !!auth.email.trim() && auth.password.length >= 6;
+      }
+      return (
+        !!role &&
+        auth.fullName.trim().length >= 2 &&
+        /\S+@\S+\.\S+/.test(auth.email) &&
+        auth.password.length >= 6 &&
+        acceptedTerms
+      );
+    }
     if (role === "creator") {
       if (step === 1) return creatorData.displayName.trim() && creatorData.username.trim();
       if (step === 2) return creatorData.niche.length > 0;
