@@ -736,6 +736,21 @@ export function AffiliateProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, businessProfile: { ...prev.businessProfile, ...p } }));
   }, []);
 
+  const setActiveRole = useCallback((r: "creator" | "business") => {
+    setState((prev) => ({
+      ...prev,
+      activeRole: r,
+      accountsEnabled: { ...prev.accountsEnabled, [r]: true },
+    }));
+  }, []);
+
+  const enableRole = useCallback((r: "creator" | "business") => {
+    setState((prev) => ({
+      ...prev,
+      accountsEnabled: { ...prev.accountsEnabled, [r]: true },
+    }));
+  }, []);
+
   const addBizCampaign = useCallback((c: Partial<BizCampaign> & { id: string; title: string; commission: number; description?: string; type?: string }) => {
     setState((prev) => {
       const fullCampaign: BizCampaign = {
