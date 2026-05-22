@@ -532,14 +532,31 @@ const Onboarding = () => {
                     toast({ title: "Please fill in required fields", variant: "destructive" });
                     return;
                   }
-                  if (step === 0) setStep(1);
+                  if (step === 0) {
+                    if (mode === "signin") {
+                      fireConfetti();
+                      toast({ title: "Welcome back! 👋", description: "Signed in successfully." });
+                      navigate("/dashboard");
+                      return;
+                    }
+                    // Signup: prefill from auth, then continue to role-specific setup
+                    if (role === "creator" && !creatorData.displayName) {
+                      setCreatorData((d) => ({ ...d, displayName: auth.fullName }));
+                    }
+                    if (role === "business" && !businessData.name) {
+                      setBusinessData((d) => ({ ...d, name: auth.fullName }));
+                    }
+                    setStep(1);
+                  }
                   else if (step < totalSteps) setStep(step + 1);
                   else handleFinish();
                 }}
                 disabled={!canProceed()}
                 className="px-6 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-mint flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {step === 0 ? "Get Started" : step === totalSteps ? "Finish 🎉" : "Continue"}
+                {step === 0
+                  ? (mode === "signin" ? "Sign In" : "Continue")
+                  : step === totalSteps ? "Finish 🎉" : "Continue"}
                 <span>→</span>
               </button>
             </div>
