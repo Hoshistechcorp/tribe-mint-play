@@ -213,8 +213,8 @@ const Onboarding = () => {
                       <p className="text-xs font-semibold text-foreground mb-2">I'm joining as</p>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { id: "creator" as const, emoji: "📢", title: "Creator", sub: "Share & earn" },
-                          { id: "business" as const, emoji: "🏪", title: "Business", sub: "Get affiliates" },
+                          { id: "creator" as const, Icon: Megaphone, title: "Creator", sub: "Share & earn" },
+                          { id: "business" as const, Icon: Store, title: "Business", sub: "Get affiliates" },
                         ].map((r) => (
                           <button
                             key={r.id}
@@ -225,14 +225,17 @@ const Onboarding = () => {
                                 : "border-border bg-gradient-card hover:border-primary/30"
                             }`}
                           >
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${role === r.id ? "bg-primary/15" : "bg-muted"}`}>
-                              {r.emoji}
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${role === r.id ? "bg-primary/15 text-primary" : "bg-muted text-foreground"}`}>
+                              <r.Icon size={18} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-bold font-heading text-sm leading-tight">{r.title}</p>
                               <p className="text-[11px] text-muted-foreground">{r.sub}</p>
                             </div>
-                            {role === r.id && <span className="text-primary text-sm">✓</span>}
+                            {role === r.id && <Check size={16} className="text-primary" />}
+                            {role !== r.id && accountsEnabled[r.id] && (
+                              <span className="text-[10px] font-semibold text-muted-foreground uppercase">Linked</span>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -244,13 +247,13 @@ const Onboarding = () => {
                       <div>
                         <label className="text-xs font-semibold text-foreground">Full Name</label>
                         <div className="relative mt-1.5">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">👤</span>
+                          <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                           <input
                             value={auth.fullName}
                             onChange={(e) => setAuth({ ...auth, fullName: e.target.value })}
                             placeholder="Alex Thompson"
                             maxLength={60}
-                            className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            className="w-full pl-10 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                           />
                         </div>
                       </div>
@@ -258,34 +261,34 @@ const Onboarding = () => {
                     <div>
                       <label className="text-xs font-semibold text-foreground">Email</label>
                       <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">✉️</span>
+                        <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type="email"
                           value={auth.email}
                           onChange={(e) => setAuth({ ...auth, email: e.target.value })}
                           placeholder="you@email.com"
-                          className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-foreground">Password</label>
                       <div className="relative mt-1.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">🔒</span>
+                        <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <input
                           type={showPassword ? "text" : "password"}
                           value={auth.password}
                           onChange={(e) => setAuth({ ...auth, password: e.target.value })}
                           placeholder="At least 6 characters"
-                          className="w-full pl-9 pr-10 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          className="w-full pl-10 pr-10 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((s) => !s)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                           aria-label="Toggle password visibility"
                         >
-                          {showPassword ? "🙈" : "👁️"}
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     </div>
@@ -313,7 +316,13 @@ const Onboarding = () => {
                     }}
                     className="w-full py-3 rounded-xl border border-border bg-background hover:bg-muted text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                   >
-                    <span className="text-base">🟢</span> Continue with Google
+                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.1V7.07H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.93l3.66-2.83z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83C6.71 7.31 9.14 5.38 12 5.38z"/>
+                    </svg>
+                    Continue with Google
                   </button>
 
                   <p className="text-center text-sm text-muted-foreground">
