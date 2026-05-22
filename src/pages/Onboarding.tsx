@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { User, Mail, Lock, Eye, EyeOff, Megaphone, Store, Check, ArrowRight, ArrowLeft, MapPin, Camera, Instagram, Twitter, Globe } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { fireConfetti } from "@/lib/confetti";
@@ -13,13 +15,20 @@ type AuthMode = "signup" | "signin";
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { setCreatorProfile, setBusinessProfile } = useAffiliate();
+  const [searchParams] = useSearchParams();
+  const { setCreatorProfile, setBusinessProfile, setActiveRole, enableRole, accountsEnabled } = useAffiliate();
   const [role, setRole] = useState<Role>("creator");
   const [step, setStep] = useState(0); // 0 = role select, 1-3 = role-specific steps
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signup");
   const [auth, setAuth] = useState({ fullName: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+  // Preselect role from ?role= query (used by RoleSwitcher's "create other account" CTA)
+  useEffect(() => {
+    const r = searchParams.get("role");
+    if (r === "creator" || r === "business") setRole(r);
+  }, [searchParams]);
 
   // Creator state
   const [creatorData, setCreatorData] = useState({
