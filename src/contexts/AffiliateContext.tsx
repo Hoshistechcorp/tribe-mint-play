@@ -409,6 +409,8 @@ const defaultState: PersistedState = {
     { id: "app5", campaignId: "c5", campaignTitle: "Honeymoon Package 💍", applicantName: "Rina Shah", applicantUsername: "rinashah", applicantAvatar: "👩", applicantNiche: ["Luxury", "Travel"], applicantFollowers: 45000, appliedAt: "Apr 27, 2026", status: "rejected" },
   ],
   purchasedGiftCards: [],
+  activeRole: "creator",
+  accountsEnabled: { creator: true, business: true },
 };
 
 export function AffiliateProvider({ children }: { children: ReactNode }) {
