@@ -6,6 +6,7 @@ import PageTransition from "@/components/PageTransition";
 import { toast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { useAffiliate } from "@/contexts/AffiliateContext";
+import RoleSwitcher from "@/components/RoleSwitcher";
 
 const CreatorProfile = () => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const CreatorProfile = () => {
             <div className="flex-1">
               <h1 className="font-heading font-bold text-lg">Settings</h1>
             </div>
+            <RoleSwitcher />
           </div>
         </div>
 
