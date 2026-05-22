@@ -182,52 +182,138 @@ const Onboarding = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="space-y-8 text-center"
+                  className="space-y-6"
                 >
                   <div>
-                    <h1 className="text-3xl font-bold font-heading mb-2">
-                      Welcome to <span className="text-gradient-mint">TribeMint</span> 🌿
+                    <h1 className="text-3xl sm:text-4xl font-bold font-heading tracking-tight">
+                      {mode === "signup" ? "Create your account" : "Welcome back"}
                     </h1>
-                    <p className="text-muted-foreground">How do you want to use TribeMint?</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {mode === "signup"
+                        ? "Join 12,000+ creators and venues already on TribeMint."
+                        : "Sign in to continue earning on TribeMint."}
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => setRole("creator")}
-                      className={`p-6 rounded-2xl border-2 transition-all text-left space-y-3 ${
-                        role === "creator"
-                          ? "border-primary bg-primary/10 shadow-mint"
-                          : "border-border bg-gradient-card hover:border-primary/30"
-                      }`}
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                         <span className="text-2xl">📢</span>
+                  {mode === "signup" && (
+                    <div>
+                      <p className="text-xs font-semibold text-foreground mb-2">I'm joining as</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { id: "creator" as const, emoji: "📢", title: "Creator", sub: "Share & earn" },
+                          { id: "business" as const, emoji: "🏪", title: "Business", sub: "Get affiliates" },
+                        ].map((r) => (
+                          <button
+                            key={r.id}
+                            onClick={() => setRole(r.id)}
+                            className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                              role === r.id
+                                ? "border-primary bg-primary/5 shadow-mint"
+                                : "border-border bg-gradient-card hover:border-primary/30"
+                            }`}
+                          >
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${role === r.id ? "bg-primary/15" : "bg-muted"}`}>
+                              {r.emoji}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold font-heading text-sm leading-tight">{r.title}</p>
+                              <p className="text-[11px] text-muted-foreground">{r.sub}</p>
+                            </div>
+                            {role === r.id && <span className="text-primary text-sm">✓</span>}
+                          </button>
+                        ))}
                       </div>
-                      <div>
-                        <p className="font-bold font-heading">Creator</p>
-                        <p className="text-xs text-muted-foreground">Share links, earn cash, level up</p>
-                      </div>
-                      {role === "creator" && <span>✓</span>}
-                    </button>
+                    </div>
+                  )}
 
-                    <button
-                      onClick={() => setRole("business")}
-                      className={`p-6 rounded-2xl border-2 transition-all text-left space-y-3 ${
-                        role === "business"
-                          ? "border-primary bg-primary/10 shadow-mint"
-                          : "border-border bg-gradient-card hover:border-primary/30"
-                      }`}
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
-                        <span>🏪</span>
-                      </div>
+                  <div className="space-y-4">
+                    {mode === "signup" && (
                       <div>
-                        <p className="font-bold font-heading">Business</p>
-                        <p className="text-xs text-muted-foreground">Get affiliates promoting you</p>
+                        <label className="text-xs font-semibold text-foreground">Full Name</label>
+                        <div className="relative mt-1.5">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">👤</span>
+                          <input
+                            value={auth.fullName}
+                            onChange={(e) => setAuth({ ...auth, fullName: e.target.value })}
+                            placeholder="Alex Thompson"
+                            maxLength={60}
+                            className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        </div>
                       </div>
-                      {role === "business" && <span>✓</span>}
-                    </button>
+                    )}
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Email</label>
+                      <div className="relative mt-1.5">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">✉️</span>
+                        <input
+                          type="email"
+                          value={auth.email}
+                          onChange={(e) => setAuth({ ...auth, email: e.target.value })}
+                          placeholder="you@email.com"
+                          className="w-full pl-9 pr-3 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-foreground">Password</label>
+                      <div className="relative mt-1.5">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">🔒</span>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={auth.password}
+                          onChange={(e) => setAuth({ ...auth, password: e.target.value })}
+                          placeholder="At least 6 characters"
+                          className="w-full pl-9 pr-10 py-3 rounded-xl bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((s) => !s)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm"
+                          aria-label="Toggle password visibility"
+                        >
+                          {showPassword ? "🙈" : "👁️"}
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
+                  {mode === "signup" && (
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <Checkbox
+                        checked={acceptedTerms}
+                        onCheckedChange={(v) => setAcceptedTerms(v === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs text-foreground/80 leading-relaxed">
+                        I agree to the{" "}
+                        <a href="#" className="text-primary underline underline-offset-2">Terms of Service</a>{" "}and{" "}
+                        <a href="#" className="text-primary underline underline-offset-2">Privacy Policy</a>.
+                      </span>
+                    </label>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast({ title: "Google sign-in", description: "Coming soon — this is a demo." });
+                    }}
+                    className="w-full py-3 rounded-xl border border-border bg-background hover:bg-muted text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <span className="text-base">🟢</span> Continue with Google
+                  </button>
+
+                  <p className="text-center text-sm text-muted-foreground">
+                    {mode === "signup" ? (
+                      <>Already have an account?{" "}
+                        <button onClick={() => setMode("signin")} className="font-bold text-foreground hover:text-primary">Sign in</button>
+                      </>
+                    ) : (
+                      <>New to TribeMint?{" "}
+                        <button onClick={() => setMode("signup")} className="font-bold text-foreground hover:text-primary">Create account</button>
+                      </>
+                    )}
+                  </p>
                 </motion.div>
               )}
 
