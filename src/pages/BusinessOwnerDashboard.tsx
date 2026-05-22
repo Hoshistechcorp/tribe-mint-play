@@ -862,14 +862,16 @@ const BusinessOwnerDashboard = () => {
                 <span className="text-border">|</span>
                 <h1 className="font-heading font-bold text-sm sm:text-base">Business Dashboard</h1>
               </div>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-3 sm:px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity shadow-mint focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                aria-label="Create new campaign"
-              >
-                ＋ New Campaign
-              </button>
-              <div className="ml-2"><RoleSwitcher /></div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-3 sm:px-4 py-2.5 bg-gradient-mint text-primary-foreground rounded-xl font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity shadow-mint focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  aria-label="Create new campaign"
+                >
+                  ＋ New Campaign
+                </button>
+                <RoleSwitcher />
+              </div>
             </div>
           </header>
 
