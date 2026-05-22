@@ -361,8 +361,8 @@ const Onboarding = () => {
                     <div>
                       <label className="text-xs text-muted-foreground font-medium">City</label>
                       <div className="relative mt-1">
-                        <span>📍</span>
-                        <input value={creatorData.city} onChange={(e) => setCreatorData({ ...creatorData, city: e.target.value })} placeholder="Lagos, Nigeria" className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                        <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input value={creatorData.city} onChange={(e) => setCreatorData({ ...creatorData, city: e.target.value })} placeholder="Lagos, Nigeria" className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                       </div>
                     </div>
                     <div>
@@ -407,13 +407,13 @@ const Onboarding = () => {
                   </div>
                   <div className="space-y-4 rounded-2xl bg-gradient-card border border-border p-6 shadow-card">
                     {[
-                      { key: "instagram" as const, emoji: "📸", label: "Instagram", placeholder: "@handle" },
-                      { key: "twitter" as const, emoji: "🐦", label: "Twitter / X", placeholder: "@handle" },
-                      { key: "website" as const, emoji: "🌐", label: "Website", placeholder: "yoursite.com" },
+                      { key: "instagram" as const, Icon: Instagram, label: "Instagram", placeholder: "@handle" },
+                      { key: "twitter" as const, Icon: Twitter, label: "Twitter / X", placeholder: "@handle" },
+                      { key: "website" as const, Icon: Globe, label: "Website", placeholder: "yoursite.com" },
                     ].map((s) => (
                       <div key={s.key} className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          <span>{s.emoji || "📌"}</span>
+                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-foreground">
+                          <s.Icon size={18} strokeWidth={2} />
                         </div>
                         <div className="flex-1">
                           <label className="text-xs text-muted-foreground font-medium">{s.label}</label>
@@ -448,7 +448,7 @@ const Onboarding = () => {
                         {businessData.logo}
                       </div>
                       <button className="px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
-                        <span>📷</span> Upload Logo
+                        <Camera size={14} /> Upload Logo
                       </button>
                     </div>
                     <div>
